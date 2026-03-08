@@ -196,8 +196,29 @@ const MessagesPage = () => {
     }
   }, [selectedConvo]);
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Max 10MB", variant: "destructive" });
+      return;
+    }
+    setMediaFile(file);
+    if (file.type.startsWith("image/") || file.type.startsWith("video/")) {
+      setMediaPreview(URL.createObjectURL(file));
+    } else {
+      setMediaPreview(null);
+    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const clearMedia = () => {
+    setMediaFile(null);
+    if (mediaPreview) { URL.revokeObjectURL(mediaPreview); setMediaPreview(null); }
+  };
+
   const handleSend = async () => {
-    if (!user || !selectedConvo || !newMessage.trim()) return;
+    if (!user || !selectedConvo || (!newMessage.trim() && !mediaFile)) return;
 
     // Block explicit/adult content links in DMs
     const urlsInMessage = newMessage.match(/https?:\/\/[^\s)]+/gi) || [];
@@ -208,10 +229,25 @@ const MessagesPage = () => {
 
     setSending(true);
     try {
+      let mediaUrl: string | null = null;
+
+      // Upload media if present
+      if (mediaFile) {
+        setUploadingMedia(true);
+        const ext = mediaFile.name.split(".").pop() || "bin";
+        const path = `dm/${selectedConvo.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("post-images").upload(path, mediaFile);
+        if (upErr) throw upErr;
+        const { data: urlData } = supabase.storage.from("post-images").getPublicUrl(path);
+        mediaUrl = urlData.publicUrl;
+        setUploadingMedia(false);
+      }
+
       const { error } = await supabase.from("direct_messages").insert({
         conversation_id: selectedConvo.id,
         sender_id: user.id,
-        content: newMessage.trim(),
+        content: newMessage.trim() || (mediaFile ? "📎 Media" : ""),
+        media_url: mediaUrl,
       } as any);
       if (error) throw error;
 
@@ -222,7 +258,9 @@ const MessagesPage = () => {
         .eq("id", selectedConvo.id);
 
       setNewMessage("");
+      clearMedia();
     } catch (e: any) {
+      setUploadingMedia(false);
       toast({ title: "Error", description: e.message, variant: "destructive" });
     } finally {
       setSending(false);
