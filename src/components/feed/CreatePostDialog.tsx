@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { Image, Link2, X, Eye, EyeOff, Users, Loader2 } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Image, Link2, X, Eye, EyeOff, Users, Loader2, BarChart3, Smile, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,10 +23,27 @@ import { useAnonymous } from "@/contexts/AnonymousContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
 import { useQueryClient } from "@tanstack/react-query";
+import type { PostDialogIntent } from "./CreatePostBar";
+
+const FEELING_OPTIONS = [
+  { emoji: "😊", label: "Happy" },
+  { emoji: "😢", label: "Sad" },
+  { emoji: "😡", label: "Angry" },
+  { emoji: "😂", label: "Amused" },
+  { emoji: "😍", label: "In Love" },
+  { emoji: "🤔", label: "Thoughtful" },
+  { emoji: "🙏", label: "Grateful" },
+  { emoji: "🔥", label: "Fired Up" },
+  { emoji: "😴", label: "Tired" },
+  { emoji: "🥳", label: "Celebrating" },
+  { emoji: "😤", label: "Frustrated" },
+  { emoji: "✊", label: "Determined" },
+];
 
 interface CreatePostDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  intent?: PostDialogIntent;
 }
 
 interface GroupOption {
@@ -34,11 +51,12 @@ interface GroupOption {
   name: string;
 }
 
-const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
+const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePostDialogProps) => {
   const { user, profile } = useAuth();
   const { isAnonymous: globalAnon, anonAlias } = useAnonymous();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const linkInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -51,8 +69,27 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
   const [groups, setGroups] = useState<GroupOption[]>([]);
   const [loadingGroups, setLoadingGroups] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [selectedFeeling, setSelectedFeeling] = useState<{ emoji: string; label: string } | null>(null);
+  const [showFeelingPicker, setShowFeelingPicker] = useState(false);
+  const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
+  const [showPoll, setShowPoll] = useState(false);
 
-  // Fetch user's groups when dialog opens
+  // Handle intents when dialog opens
+  useEffect(() => {
+    if (!open) return;
+    if (intent === "photo") {
+      setTimeout(() => fileInputRef.current?.click(), 300);
+    } else if (intent === "link") {
+      setShowLinkInput(true);
+      setTimeout(() => linkInputRef.current?.focus(), 300);
+    } else if (intent === "poll") {
+      setShowPoll(true);
+      setPollOptions(["", ""]);
+    } else if (intent === "feeling") {
+      setShowFeelingPicker(true);
+    }
+  }, [open, intent]);
+
   const fetchGroups = async () => {
     if (!user) return;
     setLoadingGroups(true);
@@ -90,6 +127,10 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
     setImagePreview(null);
     setSelectedGroup("none");
     setSubmitting(false);
+    setSelectedFeeling(null);
+    setShowFeelingPicker(false);
+    setPollOptions(["", ""]);
+    setShowPoll(false);
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,6 +150,20 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const addPollOption = () => {
+    if (pollOptions.length < 4) setPollOptions([...pollOptions, ""]);
+  };
+
+  const removePollOption = (index: number) => {
+    if (pollOptions.length > 2) setPollOptions(pollOptions.filter((_, i) => i !== index));
+  };
+
+  const updatePollOption = (index: number, value: string) => {
+    const updated = [...pollOptions];
+    updated[index] = value;
+    setPollOptions(updated);
+  };
+
   const handleSubmit = async () => {
     if (!user) return;
     if (!title.trim()) {
@@ -116,12 +171,19 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
       return;
     }
 
+    if (showPoll) {
+      const filledOptions = pollOptions.filter((o) => o.trim());
+      if (filledOptions.length < 2) {
+        toast.error("Please add at least 2 poll options");
+        return;
+      }
+    }
+
     setSubmitting(true);
 
     try {
       let imageUrl: string | null = null;
 
-      // Upload image if present
       if (imageFile) {
         const ext = imageFile.name.split(".").pop();
         const path = `${user.id}/${Date.now()}.${ext}`;
@@ -137,10 +199,20 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
         imageUrl = urlData.publicUrl;
       }
 
+      // Build content with feeling and poll info
+      let finalContent = content.trim();
+      if (selectedFeeling) {
+        finalContent = `${selectedFeeling.emoji} Feeling ${selectedFeeling.label}${finalContent ? `\n\n${finalContent}` : ""}`;
+      }
+      if (showPoll) {
+        const filledOptions = pollOptions.filter((o) => o.trim());
+        finalContent = `${finalContent ? `${finalContent}\n\n` : ""}📊 Poll:\n${filledOptions.map((o, i) => `${i + 1}. ${o}`).join("\n")}`;
+      }
+
       const { error } = await supabase.from("posts").insert({
         user_id: user.id,
         title: title.trim(),
-        content: content.trim() || null,
+        content: finalContent || null,
         image_url: imageUrl,
         link_url: linkUrl.trim() || null,
         is_anonymous: isAnonymous,
@@ -180,6 +252,9 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
           <div className="flex-1 min-w-0">
             <p className="font-display font-semibold text-sm truncate">
               {isAnonymous ? anonAlias : (profile?.display_name || "User")}
+              {selectedFeeling && (
+                <span className="text-muted-foreground font-normal"> — {selectedFeeling.emoji} Feeling {selectedFeeling.label}</span>
+              )}
             </p>
             <p className="text-xs text-muted-foreground">
               {isAnonymous ? "Anonymous identity" : `@${profile?.username}`}
@@ -224,6 +299,7 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
         {showLinkInput && (
           <div className="flex items-center gap-2">
             <Input
+              ref={linkInputRef}
               placeholder="https://..."
               value={linkUrl}
               onChange={(e) => setLinkUrl(e.target.value)}
@@ -232,6 +308,71 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
             <Button variant="ghost" size="icon" className="shrink-0 h-9 w-9" onClick={() => { setShowLinkInput(false); setLinkUrl(""); }}>
               <X className="h-4 w-4" />
             </Button>
+          </div>
+        )}
+
+        {/* Poll options */}
+        {showPoll && (
+          <div className="space-y-2 p-3 rounded-lg border border-border bg-muted/30">
+            <div className="flex items-center justify-between">
+              <Label className="text-xs font-display font-semibold text-foreground flex items-center gap-1.5">
+                <BarChart3 className="h-3.5 w-3.5 text-accent" /> Poll Options
+              </Label>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setShowPoll(false); setPollOptions(["", ""]); }}>
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+            {pollOptions.map((option, index) => (
+              <div key={index} className="flex items-center gap-2">
+                <Input
+                  placeholder={`Option ${index + 1}`}
+                  value={option}
+                  onChange={(e) => updatePollOption(index, e.target.value)}
+                  className="flex-1 h-9 text-sm"
+                  maxLength={100}
+                />
+                {pollOptions.length > 2 && (
+                  <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0 text-muted-foreground hover:text-destructive" onClick={() => removePollOption(index)}>
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                )}
+              </div>
+            ))}
+            {pollOptions.length < 4 && (
+              <Button variant="ghost" size="sm" className="text-xs text-primary gap-1" onClick={addPollOption}>
+                <Plus className="h-3.5 w-3.5" /> Add Option
+              </Button>
+            )}
+          </div>
+        )}
+
+        {/* Feeling picker */}
+        {showFeelingPicker && (
+          <div className="p-3 rounded-lg border border-border bg-muted/30">
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-xs font-display font-semibold text-foreground flex items-center gap-1.5">
+                <Smile className="h-3.5 w-3.5 text-kenya-gold" /> How are you feeling?
+              </Label>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => { setShowFeelingPicker(false); setSelectedFeeling(null); }}>
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5">
+              {FEELING_OPTIONS.map((feeling) => (
+                <button
+                  key={feeling.label}
+                  onClick={() => { setSelectedFeeling(feeling); setShowFeelingPicker(false); }}
+                  className={`flex flex-col items-center gap-0.5 p-2 rounded-lg text-center transition-colors ${
+                    selectedFeeling?.label === feeling.label
+                      ? "bg-primary/10 border border-primary/30"
+                      : "hover:bg-muted"
+                  }`}
+                >
+                  <span className="text-xl">{feeling.emoji}</span>
+                  <span className="text-[10px] text-muted-foreground font-display">{feeling.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
         )}
 
@@ -275,23 +416,21 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
               className="hidden"
               onChange={handleImageSelect}
             />
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-primary gap-1.5 rounded-full"
-              onClick={() => fileInputRef.current?.click()}
-            >
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary gap-1.5 rounded-full" onClick={() => fileInputRef.current?.click()}>
               <Image className="h-4 w-4 text-primary" />
-              <span className="text-xs font-display">Photo</span>
+              <span className="text-xs font-display hidden sm:inline">Photo</span>
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full"
-              onClick={() => setShowLinkInput(true)}
-            >
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full" onClick={() => setShowLinkInput(true)}>
               <Link2 className="h-4 w-4 text-secondary" />
-              <span className="text-xs font-display">Link</span>
+              <span className="text-xs font-display hidden sm:inline">Link</span>
+            </Button>
+            <Button variant="ghost" size="sm" className={`text-muted-foreground hover:text-accent gap-1.5 rounded-full ${showPoll ? "bg-accent/10 text-accent" : ""}`} onClick={() => setShowPoll(!showPoll)}>
+              <BarChart3 className="h-4 w-4 text-accent" />
+              <span className="text-xs font-display hidden sm:inline">Poll</span>
+            </Button>
+            <Button variant="ghost" size="sm" className={`text-muted-foreground hover:text-kenya-gold gap-1.5 rounded-full ${selectedFeeling ? "bg-kenya-gold/10 text-kenya-gold" : ""}`} onClick={() => setShowFeelingPicker(!showFeelingPicker)}>
+              <Smile className="h-4 w-4 text-kenya-gold" />
+              <span className="text-xs font-display hidden sm:inline">{selectedFeeling ? selectedFeeling.emoji : "Feeling"}</span>
             </Button>
           </div>
           <Button
