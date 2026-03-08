@@ -112,6 +112,7 @@ const LeftSidebar = () => {
           </div>
           <nav className="space-y-1">
             <SidebarItem icon={<ShieldCheck className="h-5 w-5" />} label="KYC Review" active={location.pathname === "/admin/kyc"} onClick={() => navigate("/admin/kyc")} />
+            <SidebarItem icon={<Flag className="h-5 w-5" />} label="Reports" active={location.pathname === "/admin/moderation"} onClick={() => navigate("/admin/moderation")} />
           </nav>
         </>
       )}
