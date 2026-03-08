@@ -152,7 +152,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <span
                 className="font-display font-semibold text-sm text-foreground cursor-pointer hover:underline"
                 onClick={(e) => { e.stopPropagation(); if (!post.isAnonymous && authorUsername) navigate(`/user/${authorUsername}`); }}
@@ -161,6 +161,9 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
               </span>
               {post.isVerified && !post.isAnonymous && (
                 <Shield className="h-3.5 w-3.5 text-primary fill-primary/20" />
+              )}
+              {post.feeling && (
+                <span className="text-xs text-muted-foreground">— {post.feeling}</span>
               )}
               <span className="text-muted-foreground text-xs">·</span>
               <span className="text-xs text-muted-foreground">{post.timeAgo}</span>
