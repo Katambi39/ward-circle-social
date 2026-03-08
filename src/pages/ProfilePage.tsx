@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { KENYA_COUNTIES, SAMPLE_WARDS } from "@/data/kenyaLocalities";
 import {
-  Shield, MapPin, Phone, CreditCard, Edit3, Save, X,
+  Shield, MapPin, Phone, CreditCard, Edit3, Save, X, Camera,
   CheckCircle2, Clock, AlertCircle, UserCircle, Mail,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -40,6 +40,8 @@ const ProfilePage = () => {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
@@ -108,6 +110,41 @@ const ProfilePage = () => {
     }
   };
 
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Max 5MB for avatars", variant: "destructive" });
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Invalid file", description: "Please upload an image", variant: "destructive" });
+      return;
+    }
+    setUploadingAvatar(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const filePath = `${user.id}/avatar.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true, contentType: file.type });
+      if (uploadError) throw uploadError;
+      const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(filePath);
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: urlData.publicUrl + "?t=" + Date.now() })
+        .eq("user_id", user.id);
+      if (updateError) throw updateError;
+      await refreshProfile();
+      toast({ title: "Avatar updated!" });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+    } finally {
+      setUploadingAvatar(false);
+      if (avatarInputRef.current) avatarInputRef.current.value = "";
+    }
+  };
+
   const handleCancel = () => {
     if (profile) {
       setDisplayName(profile.display_name || "");
@@ -147,9 +184,39 @@ const ProfilePage = () => {
           {/* Banner */}
           <div className="h-28 gradient-kenya relative">
             <div className="absolute -bottom-10 left-6">
-              <div className="h-20 w-20 rounded-2xl bg-card border-4 border-card flex items-center justify-center gradient-kenya text-primary-foreground font-display font-bold text-2xl shadow-elevated">
-                {profile.display_name?.[0]?.toUpperCase() || "U"}
-              </div>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
+              <button
+                onClick={() => avatarInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="relative group h-20 w-20 rounded-2xl bg-card border-4 border-card overflow-hidden shadow-elevated"
+              >
+                {profile.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="h-full w-full gradient-kenya flex items-center justify-center text-primary-foreground font-display font-bold text-2xl">
+                    {profile.display_name?.[0]?.toUpperCase() || "U"}
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-foreground/0 group-hover:bg-foreground/40 transition-colors flex items-center justify-center">
+                  <Camera className="h-5 w-5 text-background opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+                {uploadingAvatar && (
+                  <div className="absolute inset-0 bg-foreground/50 flex items-center justify-center">
+                    <div className="h-5 w-5 border-2 border-background border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </button>
+              {profile.verification_status === "verified" && (
+                <div className="absolute -bottom-0.5 -right-0.5 h-6 w-6 rounded-full bg-primary flex items-center justify-center border-2 border-card">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-primary-foreground" />
+                </div>
+              )}
             </div>
           </div>
 
