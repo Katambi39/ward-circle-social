@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDistanceToNow } from "date-fns";
 import SyncedLyrics from "./SyncedLyrics";
+import StoryReplyBar from "./StoryReplyBar";
+import StoryRepliesPanel from "./StoryRepliesPanel";
 
 interface StoryItem {
   id: string;
