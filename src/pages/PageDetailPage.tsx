@@ -13,9 +13,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import {
-  Store, CheckCircle2, MapPin, Users, Shield, UserPlus, UserMinus,
-  Star, Calendar, MessageSquare, BarChart3, Plus, Send, Clock,
-  Globe, Phone, Image, ArrowLeft, TrendingUp, ImagePlus, Video, Trash2,
+  ArrowBigUp, ArrowBigDown, MessageCircle, Shield, MapPin, Users, CheckCircle2, UserPlus, UserMinus,
+  Star, Calendar, BarChart3, Plus, Send, Clock,
+  Globe, Phone, Image, ArrowLeft, TrendingUp, ImagePlus, Video, Trash2, Reply,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PageAnalytics from "@/components/pages/PageAnalytics";
