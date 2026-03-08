@@ -357,7 +357,7 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
           </form>
 
           {/* Web results */}
-          <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
+          <div className="max-h-48 overflow-y-auto overflow-x-hidden space-y-1 pr-1">
             {webSearching ? (
               <div className="flex items-center justify-center gap-2 py-6">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
