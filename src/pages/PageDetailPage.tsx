@@ -13,15 +13,16 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import {
-  Store, CheckCircle2, MapPin, Users, Shield, UserPlus, UserMinus,
-  Star, Calendar, MessageSquare, BarChart3, Plus, Send, Clock,
-  Globe, Phone, Image, ArrowLeft, TrendingUp, ImagePlus, Video, Trash2,
+  Store, ArrowBigUp, ArrowBigDown, MessageCircle, MessageSquare, Shield, MapPin, Users, CheckCircle2, UserPlus, UserMinus,
+  Star, Calendar, BarChart3, Plus, Send, Clock,
+  Globe, Phone, Image, ArrowLeft, TrendingUp, ImagePlus, Video, Trash2, Reply,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PageAnalytics from "@/components/pages/PageAnalytics";
 import ReactionBar from "@/components/feed/ReactionBar";
 import StartChatButton from "@/components/messages/StartChatButton";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 import { format, formatDistanceToNow, isPast } from "date-fns";
 
 // Types
@@ -683,6 +684,7 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
   const [commentTexts, setCommentTexts] = useState<Record<string, string>>({});
   const [postComments, setPostComments] = useState<Record<string, any[]>>({});
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
+  const [replyingTo, setReplyingTo] = useState<Record<string, string | null>>({}); // postId -> parentCommentId
 
   const fetchPosts = async () => {
     const { data } = await (supabase
@@ -711,13 +713,22 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
     const userIds = [...new Set(comments.map((c: any) => c.user_id))];
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("user_id, display_name, avatar_url")
+      .select("user_id, display_name, avatar_url, verification_status")
       .in("user_id", userIds);
     const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
-    setPostComments((prev) => ({
-      ...prev,
-      [postId]: comments.map((c: any) => ({ ...c, profile: profileMap.get(c.user_id) })),
-    }));
+
+    // Build threaded comments
+    const enriched = comments.map((c: any) => ({ ...c, profile: profileMap.get(c.user_id), replies: [] as any[] }));
+    const topLevel: any[] = [];
+    const byId = new Map(enriched.map((c: any) => [c.id, c]));
+    for (const c of enriched) {
+      if (c.parent_id && byId.has(c.parent_id)) {
+        byId.get(c.parent_id).replies.push(c);
+      } else {
+        topLevel.push(c);
+      }
+    }
+    setPostComments((prev) => ({ ...prev, [postId]: topLevel }));
   };
 
   const toggleComments = (postId: string) => {
@@ -807,15 +818,18 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
   const handleComment = async (postId: string) => {
     const text = commentTexts[postId]?.trim();
     if (!text || !user) return;
+    const parentId = replyingTo[postId] || null;
     const { error } = await supabase.from("comments").insert({
       post_id: postId,
       user_id: user.id,
       content: text,
+      parent_id: parentId,
     });
     if (error) {
       showToast({ title: "Error", description: "Failed to add comment", variant: "destructive" });
     } else {
       setCommentTexts((prev) => ({ ...prev, [postId]: "" }));
+      setReplyingTo((prev) => ({ ...prev, [postId]: null }));
       fetchComments(postId);
       const post = posts.find((p) => p.id === postId);
       if (post) {
@@ -912,39 +926,85 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
             {expandedComments.has(post.id) && (
               <div className="mt-3 border-t border-border pt-3 space-y-3">
                 {(postComments[post.id] || []).map((comment: any) => (
-                  <div key={comment.id} className="flex gap-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage src={comment.profile?.avatar_url} />
-                      <AvatarFallback className="text-[10px] font-display">
-                        {(comment.profile?.display_name || "?")[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs font-display font-semibold text-foreground">
-                        {comment.profile?.display_name || "User"}
-                      </span>
-                      <p className="text-xs text-muted-foreground">{comment.content}</p>
-                    </div>
-                  </div>
+                  <PageComment
+                    key={comment.id}
+                    comment={comment}
+                    postId={post.id}
+                    depth={0}
+                    onReply={(commentId) => {
+                      setReplyingTo((prev) => ({ ...prev, [post.id]: commentId }));
+                    }}
+                  />
                 ))}
                 {user && (
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Write a comment..."
-                      value={commentTexts[post.id] || ""}
-                      onChange={(e) => setCommentTexts((prev) => ({ ...prev, [post.id]: e.target.value }))}
-                      onKeyDown={(e) => { if (e.key === "Enter") handleComment(post.id); }}
-                      className="h-8 text-xs rounded-full"
-                    />
-                    <Button size="icon" className="h-8 w-8 rounded-full shrink-0" onClick={() => handleComment(post.id)} disabled={!commentTexts[post.id]?.trim()}>
-                      <Send className="h-3 w-3" />
-                    </Button>
+                  <div className="space-y-1.5">
+                    {replyingTo[post.id] && (
+                      <div className="flex items-center gap-1.5 text-xs text-primary font-display">
+                        <span>Replying to a comment</span>
+                        <button onClick={() => setReplyingTo((prev) => ({ ...prev, [post.id]: null }))} className="text-muted-foreground hover:text-destructive">✕</button>
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder={replyingTo[post.id] ? "Write a reply..." : "Write a comment..."}
+                        value={commentTexts[post.id] || ""}
+                        onChange={(e) => setCommentTexts((prev) => ({ ...prev, [post.id]: e.target.value }))}
+                        onKeyDown={(e) => { if (e.key === "Enter") handleComment(post.id); }}
+                        className="h-8 text-xs rounded-full"
+                      />
+                      <Button size="icon" className="h-8 w-8 rounded-full shrink-0" onClick={() => handleComment(post.id)} disabled={!commentTexts[post.id]?.trim()}>
+                        <Send className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
             )}
           </motion.div>
         ))
+      )}
+    </div>
+  );
+};
+
+// Threaded comment component for page posts
+const PageComment = ({ comment, postId, depth, onReply }: { comment: any; postId: string; depth: number; onReply: (id: string) => void }) => {
+  const verified = comment.profile?.verification_status === "verified";
+  return (
+    <div className={cn(depth > 0 && "ml-6 border-l-2 border-primary/15 pl-3")}>
+      <div className="flex gap-2">
+        <Avatar className="h-6 w-6 shrink-0">
+          <AvatarImage src={comment.profile?.avatar_url} />
+          <AvatarFallback className="text-[10px] font-display">
+            {(comment.profile?.display_name || "?")[0]}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-display font-semibold text-foreground">
+              {comment.profile?.display_name || "User"}
+            </span>
+            {verified && <CheckCircle2 className="h-3 w-3 text-primary" />}
+            <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+              <Clock className="h-2.5 w-2.5" />
+              {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">{comment.content}</p>
+          <button
+            onClick={() => onReply(comment.id)}
+            className="text-[10px] text-muted-foreground font-display hover:text-primary mt-1 flex items-center gap-1"
+          >
+            <Reply className="h-3 w-3" /> Reply
+          </button>
+        </div>
+      </div>
+      {comment.replies && comment.replies.length > 0 && (
+        <div className="mt-2 space-y-2">
+          {comment.replies.map((reply: any) => (
+            <PageComment key={reply.id} comment={reply} postId={postId} depth={depth + 1} onReply={onReply} />
+          ))}
+        </div>
       )}
     </div>
   );
