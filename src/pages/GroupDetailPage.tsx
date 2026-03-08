@@ -330,7 +330,7 @@ const GroupDetailPage = () => {
               </div>
             ) : (
               posts.map((post, idx) => {
-                const isAdmin = membership?.role === "admin";
+                const canPin = membership?.role === "admin" || membership?.role === "moderator";
                 return (
                   <div key={post.id} className="relative">
                     {(post as any).is_pinned && (
@@ -339,7 +339,7 @@ const GroupDetailPage = () => {
                       </div>
                     )}
                     <PostCard dbPost={post} index={idx} />
-                    {isAdmin && (
+                    {canPin && (
                       <div className="absolute top-2 right-12">
                         <Button
                           variant="ghost"
