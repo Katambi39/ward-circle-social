@@ -817,15 +817,18 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
   const handleComment = async (postId: string) => {
     const text = commentTexts[postId]?.trim();
     if (!text || !user) return;
+    const parentId = replyingTo[postId] || null;
     const { error } = await supabase.from("comments").insert({
       post_id: postId,
       user_id: user.id,
       content: text,
+      parent_id: parentId,
     });
     if (error) {
       showToast({ title: "Error", description: "Failed to add comment", variant: "destructive" });
     } else {
       setCommentTexts((prev) => ({ ...prev, [postId]: "" }));
+      setReplyingTo((prev) => ({ ...prev, [postId]: null }));
       fetchComments(postId);
       const post = posts.find((p) => p.id === postId);
       if (post) {
