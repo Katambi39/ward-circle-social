@@ -188,6 +188,42 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
     return () => window.removeEventListener("keydown", handler);
   }, [goNext, goPrev, onClose]);
 
+  const handleDelete = async () => {
+    if (!currentStory || !user) return;
+    const confirmed = window.confirm("Delete this story?");
+    if (!confirmed) return;
+    
+    setPaused(true);
+    const { error } = await supabase.from("stories").delete().eq("id", currentStory.id);
+    if (error) {
+      toast.error("Failed to delete story");
+      setPaused(false);
+      return;
+    }
+    toast.success("Story deleted");
+    onDeleted?.();
+    
+    // Navigate away from deleted story
+    if (currentGroup.stories.length <= 1) {
+      // Last story in group
+      if (groups.length <= 1) {
+        onClose();
+      } else if (groupIndex < groups.length - 1) {
+        setGroupIndex(groupIndex);
+        setStoryIndex(0);
+        setProgress(0);
+        elapsedRef.current = 0;
+      } else {
+        setGroupIndex(groupIndex - 1);
+        setStoryIndex(0);
+        setProgress(0);
+        elapsedRef.current = 0;
+      }
+    } else {
+      goNext();
+    }
+  };
+
   if (!currentGroup || !currentStory) return null;
 
   return (
