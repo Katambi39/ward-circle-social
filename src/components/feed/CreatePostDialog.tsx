@@ -53,7 +53,7 @@ interface GroupOption {
   name: string;
 }
 
-const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId }: CreatePostDialogProps) => {
+const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, groupName }: CreatePostDialogProps) => {
   const { user, profile } = useAuth();
   const { isAnonymous: globalAnon, anonAlias } = useAnonymous();
   const queryClient = useQueryClient();
