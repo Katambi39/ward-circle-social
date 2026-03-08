@@ -79,6 +79,7 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
         caption: caption.trim() || null,
         music_track_id: selectedTrack?.id || null,
         music_start_time: 0,
+        visibility,
       } as any);
 
       if (error) throw error;
