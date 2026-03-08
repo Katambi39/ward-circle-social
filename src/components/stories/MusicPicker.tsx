@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Music, Play, Pause, Check, X, Search, Globe, Library, Loader2, Heart } from "lucide-react";
+import { Music, Play, Pause, Check, X, Search, Globe, Library, Loader2, Heart, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,7 +44,7 @@ const GENRE_LABELS: Record<string, string> = {
 };
 
 const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
-  const [tab, setTab] = useState<"library" | "web">("library");
+  const [tab, setTab] = useState<"library" | "web" | "upload">("library");
   const [tracks, setTracks] = useState<MusicTrack[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -59,7 +59,8 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
   const [webSearched, setWebSearched] = useState(false);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [savingId, setSavingId] = useState<string | null>(null);
-
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     supabase
       .from("music_tracks")
@@ -211,7 +212,7 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
         <button
           onClick={() => setTab("library")}
           className={cn(
-            "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-display transition-colors",
+            "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-display transition-colors",
             tab === "library"
               ? "bg-primary text-primary-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
@@ -223,14 +224,26 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
         <button
           onClick={() => setTab("web")}
           className={cn(
-            "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-display transition-colors",
+            "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-display transition-colors",
             tab === "web"
               ? "bg-primary text-primary-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
           <Globe className="h-3.5 w-3.5" />
-          Search Web
+          Web
+        </button>
+        <button
+          onClick={() => setTab("upload")}
+          className={cn(
+            "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-display transition-colors",
+            tab === "upload"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Upload className="h-3.5 w-3.5" />
+          Upload
         </button>
       </div>
 
@@ -450,8 +463,91 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
           </div>
 
           <p className="text-[9px] text-muted-foreground/50 text-center font-display">
-            30-second previews via Deezer 🎵 &amp; iTunes 🍎
+            30-second previews via Deezer 🎵 &amp; iTunes 🍎 — Upload your own for full tracks
           </p>
+        </>
+      )}
+
+      {tab === "upload" && (
+        <>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="audio/*"
+            className="hidden"
+            onChange={async (e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              if (file.size > 20 * 1024 * 1024) {
+                toast.error("File too large (max 20MB)");
+                return;
+              }
+              setUploading(true);
+              try {
+                // Get audio duration
+                const audioDuration = await new Promise<number>((resolve) => {
+                  const audio = new Audio();
+                  audio.addEventListener("loadedmetadata", () => {
+                    resolve(audio.duration && isFinite(audio.duration) ? Math.round(audio.duration) : 30);
+                  });
+                  audio.addEventListener("error", () => resolve(30));
+                  audio.src = URL.createObjectURL(file);
+                });
+
+                const ext = file.name.split(".").pop() || "mp3";
+                const path = `uploads/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+                const { error: uploadErr } = await supabase.storage.from("music-tracks").upload(path, file);
+                if (uploadErr) throw uploadErr;
+
+                const { data: urlData } = supabase.storage.from("music-tracks").getPublicUrl(path);
+                const title = file.name.replace(/\.[^.]+$/, "").replace(/[-_]/g, " ");
+
+                const { data: inserted, error: insertErr } = await supabase.from("music_tracks").insert({
+                  title,
+                  artist: "My Upload",
+                  audio_url: urlData.publicUrl,
+                  duration_seconds: audioDuration,
+                  genre: "saved",
+                  lyrics: [],
+                }).select("*").single();
+
+                if (insertErr || !inserted) throw insertErr || new Error("Insert failed");
+
+                // Refresh library and select
+                const { data } = await supabase.from("music_tracks").select("*").order("title");
+                setTracks((data as any as MusicTrack[]) || []);
+                onSelect(inserted as any as MusicTrack);
+                toast.success(`"${title}" uploaded! Pick your 30s segment.`);
+              } catch (err: any) {
+                toast.error("Upload failed: " + (err.message || "Unknown error"));
+              } finally {
+                setUploading(false);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }
+            }}
+          />
+          <div
+            onClick={() => !uploading && fileInputRef.current?.click()}
+            className={cn(
+              "border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-colors",
+              uploading && "opacity-60 pointer-events-none"
+            )}
+          >
+            {uploading ? (
+              <Loader2 className="h-8 w-8 text-primary mx-auto mb-2 animate-spin" />
+            ) : (
+              <Upload className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+            )}
+            <p className="text-sm font-display font-semibold text-foreground mb-1">
+              {uploading ? "Uploading..." : "Upload your music"}
+            </p>
+            <p className="text-xs text-muted-foreground">
+              MP3, AAC, WAV — up to 20MB
+            </p>
+            <p className="text-[10px] text-muted-foreground/60 mt-2">
+              Upload full songs to choose any 30-second segment
+            </p>
+          </div>
         </>
       )}
 
