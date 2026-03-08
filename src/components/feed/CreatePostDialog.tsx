@@ -259,6 +259,27 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
         return;
       }
 
+      // Check link safety if a link is provided
+      if (linkUrl.trim()) {
+        const linkResult = await checkLinkSafety(linkUrl.trim());
+        if (linkResult.level === "danger") {
+          toast.error(
+            <div className="flex items-start gap-2">
+              <ShieldAlert className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+              <div>
+                <p className="font-display font-semibold">Suspicious link blocked</p>
+                <p className="text-xs mt-0.5">{linkResult.reason}. Please remove or replace the link.</p>
+              </div>
+            </div>
+          );
+          setSubmitting(false);
+          return;
+        }
+        if (linkResult.level === "warning") {
+          toast.warning("The link you added could not be fully verified. It will be shown with a warning badge.");
+        }
+      }
+
       let imageUrl: string | null = null;
       let videoUrl: string | null = null;
 
