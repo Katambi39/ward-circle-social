@@ -117,7 +117,7 @@ const StoryBar = () => {
         <div className="flex items-center gap-3">
           {/* Add story button / My story */}
           <button
-            onClick={() => (myStories ? openViewer(0) : setCreateOpen(true))}
+            onClick={() => setCreateOpen(true)}
             className="flex flex-col items-center gap-1 shrink-0 w-16"
           >
             <div className="relative">
