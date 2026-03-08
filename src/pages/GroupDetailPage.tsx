@@ -329,9 +329,36 @@ const GroupDetailPage = () => {
                 </p>
               </div>
             ) : (
-              posts.map((post, idx) => (
-                <PostCard key={post.id} dbPost={post} index={idx} />
-              ))
+              posts.map((post, idx) => {
+                const isAdmin = membership?.role === "admin";
+                return (
+                  <div key={post.id} className="relative">
+                    {(post as any).is_pinned && (
+                      <div className="flex items-center gap-1 text-xs text-primary font-display font-semibold px-4 pt-2">
+                        <Pin className="h-3 w-3" /> Pinned
+                      </div>
+                    )}
+                    <PostCard dbPost={post} index={idx} />
+                    {isAdmin && (
+                      <div className="absolute top-2 right-12">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 rounded-full text-muted-foreground hover:text-primary"
+                          title={(post as any).is_pinned ? "Unpin post" : "Pin post"}
+                          onClick={async () => {
+                            const newPinned = !(post as any).is_pinned;
+                            await supabase.from("posts").update({ is_pinned: newPinned } as any).eq("id", post.id);
+                            queryClient.invalidateQueries({ queryKey: ["group-posts", group!.id] });
+                          }}
+                        >
+                          <Pin className={`h-3.5 w-3.5 ${(post as any).is_pinned ? "text-primary fill-primary" : ""}`} />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             )}
           </TabsContent>
 
