@@ -712,13 +712,22 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
     const userIds = [...new Set(comments.map((c: any) => c.user_id))];
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("user_id, display_name, avatar_url")
+      .select("user_id, display_name, avatar_url, verification_status")
       .in("user_id", userIds);
     const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
-    setPostComments((prev) => ({
-      ...prev,
-      [postId]: comments.map((c: any) => ({ ...c, profile: profileMap.get(c.user_id) })),
-    }));
+
+    // Build threaded comments
+    const enriched = comments.map((c: any) => ({ ...c, profile: profileMap.get(c.user_id), replies: [] as any[] }));
+    const topLevel: any[] = [];
+    const byId = new Map(enriched.map((c: any) => [c.id, c]));
+    for (const c of enriched) {
+      if (c.parent_id && byId.has(c.parent_id)) {
+        byId.get(c.parent_id).replies.push(c);
+      } else {
+        topLevel.push(c);
+      }
+    }
+    setPostComments((prev) => ({ ...prev, [postId]: topLevel }));
   };
 
   const toggleComments = (postId: string) => {
