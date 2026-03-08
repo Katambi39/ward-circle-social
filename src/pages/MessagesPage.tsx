@@ -110,6 +110,13 @@ const MessagesPage = () => {
 
     setConversations(enriched);
     setLoading(false);
+
+    // Auto-select conversation from query param
+    const convoParam = searchParams.get("convo");
+    if (convoParam) {
+      const match = enriched.find((c: any) => c.id === convoParam);
+      if (match) setSelectedConvo(match);
+    }
   };
 
   useEffect(() => {
