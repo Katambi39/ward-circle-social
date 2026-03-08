@@ -368,6 +368,14 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
             </div>
           </div>
         )}
+
+        {/* View count for own stories */}
+        {user && currentGroup.user_id === user.id && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5">
+            <Eye className="h-3.5 w-3.5 text-white/80" />
+            <span className="text-xs text-white/80 font-display">{viewCount} {viewCount === 1 ? 'view' : 'views'}</span>
+          </div>
+        )}
       </div>
     </div>
   );
