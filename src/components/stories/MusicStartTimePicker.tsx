@@ -68,11 +68,10 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
 
   // Use actual audio duration if detected, otherwise fall back to metadata
   const effectiveDuration = actualDuration ?? durationSeconds;
-  const clipLength = Math.min(30, effectiveDuration);
-  const maxStart = Math.max(0, effectiveDuration - clipLength);
+  const maxStart = Math.max(0, effectiveDuration - 5);
 
-  // If the audio is ≤30s (e.g., Deezer preview), don't show the picker
-  if (effectiveDuration <= 31) {
+  // Don't show if audio is too short to adjust
+  if (effectiveDuration <= 6) {
     return null;
   }
 
@@ -80,10 +79,10 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
     <div className="bg-muted/50 rounded-xl p-3 space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-[10px] font-display text-muted-foreground uppercase tracking-wider">
-          Song start point
+          Start point
         </p>
         <span className="text-[10px] font-display text-muted-foreground">
-          {formatTime(startTime)} – {formatTime(Math.min(startTime + clipLength, effectiveDuration))}
+          {formatTime(startTime)} / {formatTime(effectiveDuration)}
         </span>
       </div>
       <div className="flex items-center gap-2">
@@ -110,7 +109,7 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
         />
       </div>
       <p className="text-[9px] text-muted-foreground/60 text-center font-display">
-        Story will play {Math.round(clipLength)}s starting from this point
+        Drag to choose where the music starts playing
       </p>
     </div>
   );
