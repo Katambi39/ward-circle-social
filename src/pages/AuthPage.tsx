@@ -99,10 +99,15 @@ const AuthPage = () => {
                     <Label htmlFor="signin-email">Email</Label>
                     <Input id="signin-email" type="email" placeholder="you@example.com" value={signInEmail} onChange={e => setSignInEmail(e.target.value)} required />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-password">Password</Label>
-                    <Input id="signin-password" type="password" placeholder="••••••••" value={signInPassword} onChange={e => setSignInPassword(e.target.value)} required />
-                  </div>
+                   <div className="space-y-2">
+                     <div className="flex items-center justify-between">
+                       <Label htmlFor="signin-password">Password</Label>
+                       <button type="button" onClick={() => navigate("/reset-password")} className="text-xs text-primary font-display hover:underline">
+                         Forgot password?
+                       </button>
+                     </div>
+                     <Input id="signin-password" type="password" placeholder="••••••••" value={signInPassword} onChange={e => setSignInPassword(e.target.value)} required />
+                   </div>
                   <Button type="submit" className="w-full gradient-kenya text-primary-foreground font-display" disabled={loading}>
                     {loading ? "Signing in..." : "Sign In"}
                   </Button>

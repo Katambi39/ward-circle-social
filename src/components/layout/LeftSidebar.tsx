@@ -52,9 +52,9 @@ const LeftSidebar = () => {
         </h3>
       </div>
       <nav className="space-y-1">
-        <SidebarItem icon={<MapPin className="h-5 w-5" />} label="My Ward" />
-        <SidebarItem icon={<Building2 className="h-5 w-5" />} label="My County" />
-        <SidebarItem icon={<Flame className="h-5 w-5" />} label="Nationwide" />
+        <SidebarItem icon={<MapPin className="h-5 w-5" />} label="My Ward" active={location.search.includes("filter=locality")} onClick={() => navigate("/?filter=locality")} />
+        <SidebarItem icon={<Building2 className="h-5 w-5" />} label="My County" active={location.search.includes("filter=locality")} onClick={() => navigate("/?filter=locality")} />
+        <SidebarItem icon={<Flame className="h-5 w-5" />} label="Nationwide" active={location.pathname === "/trending"} onClick={() => navigate("/trending")} />
       </nav>
 
       <div className="mt-6 mb-2 px-3">

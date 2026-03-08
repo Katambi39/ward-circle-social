@@ -1,12 +1,12 @@
-import { Home, Users, Eye, UserCircle, Compass, MessageSquare } from "lucide-react";
+import { Home, Users, Eye, UserCircle, Compass, MessageSquare, ShoppingBag } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: Compass, label: "Discover", path: "/discover" },
+  { icon: ShoppingBag, label: "Market", path: "/marketplace" },
   { icon: MessageSquare, label: "Messages", path: "/messages" },
-  { icon: Eye, label: "Siri", path: "/toboa-siri" },
   { icon: UserCircle, label: "Profile", path: "/profile" },
 ];
 
@@ -18,7 +18,7 @@ const BottomNav = () => {
     <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-t border-border md:hidden">
       <div className="flex items-center justify-around h-14 px-2">
         {navItems.map((item) => {
-          const active = location.pathname === item.path;
+          const active = location.pathname === item.path || (item.path !== "/" && location.pathname.startsWith(item.path));
           return (
             <button
               key={item.path}
