@@ -130,6 +130,8 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
     setShowLinkInput(false);
     setImageFile(null);
     setImagePreview(null);
+    setVideoFile(null);
+    setVideoPreview(null);
     setSelectedGroup("none");
     setSubmitting(false);
     setSelectedFeeling(null);
