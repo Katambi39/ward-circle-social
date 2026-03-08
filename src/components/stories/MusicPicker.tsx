@@ -124,6 +124,7 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
       cover_url: wt.cover_url,
       duration_seconds: wt.duration_seconds,
       genre: "saved",
+      lyrics: wt.lyrics && wt.lyrics.length > 0 ? wt.lyrics : [],
     }).select("*").single();
 
     if (error || !inserted) {
