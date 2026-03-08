@@ -208,7 +208,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
                 </DropdownMenuItem>
               )}
               {!isOwnPost && (
-                <DropdownMenuItem onClick={() => toast.info("Report submitted")}>
+                <DropdownMenuItem onClick={() => setReportOpen(true)}>
                   <Flag className="h-4 w-4 mr-2" />
                   Report
                 </DropdownMenuItem>
