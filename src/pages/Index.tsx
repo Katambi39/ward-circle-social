@@ -1,14 +1,24 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
 import CreatePostBar from "@/components/feed/CreatePostBar";
 import FeedTabs from "@/components/feed/FeedTabs";
 import PostCard from "@/components/feed/PostCard";
 import { usePosts } from "@/hooks/usePosts";
-import { Loader2 } from "lucide-react";
+import { Loader2, Shield } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { posts, loading, loadingMore, hasMore, loadMore } = usePosts();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const verifiedOnly = searchParams.get("filter") === "verified";
   const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const filteredPosts = useMemo(
+    () => verifiedOnly ? posts.filter((p) => p.author_verified) : posts,
+    [posts, verifiedOnly]
+  );
 
   // Infinite scroll via IntersectionObserver
   const handleObserver = useCallback(

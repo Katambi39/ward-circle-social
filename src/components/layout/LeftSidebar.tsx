@@ -64,7 +64,7 @@ const LeftSidebar = () => {
       </div>
       <nav className="space-y-1">
         <SidebarItem icon={<Eye className="h-5 w-5" />} label="Toboa Siri" badge="Anon" active={location.pathname === "/toboa-siri"} onClick={() => navigate("/toboa-siri")} />
-        <SidebarItem icon={<Shield className="h-5 w-5" />} label="Verified Only" />
+        <SidebarItem icon={<Shield className="h-5 w-5" />} label="Verified Only" badge="✓" active={location.pathname === "/" && location.search.includes("filter=verified")} onClick={() => navigate("/?filter=verified")} />
       </nav>
     </aside>
   );
