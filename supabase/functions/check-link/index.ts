@@ -15,6 +15,27 @@ const TRUSTED_DOMAINS = new Set([
   'whatsapp.com', 'tiktok.com', 'telegram.org', 'signal.org',
 ]);
 
+// Known explicit/adult content domains (blocked entirely)
+const EXPLICIT_DOMAINS = new Set([
+  'pornhub.com', 'xvideos.com', 'xnxx.com', 'xhamster.com', 'redtube.com',
+  'youporn.com', 'tube8.com', 'spankbang.com', 'eporner.com', 'hqporner.com',
+  'txxx.com', 'porn.com', 'brazzers.com', 'bangbros.com', 'naughtyamerica.com',
+  'realitykings.com', 'mofos.com', 'fakehub.com', 'onlyfans.com', 'fansly.com',
+  'stripchat.com', 'chaturbate.com', 'livejasmin.com', 'bongacams.com',
+  'cam4.com', 'camsoda.com', 'myfreecams.com', 'flirt4free.com',
+  'rule34.xxx', 'e-hentai.org', 'nhentai.net', 'hanime.tv',
+  'motherless.com', 'literotica.com', 'imagefap.com',
+]);
+
+// Explicit content URL patterns
+const EXPLICIT_PATTERNS = [
+  /\bporn\b/i, /\bxxx\b/i, /\bhentai\b/i, /\bnude[s]?\b/i,
+  /\bnsfw\b/i, /\badult[\-_]?(content|video|film)/i,
+  /\bsex[\-_]?(video|tape|cam)/i, /\bescort[s]?\b/i,
+  /\berotic[a]?\b/i, /\bfetish\b/i, /\bcamgirl/i, /\blivecam/i,
+  /\bonlyfan/i, /\bfansly/i,
+];
+
 // Known suspicious patterns
 const SUSPICIOUS_PATTERNS = [
   /bit\.ly/i, /tinyurl\.com/i, /t\.co/i, /goo\.gl/i, /ow\.ly/i,
@@ -36,8 +57,19 @@ function getDomain(url: string): string {
   }
 }
 
-function quickCheck(url: string): { level: 'safe' | 'warning' | 'danger'; reason: string } | null {
+function quickCheck(url: string): { level: 'safe' | 'warning' | 'danger'; reason: string; blocked?: boolean } | null {
   const domain = getDomain(url);
+  
+  // Block explicit/adult content
+  if (EXPLICIT_DOMAINS.has(domain)) {
+    return { level: 'danger', reason: 'Explicit/adult content is not allowed on this platform', blocked: true };
+  }
+  
+  for (const pattern of EXPLICIT_PATTERNS) {
+    if (pattern.test(url) || pattern.test(domain)) {
+      return { level: 'danger', reason: 'Link appears to contain explicit/adult content', blocked: true };
+    }
+  }
   
   if (TRUSTED_DOMAINS.has(domain)) {
     return { level: 'safe', reason: 'Well-known trusted website' };
@@ -98,7 +130,8 @@ Deno.serve(async (req) => {
           {
             role: 'system',
             content: `You are a URL safety analyzer. Analyze the given URL and determine if it's safe, suspicious, or dangerous.
-Consider: domain reputation, URL structure, potential phishing indicators, known scam patterns, URL shorteners, and social engineering tricks.
+Consider: domain reputation, URL structure, potential phishing indicators, known scam patterns, URL shorteners, social engineering tricks, and explicit/adult/pornographic content.
+URLs pointing to adult content, pornography, escort services, or explicit material should ALWAYS be marked as "danger".
 You must respond using the provided tool.`
           },
           {

@@ -19,6 +19,37 @@ interface LinkSafetyResult {
   level: SafetyLevel;
   reason: string;
   domain: string;
+  blocked?: boolean;
+}
+
+// Client-side explicit content detection (fast, no network)
+const EXPLICIT_DOMAINS = new Set([
+  'pornhub.com', 'xvideos.com', 'xnxx.com', 'xhamster.com', 'redtube.com',
+  'youporn.com', 'tube8.com', 'spankbang.com', 'eporner.com', 'hqporner.com',
+  'txxx.com', 'porn.com', 'brazzers.com', 'bangbros.com', 'naughtyamerica.com',
+  'realitykings.com', 'onlyfans.com', 'fansly.com', 'stripchat.com',
+  'chaturbate.com', 'livejasmin.com', 'bongacams.com', 'cam4.com',
+  'rule34.xxx', 'e-hentai.org', 'nhentai.net', 'motherless.com',
+]);
+
+const EXPLICIT_PATTERNS = [
+  /\bporn\b/i, /\bxxx\b/i, /\bhentai\b/i, /\bnude[s]?\b/i,
+  /\bnsfw\b/i, /\badult[\-_]?(content|video|film)/i,
+  /\bsex[\-_]?(video|tape|cam)/i, /\bescort[s]?\b/i,
+  /\bcamgirl/i, /\bonlyfan/i,
+];
+
+function getDomain(url: string): string {
+  try {
+    const parts = new URL(url).hostname.split('.');
+    return parts.slice(-2).join('.');
+  } catch { return ''; }
+}
+
+export function isExplicitLink(url: string): boolean {
+  const domain = getDomain(url);
+  if (EXPLICIT_DOMAINS.has(domain)) return true;
+  return EXPLICIT_PATTERNS.some(p => p.test(url) || p.test(domain));
 }
 
 // Cache results to avoid repeated checks

@@ -26,7 +26,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { PostDialogIntent } from "./CreatePostBar";
 import { moderateContent } from "@/lib/moderation";
 import EmojiPicker from "./EmojiPicker";
-import { checkLinkSafety } from "./LinkSafety";
+import { checkLinkSafety, isExplicitLink } from "./LinkSafety";
 
 const FEELING_OPTIONS = [
   { emoji: "😊", label: "Happy" },
@@ -252,6 +252,24 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
             <div>
               <p className="font-display font-semibold">Content blocked</p>
               <p className="text-xs mt-0.5">{modResult.reason}</p>
+            </div>
+          </div>
+        );
+        setSubmitting(false);
+        return;
+      }
+
+      // Check for explicit links in content text
+      const urlsInContent = content.match(/https?:\/\/[^\s)]+/gi) || [];
+      const allUrls = [...urlsInContent, ...(linkUrl.trim() ? [linkUrl.trim()] : [])];
+      const explicitUrl = allUrls.find(u => isExplicitLink(u));
+      if (explicitUrl) {
+        toast.error(
+          <div className="flex items-start gap-2">
+            <ShieldAlert className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+            <div>
+              <p className="font-display font-semibold">Explicit link blocked</p>
+              <p className="text-xs mt-0.5">Sharing explicit or adult content links is not allowed on this platform.</p>
             </div>
           </div>
         );
