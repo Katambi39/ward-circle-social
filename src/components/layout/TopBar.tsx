@@ -1,4 +1,4 @@
-import { Search, Bell, MessageCircle, Plus, LogOut, UserCircle, CheckCircle2, Moon, Sun } from "lucide-react";
+import { Search, Bell, MessageCircle, Plus, LogOut, UserCircle, CheckCircle2, Moon, Sun, Settings } from "lucide-react";
 import IdentityToggle from "@/components/feed/IdentityToggle";
 import NotificationsDropdown from "@/components/notifications/NotificationsDropdown";
 import { Button } from "@/components/ui/button";
@@ -109,6 +109,9 @@ const TopBar = () => {
               </div>
               <DropdownMenuItem onClick={() => navigate("/profile")} className="gap-2 cursor-pointer">
                 <UserCircle className="h-4 w-4" /> My Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/settings")} className="gap-2 cursor-pointer">
+                <Settings className="h-4 w-4" /> Settings
               </DropdownMenuItem>
               <ThemeDropdownItem />
               <DropdownMenuItem onClick={handleSignOut} className="text-accent gap-2 cursor-pointer">
