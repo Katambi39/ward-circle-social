@@ -123,38 +123,38 @@ export function usePosts() {
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "posts" },
         async (payload) => {
-          // Fetch the full post with joined data
-          const { data } = await supabase
-            .from("posts")
-            .select(`
-              *,
-              profiles!posts_user_id_fkey (display_name, username, avatar_url, verification_status),
-              groups (name, location)
-            `)
-            .eq("id", payload.new.id)
-            .single();
+          const newId = (payload.new as any).id;
+          const userId = (payload.new as any).user_id;
+          
+          // Fetch post and profile separately
+          const [postRes, profileRes] = await Promise.all([
+            supabase.from("posts").select("*, groups (name, location)").eq("id", newId).single(),
+            supabase.from("profiles").select("display_name, username, avatar_url, verification_status").eq("user_id", userId).single(),
+          ]);
 
-          if (data) {
+          if (postRes.data) {
+            const p = postRes.data as any;
+            const profile = profileRes.data as any;
             const newPost: DbPost = {
-              id: data.id,
-              user_id: data.user_id,
-              title: data.title,
-              content: data.content,
-              image_url: data.image_url,
-              link_url: data.link_url,
-              is_anonymous: data.is_anonymous,
-              upvotes: data.upvotes,
-              downvotes: data.downvotes,
-              comment_count: data.comment_count,
-              share_count: data.share_count,
-              group_id: data.group_id,
-              created_at: data.created_at,
-              author_name: (data as any).profiles?.display_name || "User",
-              author_username: (data as any).profiles?.username || "user",
-              author_avatar: (data as any).profiles?.avatar_url,
-              author_verified: (data as any).profiles?.verification_status === "verified",
-              group_name: (data as any).groups?.name || null,
-              group_location: (data as any).groups?.location || null,
+              id: p.id,
+              user_id: p.user_id,
+              title: p.title,
+              content: p.content,
+              image_url: p.image_url,
+              link_url: p.link_url,
+              is_anonymous: p.is_anonymous,
+              upvotes: p.upvotes,
+              downvotes: p.downvotes,
+              comment_count: p.comment_count,
+              share_count: p.share_count,
+              group_id: p.group_id,
+              created_at: p.created_at,
+              author_name: profile?.display_name || "User",
+              author_username: profile?.username || "user",
+              author_avatar: profile?.avatar_url || null,
+              author_verified: profile?.verification_status === "verified",
+              group_name: p.groups?.name || null,
+              group_location: p.groups?.location || null,
             };
             setPosts((prev) => [newPost, ...prev]);
           }
