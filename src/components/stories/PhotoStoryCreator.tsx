@@ -30,6 +30,7 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
   const [showFonts, setShowFonts] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
+  const [musicStartTime, setMusicStartTime] = useState(0);
   const [visibility, setVisibility] = useState<"public" | "friends_only">("public");
   const [submitting, setSubmitting] = useState(false);
 
