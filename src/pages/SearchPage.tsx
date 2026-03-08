@@ -236,6 +236,23 @@ const SearchPage = () => {
   );
 };
 
+const Highlight = ({ text, query }: { text: string; query: string }) => {
+  if (!query.trim() || !text) return <>{text}</>;
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
+  const parts = text.split(regex);
+  return (
+    <>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <mark key={i} className="bg-primary/20 text-foreground rounded-sm px-0.5">{part}</mark>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
+  );
+};
+
 const ResultCard = ({ children, index, onClick }: { children: React.ReactNode; index: number; onClick: () => void }) => (
   <motion.button
     initial={{ opacity: 0, y: 6 }}
