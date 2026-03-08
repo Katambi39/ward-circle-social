@@ -8,7 +8,7 @@ interface StoryBackgroundPickerProps {
 
 const StoryBackgroundPicker = ({ selected, onSelect }: StoryBackgroundPickerProps) => {
   return (
-    <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+    <div className="flex flex-wrap gap-2">
       {STORY_BACKGROUNDS.map((bg) => (
         <button
           key={bg.id}
