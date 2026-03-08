@@ -15,7 +15,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         <div className="hidden md:block">
           <LeftSidebar />
         </div>
-        <main className="flex-1 min-w-0 pb-16 md:pb-0">
+        <main className="flex-1 min-w-0 pb-16 md:pb-0 overflow-x-hidden">
           {children}
         </main>
         <div className="hidden lg:block">
