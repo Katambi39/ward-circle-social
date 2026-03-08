@@ -35,7 +35,7 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); else onOpenChange(o); }}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="font-display">
             {mode === "choose" ? "Create Story" : mode === "photo" ? "Photo Story" : "Text Story"}

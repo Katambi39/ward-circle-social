@@ -182,11 +182,6 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
             </div>
           )}
 
-          {/* Music picker */}
-          {showMusic && (
-            <MusicPicker selectedTrack={selectedTrack} onSelect={setSelectedTrack} />
-          )}
-
           {/* Selected track badge */}
           {selectedTrack && !showMusic && (
             <div className="flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5">
@@ -195,7 +190,7 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
             </div>
           )}
 
-          {/* Music start time picker */}
+          {/* Music start time picker (kept above picker so it doesn't get lost off-screen) */}
           {selectedTrack && (
             <MusicStartTimePicker
               audioUrl={selectedTrack.audio_url}
@@ -203,6 +198,11 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
               startTime={musicStartTime}
               onStartTimeChange={setMusicStartTime}
             />
+          )}
+
+          {/* Music picker */}
+          {showMusic && (
+            <MusicPicker selectedTrack={selectedTrack} onSelect={handleTrackSelect} />
           )}
 
 
