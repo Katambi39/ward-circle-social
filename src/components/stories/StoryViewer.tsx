@@ -66,6 +66,54 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose }: StoryViewerProps) =
       .then(() => {});
   }, [currentStory?.id]);
 
+  // Load music track
+  useEffect(() => {
+    const trackId = currentStory?.music_track_id;
+    if (!trackId) {
+      setMusicTrack(null);
+      musicAudioRef.current?.pause();
+      musicAudioRef.current = null;
+      return;
+    }
+    supabase.from("music_tracks").select("*").eq("id", trackId).single()
+      .then(({ data }) => {
+        if (data) setMusicTrack(data as any);
+      });
+  }, [currentStory?.music_track_id]);
+
+  // Play/pause music
+  useEffect(() => {
+    if (!musicTrack) return;
+    musicAudioRef.current?.pause();
+    const audio = new Audio(musicTrack.audio_url);
+    audio.currentTime = currentStory?.music_start_time || 0;
+    audio.loop = true;
+    audio.volume = 0.6;
+    musicAudioRef.current = audio;
+
+    const updateTime = () => setMusicTime(audio.currentTime);
+    audio.addEventListener("timeupdate", updateTime);
+
+    if (!paused) audio.play().catch(() => {});
+
+    return () => {
+      audio.removeEventListener("timeupdate", updateTime);
+      audio.pause();
+    };
+  }, [musicTrack?.id, groupIndex, storyIndex]);
+
+  // Sync pause state with music
+  useEffect(() => {
+    if (!musicAudioRef.current) return;
+    if (paused) musicAudioRef.current.pause();
+    else musicAudioRef.current.play().catch(() => {});
+  }, [paused]);
+
+  // Cleanup music on unmount
+  useEffect(() => {
+    return () => { musicAudioRef.current?.pause(); };
+  }, []);
+
   const goNext = useCallback(() => {
     if (storyIndex < currentGroup.stories.length - 1) {
       setStoryIndex((i) => i + 1);
