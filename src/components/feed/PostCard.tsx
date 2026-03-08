@@ -37,6 +37,7 @@ export interface PostData {
   shares: number;
   isVerified: boolean;
   isAnonymous?: boolean;
+  feeling?: string;
 }
 
 interface PostCardProps {
