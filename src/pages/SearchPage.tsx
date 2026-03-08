@@ -218,7 +218,7 @@ const SearchPage = () => {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-display font-bold text-sm text-foreground truncate">{l.title}</p>
+                      <p className="font-display font-bold text-sm text-foreground truncate"><Highlight text={l.title} query={debouncedQuery} /></p>
                       <p className="font-display text-sm font-bold text-primary">{formatPrice(l.price)}</p>
                       <div className="flex items-center gap-3 mt-0.5 text-[10px] text-muted-foreground">
                         <span className="flex items-center gap-0.5"><Eye className="h-3 w-3" /> {l.view_count}</span>
