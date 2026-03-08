@@ -390,6 +390,25 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
                       <span className="text-[9px] text-muted-foreground/60 font-display">No preview</span>
                     )}
 
+                    {/* Save to library button */}
+                    <button
+                      onClick={(e) => saveToLibrary(wt, e)}
+                      disabled={savedIds.has(wt.id) || savingId === wt.id}
+                      className={cn(
+                        "h-7 w-7 rounded-full flex items-center justify-center shrink-0 transition-colors",
+                        savedIds.has(wt.id)
+                          ? "bg-primary/10 text-primary"
+                          : "bg-muted hover:bg-primary/10 text-muted-foreground hover:text-primary"
+                      )}
+                      title={savedIds.has(wt.id) ? "Saved to library" : "Save to library"}
+                    >
+                      {savingId === wt.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Heart className={cn("h-3.5 w-3.5", savedIds.has(wt.id) && "fill-current")} />
+                      )}
+                    </button>
+
                     {isSelected && <Check className="h-4 w-4 text-primary shrink-0" />}
                   </div>
                 );
