@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { DbPost } from "@/hooks/usePosts";
 import {
-  ArrowLeft, ArrowBigUp, ArrowBigDown, MessageCircle, Shield, MapPin, CheckCircle2, Send, Loader2, Clock,
+  ArrowLeft, ArrowBigUp, ArrowBigDown, MessageCircle, Shield, MapPin, CheckCircle2, Send, Loader2, Clock, Trash2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
