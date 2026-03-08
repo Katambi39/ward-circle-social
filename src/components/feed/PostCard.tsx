@@ -55,7 +55,7 @@ const PostCard = ({ post: legacyPost, dbPost, index }: PostCardProps) => {
   
   if (!post) return null;
 
-  return <PostCardInner post={post} index={index} />;
+  return <PostCardInner post={post} postId={dbPost?.id || post.id} authorUsername={dbPost?.author_username} index={index} />;
 };
 
 const PostCardInner = ({ post, index }: { post: PostData; index: number }) => {
