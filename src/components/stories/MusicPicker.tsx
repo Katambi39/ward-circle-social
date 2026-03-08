@@ -108,7 +108,6 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
   };
 
   const selectWebTrack = (wt: WebTrack) => {
-    // Convert web track to MusicTrack format for compatibility
     const asTrack: MusicTrack = {
       id: wt.id,
       title: wt.title,
@@ -120,6 +119,30 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
       lyrics: [],
     };
     onSelect(selectedTrack?.id === wt.id ? null : asTrack);
+  };
+
+  const saveToLibrary = async (wt: WebTrack, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (savedIds.has(wt.id) || savingId === wt.id) return;
+    setSavingId(wt.id);
+    const { error } = await supabase.from("music_tracks").insert({
+      title: wt.title,
+      artist: wt.artist,
+      audio_url: wt.preview_url,
+      cover_url: wt.cover_url,
+      duration_seconds: wt.duration_seconds,
+      genre: "saved",
+    });
+    setSavingId(null);
+    if (error) {
+      toast.error("Failed to save track");
+      return;
+    }
+    setSavedIds((prev) => new Set(prev).add(wt.id));
+    // Refresh library
+    const { data } = await supabase.from("music_tracks").select("*").order("title");
+    setTracks((data as any as MusicTrack[]) || []);
+    toast.success(`"${wt.title}" saved to library!`);
   };
 
   const genres = [...new Set(tracks.map((t) => t.genre))];
