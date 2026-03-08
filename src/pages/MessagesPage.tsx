@@ -10,8 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   MessageSquare, Send, ArrowLeft, CheckCircle2, Shield, Search,
-  Circle,
+  Circle, ShieldAlert,
 } from "lucide-react";
+import { isExplicitLink } from "@/components/feed/LinkSafety";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow, isToday, isYesterday } from "date-fns";
 
@@ -191,6 +192,14 @@ const MessagesPage = () => {
 
   const handleSend = async () => {
     if (!user || !selectedConvo || !newMessage.trim()) return;
+
+    // Block explicit/adult content links in DMs
+    const urlsInMessage = newMessage.match(/https?:\/\/[^\s)]+/gi) || [];
+    if (urlsInMessage.some(u => isExplicitLink(u))) {
+      toast({ title: "Blocked", description: "Explicit or adult content links are not allowed.", variant: "destructive" });
+      return;
+    }
+
     setSending(true);
     try {
       const { error } = await supabase.from("direct_messages").insert({
