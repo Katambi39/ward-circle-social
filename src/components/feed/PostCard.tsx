@@ -126,8 +126,11 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
 
   if (deleted) return null;
 
-  // Strip poll text from content for display (shown as PostPollDisplay instead)
-  const displayContent = post.content?.replace(/📊 Poll:\n[\s\S]*$/, "").trim();
+  // Strip poll text and old feeling prefix from content for display
+  const displayContent = post.content
+    ?.replace(/📊 Poll:\n[\s\S]*$/, "")
+    ?.replace(/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]+ Feeling \w+\n*/u, "")
+    ?.trim();
 
   return (
     <motion.article
