@@ -50,6 +50,7 @@ const App = () => (
               <Route path="/verify-identity" element={<ProtectedRoute><VerifyIdentityPage /></ProtectedRoute>} />
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/groups" element={<ProtectedRoute><GroupsPage /></ProtectedRoute>} />
+              <Route path="/groups/:slug" element={<ProtectedRoute><GroupDetailPage /></ProtectedRoute>} />
               <Route path="/discover" element={<ProtectedRoute><DiscoverPage /></ProtectedRoute>} />
               <Route path="/trending" element={<ProtectedRoute><TrendingPage /></ProtectedRoute>} />
               <Route path="/toboa-siri" element={<ProtectedRoute><ToboaSiriPage /></ProtectedRoute>} />
