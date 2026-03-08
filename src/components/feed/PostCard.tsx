@@ -89,6 +89,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
   const [deleted, setDeleted] = useState(false);
   const [repostOpen, setRepostOpen] = useState(false);
   const [repostCount, setRepostCount] = useState(0);
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     supabase
