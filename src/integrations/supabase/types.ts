@@ -1177,6 +1177,41 @@ export type Database = {
           },
         ]
       }
+      story_replies: {
+        Row: {
+          content: string | null
+          created_at: string
+          id: string
+          reply_type: string
+          sender_id: string
+          story_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          reply_type?: string
+          sender_id: string
+          story_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          id?: string
+          reply_type?: string
+          sender_id?: string
+          story_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "story_replies_story_id_fkey"
+            columns: ["story_id"]
+            isOneToOne: false
+            referencedRelation: "stories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       story_views: {
         Row: {
           id: string
