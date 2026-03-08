@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X, ChevronLeft, ChevronRight, Eye, Pause, Play, Music, Trash2, ChevronUp, Send } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Eye, Pause, Play, Music, Trash2, ChevronUp, Send, Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -64,10 +64,17 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
   const [viewers, setViewers] = useState<Array<{ viewer_id: string; viewed_at: string; display_name: string; avatar_url: string | null; username: string }>>([]);
   const [showViewers, setShowViewers] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
+  const [lyricsOffset, setLyricsOffset] = useState(30);
+  const [savingLyricsOffset, setSavingLyricsOffset] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
   const currentGroup = groups[groupIndex];
   const currentStory = currentGroup?.stories[storyIndex];
+
+  useEffect(() => {
+    const rawOffset = (currentStory as any)?.lyrics_offset;
+    setLyricsOffset(Number.isFinite(rawOffset) ? Number(rawOffset) : 30);
+  }, [currentStory?.id]);
 
   // Record view
   useEffect(() => {
@@ -283,6 +290,23 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
     }
   };
 
+  const saveLyricsOffset = async () => {
+    if (!currentStory || !user || currentGroup.user_id !== user.id) return;
+    setSavingLyricsOffset(true);
+    const { error } = await supabase
+      .from("stories")
+      .update({ lyrics_offset: lyricsOffset } as any)
+      .eq("id", currentStory.id)
+      .eq("user_id", user.id);
+
+    setSavingLyricsOffset(false);
+    if (error) {
+      toast.error("Failed to save lyrics sync");
+      return;
+    }
+    toast.success("Lyrics sync saved");
+  };
+
   if (!currentGroup || !currentStory) return null;
 
   return (
@@ -392,7 +416,7 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
             lyrics={musicTrack.lyrics as any[]}
             currentTime={musicTime}
             isPlaying={!paused}
-            timeOffset={(currentStory as any)?.lyrics_offset ?? 30}
+            timeOffset={lyricsOffset}
           />
         )}
 
@@ -417,6 +441,31 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
             <Music className="h-3 w-3 text-white/60 animate-pulse shrink-0" />
           </div>
         )}
+
+        {user && currentGroup.user_id === user.id && musicTrack?.lyrics?.length ? (
+          <div className="absolute top-24 right-2 z-40 flex items-center gap-1.5 bg-black/45 backdrop-blur-sm rounded-full px-2 py-1 border border-white/10">
+            <button
+              onClick={() => setLyricsOffset((prev) => Math.max(-120, prev - 2))}
+              className="text-[10px] text-white/80 px-1.5 py-0.5 rounded hover:bg-white/10 font-display"
+            >
+              -2s
+            </button>
+            <span className="text-[10px] text-white/70 font-display min-w-[38px] text-center">{lyricsOffset}s</span>
+            <button
+              onClick={() => setLyricsOffset((prev) => Math.min(120, prev + 2))}
+              className="text-[10px] text-white/80 px-1.5 py-0.5 rounded hover:bg-white/10 font-display"
+            >
+              +2s
+            </button>
+            <button
+              onClick={saveLyricsOffset}
+              disabled={savingLyricsOffset}
+              className="text-[10px] text-white px-2 py-0.5 rounded bg-white/15 hover:bg-white/25 disabled:opacity-60 font-display"
+            >
+              {savingLyricsOffset ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save"}
+            </button>
+          </div>
+        ) : null}
 
         {/* Caption */}
         {currentStory.caption && !musicTrack?.lyrics?.length && (
