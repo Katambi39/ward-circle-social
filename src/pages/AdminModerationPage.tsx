@@ -170,9 +170,14 @@ const AdminModerationPage = () => {
   }
 
   const filtered = flags.filter((f) => {
-    if (activeTab === "all") return true;
-    return f.status === activeTab;
+    if (activeTab !== "all" && f.status !== activeTab) return false;
+    if (severityFilter !== "all" && f.severity !== severityFilter) return false;
+    if (typeFilter !== "all" && f.content_type !== typeFilter) return false;
+    return true;
   });
+
+  // Get unique content types from data
+  const contentTypes = [...new Set(flags.map((f) => f.content_type))].sort();
 
   const counts = {
     pending: flags.filter((f) => f.status === "pending").length,
