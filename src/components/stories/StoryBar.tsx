@@ -45,7 +45,38 @@ const StoryBar = () => {
       return;
     }
 
-    const userIds = [...new Set(stories.map((s) => s.user_id))];
+    // Get connections for current user to filter friends-only stories
+    let friendIds: Set<string> = new Set();
+    if (user) {
+      const { data: conns } = await supabase
+        .from("connections")
+        .select("follower_id, following_id")
+        .or(`follower_id.eq.${user.id},following_id.eq.${user.id}`);
+      if (conns) {
+        // Mutual connections: both follow each other
+        const followingSet = new Set(conns.filter(c => c.follower_id === user.id).map(c => c.following_id));
+        const followerSet = new Set(conns.filter(c => c.following_id === user.id).map(c => c.follower_id));
+        for (const id of followingSet) {
+          if (followerSet.has(id)) friendIds.add(id);
+        }
+      }
+    }
+
+    // Filter stories: show public ones + friends_only from mutual connections + own stories
+    const visibleStories = stories.filter((s: any) => {
+      if (user && s.user_id === user.id) return true;
+      if (!s.visibility || s.visibility === "public") return true;
+      if (s.visibility === "friends_only" && user && friendIds.has(s.user_id)) return true;
+      return false;
+    });
+
+    if (visibleStories.length === 0) {
+      setStoryGroups([]);
+      setMyStories(null);
+      return;
+    }
+
+    const userIds = [...new Set(visibleStories.map((s: any) => s.user_id))];
     const { data: profiles } = await supabase
       .from("profiles")
       .select("user_id, display_name, avatar_url, username")
@@ -66,7 +97,7 @@ const StoryBar = () => {
     );
 
     const groupMap = new Map<string, StoryGroup>();
-    for (const s of stories) {
+    for (const s of visibleStories) {
       const p = profileMap.get(s.user_id);
       if (!groupMap.has(s.user_id)) {
         groupMap.set(s.user_id, {
