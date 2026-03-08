@@ -277,7 +277,7 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
           </div>
 
           {/* Track list */}
-          <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
+          <div className="max-h-48 overflow-y-auto overflow-x-hidden space-y-1 pr-1">
             {loading ? (
               <p className="text-xs text-muted-foreground text-center py-4">Loading tracks...</p>
             ) : filtered.length === 0 ? (
