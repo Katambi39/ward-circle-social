@@ -39,6 +39,7 @@ export interface PostData {
   isVerified: boolean;
   isAnonymous?: boolean;
   feeling?: string;
+  linkUrl?: string;
 }
 
 interface PostCardProps {
