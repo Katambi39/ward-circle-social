@@ -38,6 +38,7 @@ interface StoryViewerProps {
   groups: StoryGroup[];
   initialGroupIndex: number;
   onClose: () => void;
+  onDeleted?: () => void;
 }
 
 const STORY_DURATION = 5000; // 5 seconds per story
