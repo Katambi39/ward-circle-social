@@ -25,6 +25,7 @@ interface WebTrack {
   cover_url: string | null;
   duration_seconds: number;
   lyrics: { time: number; text: string }[];
+  source?: 'deezer' | 'itunes';
 }
 
 interface MusicPickerProps {
