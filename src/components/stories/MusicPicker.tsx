@@ -38,6 +38,7 @@ const GENRE_LABELS: Record<string, string> = {
   gospel: "🙏 Gospel",
   chill: "🌙 Chill",
   gengetone: "🔥 Gengetone",
+  saved: "💾 Saved",
 };
 
 const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
