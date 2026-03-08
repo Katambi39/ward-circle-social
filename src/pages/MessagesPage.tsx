@@ -10,8 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   MessageSquare, Send, ArrowLeft, CheckCircle2, Shield, Search,
-  Circle,
+  Circle, ShieldAlert,
 } from "lucide-react";
+import { isExplicitLink } from "@/components/feed/LinkSafety";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow, isToday, isYesterday } from "date-fns";
 
