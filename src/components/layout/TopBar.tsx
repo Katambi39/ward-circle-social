@@ -61,6 +61,9 @@ const TopBar = () => {
                 <p className="font-display font-semibold text-sm">{profile?.display_name || "User"}</p>
                 <p className="text-xs text-muted-foreground">@{profile?.username}</p>
               </div>
+              <DropdownMenuItem onClick={() => navigate("/profile")} className="gap-2 cursor-pointer">
+                <UserCircle className="h-4 w-4" /> My Profile
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={handleSignOut} className="text-accent gap-2 cursor-pointer">
                 <LogOut className="h-4 w-4" /> Sign Out
               </DropdownMenuItem>
