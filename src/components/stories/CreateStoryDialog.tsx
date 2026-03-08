@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Camera, Type, X, Loader2 } from "lucide-react";
+import { Camera, Type, X, Loader2, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,6 +11,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
+import MusicPicker from "./MusicPicker";
 
 interface CreateStoryDialogProps {
   open: boolean;
@@ -25,6 +26,8 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
   const [preview, setPreview] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
   const [showCaption, setShowCaption] = useState(false);
+  const [showMusic, setShowMusic] = useState(false);
+  const [selectedTrack, setSelectedTrack] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -43,6 +46,8 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
     setPreview(null);
     setCaption("");
     setShowCaption(false);
+    setShowMusic(false);
+    setSelectedTrack(null);
     setSubmitting(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -70,7 +75,9 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
         media_url: urlData.publicUrl,
         media_type: mediaType,
         caption: caption.trim() || null,
-      });
+        music_track_id: selectedTrack?.id || null,
+        music_start_time: 0,
+      } as any);
 
       if (error) throw error;
 
@@ -145,17 +152,41 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
               )}
             </div>
 
+            {/* Music picker */}
+            {showMusic && (
+              <MusicPicker selectedTrack={selectedTrack} onSelect={setSelectedTrack} />
+            )}
+
+            {/* Selected track badge */}
+            {selectedTrack && !showMusic && (
+              <div className="flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5">
+                <Music className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-display truncate">{selectedTrack.title} – {selectedTrack.artist}</span>
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex items-center justify-between">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-1.5 rounded-full"
-                onClick={() => setShowCaption(!showCaption)}
-              >
-                <Type className="h-4 w-4" />
-                <span className="text-xs font-display">{showCaption ? "Hide Caption" : "Add Caption"}</span>
-              </Button>
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5 rounded-full"
+                  onClick={() => setShowCaption(!showCaption)}
+                >
+                  <Type className="h-4 w-4" />
+                  <span className="text-xs font-display">Caption</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5 rounded-full"
+                  onClick={() => setShowMusic(!showMusic)}
+                >
+                  <Music className="h-4 w-4 text-secondary" />
+                  <span className="text-xs font-display">Music</span>
+                </Button>
+              </div>
               <Button
                 onClick={handleSubmit}
                 disabled={submitting}

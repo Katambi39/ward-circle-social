@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X, ChevronLeft, ChevronRight, Eye, Pause, Play } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Eye, Pause, Play, Music } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDistanceToNow } from "date-fns";
+import SyncedLyrics from "./SyncedLyrics";
 
 interface StoryItem {
   id: string;
@@ -11,6 +12,16 @@ interface StoryItem {
   caption: string | null;
   created_at: string;
   expires_at: string;
+  music_track_id?: string | null;
+  music_start_time?: number;
+}
+
+interface MusicTrackData {
+  id: string;
+  title: string;
+  artist: string;
+  audio_url: string;
+  lyrics: { time: number; text: string }[];
 }
 
 interface StoryGroup {
@@ -39,6 +50,9 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose }: StoryViewerProps) =
   const timerRef = useRef<number | null>(null);
   const startTimeRef = useRef(0);
   const elapsedRef = useRef(0);
+  const musicAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [musicTrack, setMusicTrack] = useState<MusicTrackData | null>(null);
+  const [musicTime, setMusicTime] = useState(0);
 
   const currentGroup = groups[groupIndex];
   const currentStory = currentGroup?.stories[storyIndex];
@@ -51,6 +65,54 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose }: StoryViewerProps) =
       .upsert({ story_id: currentStory.id, viewer_id: user.id }, { onConflict: "story_id,viewer_id" })
       .then(() => {});
   }, [currentStory?.id]);
+
+  // Load music track
+  useEffect(() => {
+    const trackId = currentStory?.music_track_id;
+    if (!trackId) {
+      setMusicTrack(null);
+      musicAudioRef.current?.pause();
+      musicAudioRef.current = null;
+      return;
+    }
+    supabase.from("music_tracks").select("*").eq("id", trackId).single()
+      .then(({ data }) => {
+        if (data) setMusicTrack(data as any);
+      });
+  }, [currentStory?.music_track_id]);
+
+  // Play/pause music
+  useEffect(() => {
+    if (!musicTrack) return;
+    musicAudioRef.current?.pause();
+    const audio = new Audio(musicTrack.audio_url);
+    audio.currentTime = currentStory?.music_start_time || 0;
+    audio.loop = true;
+    audio.volume = 0.6;
+    musicAudioRef.current = audio;
+
+    const updateTime = () => setMusicTime(audio.currentTime);
+    audio.addEventListener("timeupdate", updateTime);
+
+    if (!paused) audio.play().catch(() => {});
+
+    return () => {
+      audio.removeEventListener("timeupdate", updateTime);
+      audio.pause();
+    };
+  }, [musicTrack?.id, groupIndex, storyIndex]);
+
+  // Sync pause state with music
+  useEffect(() => {
+    if (!musicAudioRef.current) return;
+    if (paused) musicAudioRef.current.pause();
+    else musicAudioRef.current.play().catch(() => {});
+  }, [paused]);
+
+  // Cleanup music on unmount
+  useEffect(() => {
+    return () => { musicAudioRef.current?.pause(); };
+  }, []);
 
   const goNext = useCallback(() => {
     if (storyIndex < currentGroup.stories.length - 1) {
@@ -217,8 +279,27 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose }: StoryViewerProps) =
           )}
         </div>
 
+        {/* Synced Lyrics */}
+        {musicTrack && musicTrack.lyrics && (musicTrack.lyrics as any[]).length > 0 && (
+          <SyncedLyrics
+            lyrics={musicTrack.lyrics as any[]}
+            currentTime={musicTime}
+            isPlaying={!paused}
+          />
+        )}
+
+        {/* Music indicator */}
+        {musicTrack && (
+          <div className="absolute top-14 right-2 z-40 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full px-2.5 py-1">
+            <Music className="h-3 w-3 text-white animate-pulse" />
+            <span className="text-[10px] text-white/80 font-display truncate max-w-[100px]">
+              {musicTrack.title}
+            </span>
+          </div>
+        )}
+
         {/* Caption */}
-        {currentStory.caption && (
+        {currentStory.caption && !musicTrack?.lyrics?.length && (
           <div className="absolute bottom-4 left-0 right-0 z-40 px-4">
             <div className="bg-black/50 backdrop-blur-sm rounded-xl px-4 py-2.5">
               <p className="text-white text-sm font-display text-center">{currentStory.caption}</p>
