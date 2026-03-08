@@ -89,6 +89,7 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
         caption: caption.trim() || null,
         music_track_id: selectedTrack?.id || null,
         music_start_time: selectedTrack ? musicStartTime : 0,
+        lyrics_offset: selectedTrack?.lyrics?.length > 0 ? lyricsOffset : 0,
         visibility,
       } as any);
 
