@@ -28,6 +28,7 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
   const [showCaption, setShowCaption] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
+  const [visibility, setVisibility] = useState<"public" | "friends_only">("public");
   const [submitting, setSubmitting] = useState(false);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
