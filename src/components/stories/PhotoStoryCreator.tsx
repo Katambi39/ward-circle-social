@@ -86,7 +86,7 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
         media_type: mediaType,
         caption: caption.trim() || null,
         music_track_id: selectedTrack?.id || null,
-        music_start_time: 0,
+        music_start_time: selectedTrack ? musicStartTime : 0,
         visibility,
       } as any);
 
