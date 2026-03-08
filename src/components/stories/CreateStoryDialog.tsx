@@ -94,7 +94,7 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) reset(); onOpenChange(o); }}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-display">Create Story</DialogTitle>
         </DialogHeader>
