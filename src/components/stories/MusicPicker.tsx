@@ -54,6 +54,8 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
   const [webResults, setWebResults] = useState<WebTrack[]>([]);
   const [webSearching, setWebSearching] = useState(false);
   const [webSearched, setWebSearched] = useState(false);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [savingId, setSavingId] = useState<string | null>(null);
 
   useEffect(() => {
     supabase
