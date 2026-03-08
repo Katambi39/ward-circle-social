@@ -5,10 +5,23 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAnonymous } from "@/contexts/AnonymousContext";
 import CreatePostDialog from "./CreatePostDialog";
 
+export type PostDialogIntent = "default" | "photo" | "link" | "poll" | "feeling";
+
 const CreatePostBar = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [intent, setIntent] = useState<PostDialogIntent>("default");
   const { profile } = useAuth();
   const { isAnonymous, anonAlias } = useAnonymous();
+
+  const openWith = (i: PostDialogIntent) => {
+    setIntent(i);
+    setDialogOpen(true);
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    setDialogOpen(open);
+    if (!open) setIntent("default");
+  };
 
   return (
     <>
@@ -24,7 +37,7 @@ const CreatePostBar = () => {
             )}
           </div>
           <button
-            onClick={() => setDialogOpen(true)}
+            onClick={() => openWith("default")}
             className="flex-1 h-10 px-4 rounded-full bg-muted text-muted-foreground text-sm text-left hover:bg-muted/80 transition-colors"
           >
             {isAnonymous
@@ -33,25 +46,25 @@ const CreatePostBar = () => {
           </button>
         </div>
         <div className="flex items-center gap-1 mt-3 pt-3 border-t border-border">
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary gap-1.5 rounded-full" onClick={() => setDialogOpen(true)}>
+          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary gap-1.5 rounded-full" onClick={() => openWith("photo")}>
             <Image className="h-4 w-4 text-primary" />
             <span className="text-xs font-display">Photo</span>
           </Button>
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full" onClick={() => setDialogOpen(true)}>
+          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full" onClick={() => openWith("link")}>
             <Link2 className="h-4 w-4 text-secondary" />
             <span className="text-xs font-display">Link</span>
           </Button>
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-accent gap-1.5 rounded-full">
+          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-accent gap-1.5 rounded-full" onClick={() => openWith("poll")}>
             <BarChart3 className="h-4 w-4 text-accent" />
             <span className="text-xs font-display">Poll</span>
           </Button>
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-kenya-gold gap-1.5 rounded-full">
+          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-kenya-gold gap-1.5 rounded-full" onClick={() => openWith("feeling")}>
             <Smile className="h-4 w-4 text-kenya-gold" />
             <span className="text-xs font-display">Feeling</span>
           </Button>
         </div>
       </div>
-      <CreatePostDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+      <CreatePostDialog open={dialogOpen} onOpenChange={handleOpenChange} intent={intent} />
     </>
   );
 };
