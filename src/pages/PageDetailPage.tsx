@@ -714,6 +714,65 @@ const PageDetailPage = () => {
             </TabsContent>
           )}
         </Tabs>
+
+        {/* Edit Page Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="font-display flex items-center gap-2">
+                <Pencil className="h-5 w-5 text-primary" /> Edit Page
+              </DialogTitle>
+              <DialogDescription>Update your page details below.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Page Name *</Label>
+                <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Page name" className="rounded-xl" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Description</Label>
+                <Textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} placeholder="Describe your page..." className="resize-none min-h-[80px]" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Category</Label>
+                <Select value={editCategory} onValueChange={setEditCategory}>
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["business", "brand", "community", "creator", "government", "ngo", "media", "other"].map((cat) => (
+                      <SelectItem key={cat} value={cat} className="capitalize">{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="font-display text-xs">County</Label>
+                  <Input value={editCounty} onChange={(e) => setEditCounty(e.target.value)} placeholder="e.g. Nairobi" className="rounded-xl" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="font-display text-xs">Constituency</Label>
+                  <Input value={editConstituency} onChange={(e) => setEditConstituency(e.target.value)} placeholder="e.g. Westlands" className="rounded-xl" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Phone</Label>
+                <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="+254..." className="rounded-xl" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Website</Label>
+                <Input value={editWebsite} onChange={(e) => setEditWebsite(e.target.value)} placeholder="https://..." className="rounded-xl" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditDialogOpen(false)} className="rounded-full font-display">Cancel</Button>
+              <Button onClick={handleSaveEdit} disabled={savingEdit || !editName.trim()} className="rounded-full font-display gradient-kenya text-primary-foreground gap-1.5">
+                {savingEdit ? "Saving..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );
