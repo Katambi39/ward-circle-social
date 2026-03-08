@@ -310,11 +310,11 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
                         <Play className="h-3.5 w-3.5 text-primary ml-0.5" />
                       )}
                     </button>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 overflow-hidden">
                       <p className="text-xs font-display font-medium truncate">{track.title}</p>
                       <p className="text-[10px] text-muted-foreground truncate">{track.artist}</p>
                     </div>
-                    <span className="text-[10px] text-muted-foreground font-display">
+                    <span className="text-[10px] text-muted-foreground font-display shrink-0 hidden sm:inline">
                       {GENRE_LABELS[track.genre] || track.genre}
                     </span>
                     {isSelected && <Check className="h-4 w-4 text-primary shrink-0" />}
