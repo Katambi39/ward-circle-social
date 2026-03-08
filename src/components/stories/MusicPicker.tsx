@@ -59,7 +59,8 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
   const [webSearched, setWebSearched] = useState(false);
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [savingId, setSavingId] = useState<string | null>(null);
-
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     supabase
       .from("music_tracks")
