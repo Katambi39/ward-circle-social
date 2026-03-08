@@ -207,6 +207,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
 
     try {
       let imageUrl: string | null = null;
+      let videoUrl: string | null = null;
 
       if (imageFile) {
         const ext = imageFile.name.split(".").pop();
@@ -214,13 +215,24 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         const { error: uploadError } = await supabase.storage
           .from("post-images")
           .upload(path, imageFile);
-
         if (uploadError) throw uploadError;
-
         const { data: urlData } = supabase.storage
           .from("post-images")
           .getPublicUrl(path);
         imageUrl = urlData.publicUrl;
+      }
+
+      if (videoFile) {
+        const ext = videoFile.name.split(".").pop();
+        const path = `${user.id}/${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("post-videos")
+          .upload(path, videoFile);
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage
+          .from("post-videos")
+          .getPublicUrl(path);
+        videoUrl = urlData.publicUrl;
       }
 
       // Build content with feeling and poll info
@@ -238,10 +250,11 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         title: title.trim(),
         content: finalContent || null,
         image_url: imageUrl,
+        video_url: videoUrl,
         link_url: linkUrl.trim() || null,
         is_anonymous: isAnonymous,
         group_id: selectedGroup !== "none" ? selectedGroup : null,
-      });
+      } as any);
 
       if (error) throw error;
 
