@@ -63,7 +63,7 @@ const TopBar = () => {
           <div className="hidden sm:block">
             <IdentityToggle />
           </div>
-          <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground h-8 w-8 hidden sm:flex">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="rounded-full text-muted-foreground hover:text-foreground h-8 w-8 hidden sm:flex">
             <MessageCircle className="h-5 w-5" />
           </Button>
           <NotificationsDropdown />
