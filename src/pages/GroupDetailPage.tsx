@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -125,6 +125,22 @@ const GroupDetailPage = () => {
       });
     },
   });
+
+  // Realtime subscription for group posts
+  useEffect(() => {
+    if (!group?.id) return;
+    const channel = supabase
+      .channel(`group-posts-${group.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "posts", filter: `group_id=eq.${group.id}` },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["group-posts", group.id] });
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [group?.id, queryClient]);
 
   const handleJoin = async () => {
     if (!user || !group) return;
