@@ -93,23 +93,16 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBo
     }
   };
 
-  const handleShare = async () => {
+  const handleShare = () => {
     const url = `${window.location.origin}/post/${postId}`;
-    let shared = false;
     if (navigator.share) {
-      try {
-        await navigator.share({ title: post.title, url });
-        shared = true;
-      } catch {}
+      navigator.share({ title: post.title, url }).catch(() => {});
     } else {
-      await navigator.clipboard.writeText(url);
-      toast.success("Link copied to clipboard");
-      shared = true;
+      navigator.clipboard.writeText(url).catch(() => {});
     }
-    if (shared) {
-      setShareCount((c) => c + 1);
-      supabase.from("posts").update({ share_count: post.shares + 1 }).eq("id", postId).then();
-    }
+    toast.success("Link copied to clipboard");
+    setShareCount((c) => c + 1);
+    supabase.from("posts").update({ share_count: post.shares + 1 }).eq("id", postId).then();
   };
 
   const handleDelete = async () => {
