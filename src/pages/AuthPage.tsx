@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Eye, UserPlus, LogIn } from "lucide-react";
+import { Eye, UserPlus, LogIn, Loader2 } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
 import conectLogo from "@/assets/conect-logo.png";
 
@@ -16,18 +18,15 @@ const AuthPage = () => {
   const { signIn, signUp } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
 
-  // Sign In state
   const [signInEmail, setSignInEmail] = useState("");
   const [signInPassword, setSignInPassword] = useState("");
 
-  // Sign Up state
   const [signUpEmail, setSignUpEmail] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [signUpUsername, setSignUpUsername] = useState("");
   const [signUpDisplayName, setSignUpDisplayName] = useState("");
-  const [signUpPhone, setSignUpPhone] = useState("");
-  const [signUpNationalId, setSignUpNationalId] = useState("");
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,23 +44,72 @@ const AuthPage = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!signUpNationalId || !signUpPhone) {
-      toast({ title: "Verification required", description: "Both National ID and phone number are required for verification.", variant: "destructive" });
-      return;
-    }
     setLoading(true);
     try {
       await signUp(signUpEmail, signUpPassword, {
         username: signUpUsername,
         display_name: signUpDisplayName,
       });
-      toast({ title: "Account created! 🎉", description: "Check your email for verification. Your National ID and phone will be verified shortly." });
+      toast({ title: "Account created! 🎉", description: "Check your email for verification, then complete your profile." });
     } catch (error: any) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
+
+  const handleSocialLogin = async (provider: "google" | "apple") => {
+    setSocialLoading(provider);
+    try {
+      const { error } = await lovable.auth.signInWithOAuth(provider, {
+        redirect_uri: window.location.origin,
+      });
+      if (error) throw error;
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      setSocialLoading(null);
+    }
+  };
+
+  const SocialButtons = () => (
+    <div className="space-y-3">
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full gap-2.5 font-display rounded-xl h-11"
+        onClick={() => handleSocialLogin("google")}
+        disabled={!!socialLoading}
+      >
+        {socialLoading === "google" ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <svg viewBox="0 0 24 24" className="h-5 w-5">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" />
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
+        )}
+        Continue with Google
+      </Button>
+      <Button
+        type="button"
+        variant="outline"
+        className="w-full gap-2.5 font-display rounded-xl h-11"
+        onClick={() => handleSocialLogin("apple")}
+        disabled={!!socialLoading}
+      >
+        {socialLoading === "apple" ? (
+          <Loader2 className="h-4 w-4 animate-spin" />
+        ) : (
+          <svg viewBox="0 0 24 24" className="h-5 w-5 fill-foreground">
+            <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+          </svg>
+        )}
+        Continue with Apple
+      </Button>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -71,7 +119,6 @@ const AuthPage = () => {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md"
       >
-        {/* Logo */}
         <div className="text-center mb-8">
           <img src={conectLogo} alt="Conect" className="h-16 w-16 mx-auto mb-3" />
           <h1 className="font-display text-3xl font-bold text-foreground">Conect</h1>
@@ -94,79 +141,81 @@ const AuthPage = () => {
             <CardContent>
               {/* SIGN IN */}
               <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
-                    <Input id="signin-email" type="email" placeholder="you@example.com" value={signInEmail} onChange={e => setSignInEmail(e.target.value)} required />
+                <div className="space-y-4">
+                  <SocialButtons />
+
+                  <div className="flex items-center gap-3">
+                    <Separator className="flex-1" />
+                    <span className="text-xs text-muted-foreground font-display">or</span>
+                    <Separator className="flex-1" />
                   </div>
-                   <div className="space-y-2">
-                     <div className="flex items-center justify-between">
-                       <Label htmlFor="signin-password">Password</Label>
-                       <button type="button" onClick={() => navigate("/reset-password")} className="text-xs text-primary font-display hover:underline">
-                         Forgot password?
-                       </button>
-                     </div>
-                     <Input id="signin-password" type="password" placeholder="••••••••" value={signInPassword} onChange={e => setSignInPassword(e.target.value)} required />
-                   </div>
-                  <Button type="submit" className="w-full gradient-kenya text-primary-foreground font-display" disabled={loading}>
-                    {loading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </form>
+
+                  <form onSubmit={handleSignIn} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signin-email">Email</Label>
+                      <Input id="signin-email" type="email" placeholder="you@example.com" value={signInEmail} onChange={e => setSignInEmail(e.target.value)} required className="rounded-xl" />
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="signin-password">Password</Label>
+                        <button type="button" onClick={() => navigate("/reset-password")} className="text-xs text-primary font-display hover:underline">
+                          Forgot password?
+                        </button>
+                      </div>
+                      <Input id="signin-password" type="password" placeholder="••••••••" value={signInPassword} onChange={e => setSignInPassword(e.target.value)} required className="rounded-xl" />
+                    </div>
+                    <Button type="submit" className="w-full gradient-kenya text-primary-foreground font-display rounded-xl" disabled={loading}>
+                      {loading ? "Signing in..." : "Sign In"}
+                    </Button>
+                  </form>
+                </div>
               </TabsContent>
 
               {/* SIGN UP */}
               <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-3">
-                  <CardDescription className="flex items-center gap-2 p-3 bg-muted rounded-lg text-xs">
-                    <Shield className="h-4 w-4 text-primary shrink-0" />
-                    National ID and phone verification required for verified accounts.
-                  </CardDescription>
+                <div className="space-y-4">
+                  <SocialButtons />
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="username" className="text-xs">Username</Label>
-                      <Input id="username" placeholder="@username" value={signUpUsername} onChange={e => setSignUpUsername(e.target.value)} required />
+                  <div className="flex items-center gap-3">
+                    <Separator className="flex-1" />
+                    <span className="text-xs text-muted-foreground font-display">or</span>
+                    <Separator className="flex-1" />
+                  </div>
+
+                  <form onSubmit={handleSignUp} className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1.5">
+                        <Label htmlFor="username" className="text-xs">Username</Label>
+                        <Input id="username" placeholder="@username" value={signUpUsername} onChange={e => setSignUpUsername(e.target.value)} required className="rounded-xl" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label htmlFor="displayname" className="text-xs">Display Name</Label>
+                        <Input id="displayname" placeholder="Your name" value={signUpDisplayName} onChange={e => setSignUpDisplayName(e.target.value)} required className="rounded-xl" />
+                      </div>
                     </div>
+
                     <div className="space-y-1.5">
-                      <Label htmlFor="displayname" className="text-xs">Display Name</Label>
-                      <Input id="displayname" placeholder="Your name" value={signUpDisplayName} onChange={e => setSignUpDisplayName(e.target.value)} required />
+                      <Label htmlFor="signup-email" className="text-xs">Email</Label>
+                      <Input id="signup-email" type="email" placeholder="you@example.com" value={signUpEmail} onChange={e => setSignUpEmail(e.target.value)} required className="rounded-xl" />
                     </div>
-                  </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="signup-email" className="text-xs">Email</Label>
-                    <Input id="signup-email" type="email" placeholder="you@example.com" value={signUpEmail} onChange={e => setSignUpEmail(e.target.value)} required />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <Label htmlFor="signup-password" className="text-xs">Password</Label>
-                    <Input id="signup-password" type="password" placeholder="Min 6 characters" value={signUpPassword} onChange={e => setSignUpPassword(e.target.value)} required minLength={6} />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
-                      <Label htmlFor="national-id" className="text-xs flex items-center gap-1">
-                        <Shield className="h-3 w-3 text-primary" /> National ID
-                      </Label>
-                      <Input id="national-id" placeholder="e.g. 12345678" value={signUpNationalId} onChange={e => setSignUpNationalId(e.target.value)} required />
+                      <Label htmlFor="signup-password" className="text-xs">Password</Label>
+                      <Input id="signup-password" type="password" placeholder="Min 6 characters" value={signUpPassword} onChange={e => setSignUpPassword(e.target.value)} required minLength={6} className="rounded-xl" />
                     </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="phone" className="text-xs">Phone (M-Pesa)</Label>
-                      <Input id="phone" placeholder="0712345678" value={signUpPhone} onChange={e => setSignUpPhone(e.target.value)} required />
+
+                    <div className="flex items-start gap-2 p-3 bg-muted rounded-lg">
+                      <Eye className="h-4 w-4 text-secondary shrink-0 mt-0.5" />
+                      <p className="text-xs text-muted-foreground">
+                        After signing up, you can verify your identity to join locality groups and unlock all features.
+                      </p>
                     </div>
-                  </div>
 
-                  <div className="flex items-start gap-2 p-3 bg-muted rounded-lg">
-                    <Eye className="h-4 w-4 text-secondary shrink-0 mt-0.5" />
-                    <p className="text-xs text-muted-foreground">
-                      Want to post anonymously? You can enable <strong>Toboa Siri</strong> mode after creating your verified account.
-                    </p>
-                  </div>
-
-                  <Button type="submit" className="w-full gradient-kenya text-primary-foreground font-display" disabled={loading}>
-                    {loading ? "Creating account..." : "Create Verified Account"}
-                  </Button>
-                </form>
+                    <Button type="submit" className="w-full gradient-kenya text-primary-foreground font-display rounded-xl" disabled={loading}>
+                      {loading ? "Creating account..." : "Create Account"}
+                    </Button>
+                  </form>
+                </div>
               </TabsContent>
             </CardContent>
           </Tabs>
