@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef } from "react"; // refreshed
 import { Camera, Type, X, Loader2, Music, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
