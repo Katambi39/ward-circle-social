@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { moderateContent } from "@/lib/moderation";
 import { isExplicitLink } from "@/components/feed/LinkSafety";
+import ReportDialog from "@/components/moderation/ReportDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/layout/AppLayout";
 import PostCard from "@/components/feed/PostCard";
@@ -225,6 +226,8 @@ const PostDetailPage = () => {
 };
 
 const CommentItem = ({ comment, index, onReply, depth = 0 }: { comment: Comment; index: number; onReply: (id: string) => void; depth?: number }) => {
+  const { user } = useAuth();
+  const [reportOpen, setReportOpen] = useState(false);
   const isAnon = comment.is_anonymous;
   const name = isAnon ? "Anonymous" : (comment.profile?.display_name || "User");
   const avatar = isAnon ? null : comment.profile?.avatar_url;
@@ -261,7 +264,19 @@ const CommentItem = ({ comment, index, onReply, depth = 0 }: { comment: Comment;
         <button className="text-[10px] text-muted-foreground font-display hover:text-primary" onClick={() => onReply(comment.id)}>
           Reply
         </button>
+        {user && user.id !== comment.user_id && (
+          <button className="text-[10px] text-muted-foreground font-display hover:text-destructive" onClick={() => setReportOpen(true)}>
+            Report
+          </button>
+        )}
       </div>
+      <ReportDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        contentId={comment.id}
+        contentType="comment"
+        flaggedText={comment.content?.substring(0, 200)}
+      />
       {comment.replies && comment.replies.length > 0 && (
         <div className="mt-2 space-y-2">
           {comment.replies.map((reply, ri) => (

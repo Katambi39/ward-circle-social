@@ -14,6 +14,7 @@ import EmbeddedRepost from "./EmbeddedRepost";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
+import ReportDialog from "@/components/moderation/ReportDialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -88,6 +89,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
   const [deleted, setDeleted] = useState(false);
   const [repostOpen, setRepostOpen] = useState(false);
   const [repostCount, setRepostCount] = useState(0);
+  const [reportOpen, setReportOpen] = useState(false);
 
   useEffect(() => {
     supabase
@@ -206,7 +208,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
                 </DropdownMenuItem>
               )}
               {!isOwnPost && (
-                <DropdownMenuItem onClick={() => toast.info("Report submitted")}>
+                <DropdownMenuItem onClick={() => setReportOpen(true)}>
                   <Flag className="h-4 w-4 mr-2" />
                   Report
                 </DropdownMenuItem>
@@ -328,6 +330,14 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
           group: post.group,
           groupLocality: post.groupLocality,
         }}
+      />
+
+      <ReportDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        contentId={postId}
+        contentType="post"
+        flaggedText={post.content?.substring(0, 200)}
       />
     </motion.article>
   );
