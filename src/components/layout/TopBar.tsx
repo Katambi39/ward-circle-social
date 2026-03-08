@@ -1,4 +1,4 @@
-import { Search, Bell, MessageCircle, Plus, LogOut, UserCircle, CheckCircle2, Moon, Sun } from "lucide-react";
+import { Search, Bell, MessageCircle, Plus, LogOut, UserCircle, CheckCircle2, Moon, Sun, Settings } from "lucide-react";
 import IdentityToggle from "@/components/feed/IdentityToggle";
 import NotificationsDropdown from "@/components/notifications/NotificationsDropdown";
 import { Button } from "@/components/ui/button";
