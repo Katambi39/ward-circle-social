@@ -30,7 +30,7 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
   const [showMusic, setShowMusic] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
   const [musicStartTime, setMusicStartTime] = useState(0);
-  const [lyricsOffset, setLyricsOffset] = useState(30);
+  
   const [submitting, setSubmitting] = useState(false);
 
   const textColor = background.id.includes("white") || background.id.includes("warm") ? "#000000" : "#ffffff";
