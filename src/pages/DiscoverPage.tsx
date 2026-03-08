@@ -91,6 +91,23 @@ const DiscoverPage = () => {
           </div>
         </motion.div>
 
+        {/* Trending Banner */}
+        <motion.button
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          onClick={() => navigate("/trending")}
+          className="w-full mb-8 p-4 rounded-xl gradient-kenya text-primary-foreground text-left flex items-center gap-3 shadow-glow hover:opacity-90 transition-opacity"
+        >
+          <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+            <TrendingUp className="h-5 w-5" />
+          </div>
+          <div className="flex-1">
+            <p className="font-display font-bold text-sm">Trending Now</p>
+            <p className="text-xs opacity-80">See what Kenya is talking about right now</p>
+          </div>
+          <ChevronRight className="h-5 w-5 opacity-60 shrink-0" />
+        </motion.button>
+
         {/* Themed Categories / Channels */}
         <section className="mb-8">
           <SectionHeader
