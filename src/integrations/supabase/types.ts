@@ -1139,6 +1139,7 @@ export type Database = {
           music_track_id: string | null
           user_id: string
           view_count: number
+          visibility: string
         }
         Insert: {
           caption?: string | null
@@ -1151,6 +1152,7 @@ export type Database = {
           music_track_id?: string | null
           user_id: string
           view_count?: number
+          visibility?: string
         }
         Update: {
           caption?: string | null
@@ -1163,6 +1165,7 @@ export type Database = {
           music_track_id?: string | null
           user_id?: string
           view_count?: number
+          visibility?: string
         }
         Relationships: [
           {
