@@ -1,7 +1,9 @@
-import { Home, Users, Compass, TrendingUp, Shield, UserCircle, Flame, MapPin, Building2, Eye, MessageSquare, ShoppingBag, BadgeCheck } from "lucide-react";
+import { Home, Users, Compass, TrendingUp, Shield, UserCircle, Flame, MapPin, Building2, Eye, MessageSquare, ShoppingBag, BadgeCheck, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SidebarItemProps {
   icon: React.ReactNode;
@@ -34,8 +36,20 @@ const SidebarItem = ({ icon, label, active, badge, onClick }: SidebarItemProps) 
 const LeftSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const isUnverified = !profile?.verification_status || profile.verification_status === "unverified";
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle()
+      .then(({ data }) => setIsAdmin(!!data));
+  }, [user]);
 
   return (
     <aside className="w-60 shrink-0 border-r border-border bg-card h-full overflow-y-auto p-3">
@@ -81,6 +95,19 @@ const LeftSidebar = () => {
         <SidebarItem icon={<Eye className="h-5 w-5" />} label="Toboa Siri" badge="Anon" active={location.pathname === "/toboa-siri"} onClick={() => navigate("/toboa-siri")} />
         <SidebarItem icon={<Shield className="h-5 w-5" />} label="Verified Only" badge="✓" active={location.pathname === "/" && location.search.includes("filter=verified")} onClick={() => navigate("/?filter=verified")} />
       </nav>
+
+      {isAdmin && (
+        <>
+          <div className="mt-6 mb-2 px-3">
+            <h3 className="text-xs font-display font-semibold text-muted-foreground uppercase tracking-wider">
+              Admin
+            </h3>
+          </div>
+          <nav className="space-y-1">
+            <SidebarItem icon={<ShieldCheck className="h-5 w-5" />} label="KYC Review" active={location.pathname === "/admin/kyc"} onClick={() => navigate("/admin/kyc")} />
+          </nav>
+        </>
+      )}
     </aside>
   );
 };
