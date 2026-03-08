@@ -264,7 +264,19 @@ const CommentItem = ({ comment, index, onReply, depth = 0 }: { comment: Comment;
         <button className="text-[10px] text-muted-foreground font-display hover:text-primary" onClick={() => onReply(comment.id)}>
           Reply
         </button>
+        {user && user.id !== comment.user_id && (
+          <button className="text-[10px] text-muted-foreground font-display hover:text-destructive" onClick={() => setReportOpen(true)}>
+            Report
+          </button>
+        )}
       </div>
+      <ReportDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        contentId={comment.id}
+        contentType="comment"
+        flaggedText={comment.content?.substring(0, 200)}
+      />
       {comment.replies && comment.replies.length > 0 && (
         <div className="mt-2 space-y-2">
           {comment.replies.map((reply, ri) => (
