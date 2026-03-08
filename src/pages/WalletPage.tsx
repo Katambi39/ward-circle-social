@@ -35,7 +35,9 @@ const TYPE_CONFIG: Record<string, { label: string; icon: React.ReactNode; color:
 };
 
 const WalletPage = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const isVerified = profile?.verification_status === "verified";
+
   const { toast } = useToast();
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -117,6 +119,25 @@ const WalletPage = () => {
   const totalSpent = transactions
     .filter(t => t.type === "purchase" && t.status === "completed")
     .reduce((sum, t) => sum + Number(t.amount), 0);
+
+  if (!isVerified) {
+    return (
+      <AppLayout>
+        <div className="max-w-2xl mx-auto py-16 px-4 text-center">
+          <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
+            <Wallet className="h-8 w-8 text-primary" />
+          </div>
+          <h1 className="font-display text-xl font-bold text-foreground mb-2">Wallet Access Restricted</h1>
+          <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+            Only verified users can access the wallet. Complete your identity verification to unlock M-Pesa deposits, purchases, and more.
+          </p>
+          <Button onClick={() => window.location.href = "/verify-identity"} className="gradient-kenya text-primary-foreground font-display rounded-xl gap-2">
+            <CreditCard className="h-4 w-4" /> Verify Identity
+          </Button>
+        </div>
+      </AppLayout>
+    );
+  }
 
   if (loading) {
     return (
