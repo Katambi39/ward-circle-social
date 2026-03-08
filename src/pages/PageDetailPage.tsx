@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PageAnalytics from "@/components/pages/PageAnalytics";
+import ReactionBar from "@/components/feed/ReactionBar";
 import StartChatButton from "@/components/messages/StartChatButton";
 import { motion } from "framer-motion";
 import { format, formatDistanceToNow, isPast } from "date-fns";
