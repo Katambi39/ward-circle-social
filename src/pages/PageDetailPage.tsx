@@ -374,6 +374,11 @@ const PageDetailPage = () => {
             <TabsTrigger value="events" className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground">
               <Calendar className="h-3.5 w-3.5" /> Events
             </TabsTrigger>
+            {isOwner && (
+              <TabsTrigger value="analytics" className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground">
+                <TrendingUp className="h-3.5 w-3.5" /> Analytics
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* CONTENT TAB */}
@@ -643,6 +648,13 @@ const PageDetailPage = () => {
               })
             )}
           </TabsContent>
+
+          {/* ANALYTICS TAB (owner only) */}
+          {isOwner && (
+            <TabsContent value="analytics" className="mt-4">
+              <PageAnalytics pageId={page.id} pageName={page.name} />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </AppLayout>
