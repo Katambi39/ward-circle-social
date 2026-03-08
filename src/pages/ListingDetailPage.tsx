@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import StartChatButton from "@/components/messages/StartChatButton";
 import ListingReviews from "@/components/marketplace/ListingReviews";
+import EditListingDialog from "@/components/marketplace/EditListingDialog";
 import {
   ArrowLeft, MapPin, Heart, Eye, Shield, CheckCircle2,
   ShoppingBag, Tag, Clock, ShoppingCart, AlertCircle,
