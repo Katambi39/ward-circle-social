@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/layout/AppLayout";
 import CreatePostBar from "@/components/feed/CreatePostBar";
+import StoryBar from "@/components/stories/StoryBar";
 import FeedTabs from "@/components/feed/FeedTabs";
 import PostCard from "@/components/feed/PostCard";
 import { usePosts } from "@/hooks/usePosts";
