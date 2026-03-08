@@ -15,6 +15,27 @@ const TRUSTED_DOMAINS = new Set([
   'whatsapp.com', 'tiktok.com', 'telegram.org', 'signal.org',
 ]);
 
+// Known explicit/adult content domains (blocked entirely)
+const EXPLICIT_DOMAINS = new Set([
+  'pornhub.com', 'xvideos.com', 'xnxx.com', 'xhamster.com', 'redtube.com',
+  'youporn.com', 'tube8.com', 'spankbang.com', 'eporner.com', 'hqporner.com',
+  'txxx.com', 'porn.com', 'brazzers.com', 'bangbros.com', 'naughtyamerica.com',
+  'realitykings.com', 'mofos.com', 'fakehub.com', 'onlyfans.com', 'fansly.com',
+  'stripchat.com', 'chaturbate.com', 'livejasmin.com', 'bongacams.com',
+  'cam4.com', 'camsoda.com', 'myfreecams.com', 'flirt4free.com',
+  'rule34.xxx', 'e-hentai.org', 'nhentai.net', 'hanime.tv',
+  'motherless.com', 'literotica.com', 'imagefap.com',
+]);
+
+// Explicit content URL patterns
+const EXPLICIT_PATTERNS = [
+  /\bporn\b/i, /\bxxx\b/i, /\bhentai\b/i, /\bnude[s]?\b/i,
+  /\bnsfw\b/i, /\badult[\-_]?(content|video|film)/i,
+  /\bsex[\-_]?(video|tape|cam)/i, /\bescort[s]?\b/i,
+  /\berotic[a]?\b/i, /\bfetish\b/i, /\bcamgirl/i, /\blivecam/i,
+  /\bonlyfan/i, /\bfansly/i,
+];
+
 // Known suspicious patterns
 const SUSPICIOUS_PATTERNS = [
   /bit\.ly/i, /tinyurl\.com/i, /t\.co/i, /goo\.gl/i, /ow\.ly/i,
