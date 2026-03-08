@@ -10,6 +10,7 @@ interface Profile {
   bio: string | null;
   avatar_url: string | null;
   phone_number: string | null;
+  national_id_hash: string | null;
   verification_status: string;
   county: string | null;
   ward: string | null;
