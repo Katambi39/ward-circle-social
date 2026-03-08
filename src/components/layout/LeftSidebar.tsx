@@ -1,4 +1,5 @@
-import { Home, Users, Compass, TrendingUp, Shield, UserCircle, Flame, MapPin, Building2, Eye, MessageSquare, ShoppingBag } from "lucide-react";
+import { Home, Users, Compass, TrendingUp, Shield, UserCircle, Flame, MapPin, Building2, Eye, MessageSquare, ShoppingBag, BadgeCheck } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 
