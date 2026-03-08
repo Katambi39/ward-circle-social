@@ -375,6 +375,9 @@ const MarketplacePage = () => {
             <TabsTrigger value="mine" className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground">
               <User className="h-3.5 w-3.5" /> My Listings {myListings.length > 0 && `(${myListings.length})`}
             </TabsTrigger>
+            <TabsTrigger value="favorites" className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground">
+              <Heart className="h-3.5 w-3.5" /> Saved {favListings.length > 0 && `(${favListings.length})`}
+            </TabsTrigger>
           </TabsList>
         </Tabs>
 
