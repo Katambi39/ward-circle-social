@@ -118,7 +118,7 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
         media_type: "image",
         caption: null,
         music_track_id: selectedTrack?.id || null,
-        music_start_time: 0,
+        music_start_time: selectedTrack ? musicStartTime : 0,
         visibility,
       } as any);
 
