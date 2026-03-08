@@ -16,7 +16,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { KENYA_COUNTIES } from "@/data/kenyaLocalities";
 import {
   Plus, Search, ShoppingBag, MapPin, Heart, Eye, Tag,
-  Package, Briefcase, FileText, Home, ImagePlus, X, Wallet,
+  Package, Briefcase, FileText, Home, ImagePlus, X, Wallet, User, Trash2, Pause, Play,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
