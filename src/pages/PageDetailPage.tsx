@@ -684,10 +684,10 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
 
   const fetchPosts = async () => {
-    const { data } = await supabase
+    const { data } = await (supabase
       .from("posts")
-      .select("*")
-      .eq("page_id" as any, pageId)
+      .select("*") as any)
+      .eq("page_id", pageId)
       .order("created_at", { ascending: false });
     setPosts(data || []);
     setLoading(false);
