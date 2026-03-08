@@ -62,14 +62,18 @@ const Index = () => {
           <div className="flex justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
-        ) : posts.length === 0 ? (
+        ) : filteredPosts.length === 0 ? (
           <div className="text-center py-12">
-            <p className="font-display text-lg text-muted-foreground">No posts yet</p>
-            <p className="text-sm text-muted-foreground mt-1">Be the first to share something with your community!</p>
+            <p className="font-display text-lg text-muted-foreground">
+              {verifiedOnly ? "No posts from verified users yet" : "No posts yet"}
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {verifiedOnly ? "Check back later or clear the filter" : "Be the first to share something with your community!"}
+            </p>
           </div>
         ) : (
           <div className="space-y-3">
-            {posts.map((post, index) => (
+            {filteredPosts.map((post, index) => (
               <PostCard key={post.id} dbPost={post} index={index} />
             ))}
           </div>
