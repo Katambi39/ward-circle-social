@@ -13,7 +13,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Progress } from "@/components/ui/progress";
 import {
-  ArrowBigUp, ArrowBigDown, MessageCircle, Shield, MapPin, Users, CheckCircle2, UserPlus, UserMinus,
+  Store, ArrowBigUp, ArrowBigDown, MessageCircle, MessageSquare, Shield, MapPin, Users, CheckCircle2, UserPlus, UserMinus,
   Star, Calendar, BarChart3, Plus, Send, Clock,
   Globe, Phone, Image, ArrowLeft, TrendingUp, ImagePlus, Video, Trash2, Reply,
 } from "lucide-react";
