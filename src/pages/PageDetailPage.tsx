@@ -767,6 +767,60 @@ const PageDetailPage = () => {
               <DialogDescription>Update your page details below.</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-2">
+              {/* Cover image */}
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Cover Image</Label>
+                <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) { setEditCoverFile(f); setEditCoverPreview(URL.createObjectURL(f)); }
+                }} />
+                <div
+                  onClick={() => coverInputRef.current?.click()}
+                  className="relative h-28 rounded-xl overflow-hidden border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors bg-muted/30 flex items-center justify-center"
+                >
+                  {editCoverPreview ? (
+                    <img src={editCoverPreview} alt="Cover" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                      <ImagePlus className="h-6 w-6" />
+                      <span className="text-[10px] font-display">Tap to add cover</span>
+                    </div>
+                  )}
+                  {editCoverPreview && (
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                      <ImagePlus className="h-6 w-6 text-white" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Avatar */}
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Avatar</Label>
+                <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) { setEditAvatarFile(f); setEditAvatarPreview(URL.createObjectURL(f)); }
+                }} />
+                <div className="flex items-center gap-3">
+                  <div
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="relative h-16 w-16 rounded-full overflow-hidden border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors bg-muted/30 flex items-center justify-center shrink-0"
+                  >
+                    {editAvatarPreview ? (
+                      <img src={editAvatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <ImagePlus className="h-5 w-5 text-muted-foreground" />
+                    )}
+                    {editAvatarPreview && (
+                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-full">
+                        <ImagePlus className="h-4 w-4 text-white" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground font-display">Tap to change avatar</p>
+                </div>
+              </div>
+
               <div className="space-y-1.5">
                 <Label className="font-display text-xs">Page Name *</Label>
                 <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Page name" className="rounded-xl" />
