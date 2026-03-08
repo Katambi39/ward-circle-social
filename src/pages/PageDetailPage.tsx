@@ -98,6 +98,12 @@ const PageDetailPage = () => {
   const [editCounty, setEditCounty] = useState("");
   const [editConstituency, setEditConstituency] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
+  const [editAvatarFile, setEditAvatarFile] = useState<File | null>(null);
+  const [editAvatarPreview, setEditAvatarPreview] = useState<string | null>(null);
+  const [editCoverFile, setEditCoverFile] = useState<File | null>(null);
+  const [editCoverPreview, setEditCoverPreview] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   const openEditDialog = () => {
     if (!page) return;
