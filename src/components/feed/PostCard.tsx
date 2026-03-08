@@ -290,6 +290,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
 
           <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2" onClick={(e) => { e.stopPropagation(); setRepostOpen(true); }}>
             <Repeat2 className="h-4 w-4" />
+            {repostCount > 0 && <span className="text-xs font-display">{repostCount}</span>}
           </Button>
 
           <div className="flex-1" />
