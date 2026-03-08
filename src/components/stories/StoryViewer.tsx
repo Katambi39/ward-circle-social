@@ -404,11 +404,58 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
           </div>
         )}
 
-        {/* View count for own stories */}
+        {/* View count + viewers panel for own stories */}
         {user && currentGroup.user_id === user.id && (
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5">
-            <Eye className="h-3.5 w-3.5 text-white/80" />
-            <span className="text-xs text-white/80 font-display">{viewCount} {viewCount === 1 ? 'view' : 'views'}</span>
+          <div className="absolute bottom-0 left-0 right-0 z-40">
+            {/* Viewers list panel */}
+            {showViewers && (
+              <div className="mx-4 mb-2 bg-black/70 backdrop-blur-md rounded-xl max-h-[40vh] overflow-y-auto">
+                <div className="p-3 border-b border-white/10 flex items-center justify-between">
+                  <span className="text-xs font-display text-white/80 font-semibold">
+                    {viewCount} {viewCount === 1 ? "viewer" : "viewers"}
+                  </span>
+                  <button onClick={() => setShowViewers(false)} className="text-white/60 hover:text-white">
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+                {viewers.length === 0 ? (
+                  <p className="text-xs text-white/50 text-center py-4 font-display">No viewers yet</p>
+                ) : (
+                  <div className="divide-y divide-white/5">
+                    {viewers.map((v) => (
+                      <div key={v.viewer_id} className="flex items-center gap-2.5 px-3 py-2">
+                        <div className="h-8 w-8 rounded-full overflow-hidden shrink-0 border border-white/20">
+                          {v.avatar_url ? (
+                            <img src={v.avatar_url} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="h-full w-full bg-white/20 flex items-center justify-center text-white font-display font-bold text-xs">
+                              {v.display_name[0]?.toUpperCase()}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white text-xs font-display font-semibold truncate">{v.display_name}</p>
+                          <p className="text-white/50 text-[10px]">@{v.username}</p>
+                        </div>
+                        <span className="text-[10px] text-white/40 shrink-0">
+                          {formatDistanceToNow(new Date(v.viewed_at), { addSuffix: true })}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Clickable view count button */}
+            <button
+              onClick={() => { setPaused(true); setShowViewers(!showViewers); }}
+              className="mx-auto mb-4 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5 w-fit"
+            >
+              <Eye className="h-3.5 w-3.5 text-white/80" />
+              <span className="text-xs text-white/80 font-display">{viewCount} {viewCount === 1 ? 'view' : 'views'}</span>
+              <ChevronUp className={`h-3 w-3 text-white/60 transition-transform ${showViewers ? 'rotate-180' : ''}`} />
+            </button>
           </div>
         )}
       </div>
