@@ -426,6 +426,10 @@ const MessagesPage = () => {
                                   : "bg-card border border-border text-foreground rounded-bl-md"
                               }`}>
                                 <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
+                                {/* Show link safety warnings for URLs in messages */}
+                                {(msg.content.match(/https?:\/\/[^\s)]+/gi) || []).map((url, idx) => (
+                                  <DmLinkWarning key={idx} url={url} isMe={isMe} />
+                                ))}
                                 <div className={`flex items-center gap-1 mt-1 ${isMe ? "justify-end" : ""}`}>
                                   <span className={`text-[10px] ${isMe ? "text-primary-foreground/60" : "text-muted-foreground"}`}>
                                     {format(new Date(msg.created_at), "h:mm a")}
