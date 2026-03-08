@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
+import EmojiPicker from "../feed/EmojiPicker";
 
 const QUICK_REACTIONS = ["❤️", "🔥", "😂", "😮", "😢", "👏"];
 
@@ -74,6 +75,7 @@ const StoryReplyBar = ({ storyId, senderId, onSent, onFocus, onBlur }: StoryRepl
           className="flex-1 bg-white/10 backdrop-blur-sm text-white text-sm rounded-full px-4 py-2 placeholder:text-white/40 border border-white/20 focus:outline-none focus:border-white/40"
           disabled={sending}
         />
+        <EmojiPicker onEmojiSelect={(emoji) => setMessage((prev) => prev + emoji)} />
         <button
           type="submit"
           disabled={!message.trim() || sending}
