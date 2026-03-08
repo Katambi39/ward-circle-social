@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X, ChevronLeft, ChevronRight, Eye, Pause, Play, Music, Trash2, ChevronUp, Send } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Eye, Pause, Play, Music, Trash2, ChevronUp, Send, Loader2 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
