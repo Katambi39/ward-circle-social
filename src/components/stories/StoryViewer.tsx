@@ -69,6 +69,19 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
       .then(() => {});
   }, [currentStory?.id]);
 
+  // Fetch view count for own stories
+  useEffect(() => {
+    if (!currentStory || !user || currentGroup.user_id !== user.id) {
+      setViewCount(0);
+      return;
+    }
+    supabase
+      .from("story_views")
+      .select("id", { count: "exact", head: true })
+      .eq("story_id", currentStory.id)
+      .then(({ count }) => setViewCount(count || 0));
+  }, [currentStory?.id]);
+
   // Load music track
   useEffect(() => {
     const trackId = currentStory?.music_track_id;
