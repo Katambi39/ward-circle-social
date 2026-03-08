@@ -43,7 +43,8 @@ interface StoryViewerProps {
   onDeleted?: () => void;
 }
 
-const STORY_DURATION = 5000; // 5 seconds per story
+const STORY_DURATION_DEFAULT = 5000; // 5 seconds per story
+const STORY_DURATION_MUSIC = 30000; // 30 seconds for music stories
 
 const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryViewerProps) => {
   const { user } = useAuth();
