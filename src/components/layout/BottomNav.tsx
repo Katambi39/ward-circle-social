@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/" },
@@ -35,6 +36,7 @@ const BottomNav = () => {
   const { profile } = useAuth();
   const [open, setOpen] = useState(false);
   const isUnverified = !profile?.verification_status || profile.verification_status === "unverified";
+  const unreadMsgCount = useUnreadMessages();
 
   const handleNav = (path: string) => {
     navigate(path);
@@ -64,9 +66,14 @@ const BottomNav = () => {
 
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
-            <button className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition-colors min-w-[3.5rem] text-muted-foreground">
+            <button className="relative flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition-colors min-w-[3.5rem] text-muted-foreground">
               <Menu className="h-5 w-5" />
               <span className="text-[10px] font-display font-medium">More</span>
+              {unreadMsgCount > 0 && (
+                <span className="absolute top-0 right-1 h-4 min-w-[1rem] rounded-full bg-destructive text-destructive-foreground text-[9px] font-bold flex items-center justify-center px-1">
+                  {unreadMsgCount > 99 ? "99+" : unreadMsgCount}
+                </span>
+              )}
             </button>
           </SheetTrigger>
           <SheetContent side="bottom" className="rounded-t-2xl pb-8 px-4 max-h-[70vh] overflow-y-auto">

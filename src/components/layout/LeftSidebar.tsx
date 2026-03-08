@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 
 interface SidebarItemProps {
   icon: React.ReactNode;
@@ -26,7 +27,12 @@ const SidebarItem = ({ icon, label, active, badge, onClick }: SidebarItemProps) 
     {icon}
     <span className="flex-1 text-left">{label}</span>
     {badge && (
-      <span className="text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-full font-display">
+      <span className={cn(
+        "text-xs px-2 py-0.5 rounded-full font-display font-bold",
+        /^\d+$/.test(badge)
+          ? "bg-destructive text-destructive-foreground min-w-[1.25rem] text-center"
+          : "bg-accent text-accent-foreground"
+      )}>
         {badge}
       </span>
     )}
@@ -39,6 +45,7 @@ const LeftSidebar = () => {
   const { profile, user } = useAuth();
   const isUnverified = !profile?.verification_status || profile.verification_status === "unverified";
   const [isAdmin, setIsAdmin] = useState(false);
+  const unreadMsgCount = useUnreadMessages();
 
   useEffect(() => {
     if (!user) return;
@@ -71,7 +78,7 @@ const LeftSidebar = () => {
         <SidebarItem icon={<TrendingUp className="h-5 w-5" />} label="Trending" badge="Hot" active={location.pathname === "/trending"} onClick={() => navigate("/trending")} />
         <SidebarItem icon={<Users className="h-5 w-5" />} label="Groups" active={location.pathname === "/groups"} onClick={() => navigate("/groups")} />
         <SidebarItem icon={<UserCircle className="h-5 w-5" />} label="Pages" active={location.pathname === "/pages" || location.pathname.startsWith("/pages/")} onClick={() => navigate("/pages")} />
-        <SidebarItem icon={<MessageSquare className="h-5 w-5" />} label="Messages" active={location.pathname === "/messages"} onClick={() => navigate("/messages")} />
+        <SidebarItem icon={<MessageSquare className="h-5 w-5" />} label="Messages" badge={unreadMsgCount > 0 ? String(unreadMsgCount) : undefined} active={location.pathname === "/messages"} onClick={() => navigate("/messages")} />
         <SidebarItem icon={<ShoppingBag className="h-5 w-5" />} label="Marketplace" active={location.pathname === "/marketplace" || location.pathname.startsWith("/marketplace/")} onClick={() => navigate("/marketplace")} />
       </nav>
 
