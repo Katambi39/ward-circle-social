@@ -275,6 +275,8 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
             <Repeat2 className="h-4 w-4" />
           </Button>
 
+          <div className="flex-1" />
+
           <button
             onClick={() => onToggleBookmark?.(postId)}
             className={cn(
@@ -286,6 +288,21 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
           </button>
         </div>
       </div>
+
+      <RepostDialog
+        open={repostOpen}
+        onOpenChange={setRepostOpen}
+        originalPost={{
+          id: postId,
+          title: post.title,
+          content: post.content,
+          author: post.author,
+          authorAvatar: post.authorAvatar,
+          isVerified: post.isVerified,
+          group: post.group,
+          groupLocality: post.groupLocality,
+        }}
+      />
     </motion.article>
   );
 };
