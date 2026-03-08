@@ -40,6 +40,7 @@ const LeftSidebar = () => {
   const { profile, user } = useAuth();
   const isUnverified = !profile?.verification_status || profile.verification_status === "unverified";
   const [isAdmin, setIsAdmin] = useState(false);
+  const unreadMsgCount = useUnreadMessages();
 
   useEffect(() => {
     if (!user) return;
