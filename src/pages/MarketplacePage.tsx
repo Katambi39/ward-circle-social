@@ -103,7 +103,30 @@ const MarketplacePage = () => {
         .from("listing_favorites")
         .select("listing_id")
         .eq("user_id", user.id);
-      setFavorites(new Set((favs || []).map((f: any) => f.listing_id)));
+      const favIds = (favs || []).map((f: any) => f.listing_id);
+      setFavorites(new Set(favIds));
+
+      // Fetch full favorite listings
+      if (favIds.length > 0) {
+        const { data: favData } = await supabase
+          .from("listings")
+          .select("*")
+          .in("id", favIds)
+          .order("created_at", { ascending: false });
+        if (favData && favData.length > 0) {
+          const sellerIds2 = [...new Set((favData as any[]).map(l => l.seller_id))];
+          const { data: profiles2 } = await supabase
+            .from("profiles")
+            .select("user_id, display_name, avatar_url, verification_status")
+            .in("user_id", sellerIds2);
+          const profileMap2 = new Map((profiles2 || []).map((p: any) => [p.user_id, p]));
+          setFavListings((favData as any[]).map(l => ({ ...l, seller: profileMap2.get(l.seller_id) })));
+        } else {
+          setFavListings([]);
+        }
+      } else {
+        setFavListings([]);
+      }
     }
 
     // Fetch user's own listings (all statuses)
