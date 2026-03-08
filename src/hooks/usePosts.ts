@@ -75,6 +75,7 @@ export function usePosts() {
         title: p.title,
         content: p.content,
         image_url: p.image_url,
+        video_url: p.video_url || null,
         link_url: p.link_url,
         is_anonymous: p.is_anonymous,
         upvotes: p.upvotes,
