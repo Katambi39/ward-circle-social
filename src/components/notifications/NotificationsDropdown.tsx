@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { Bell, MessageCircle, ArrowBigUp, Users, Check, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +31,7 @@ const typeIcons: Record<string, React.ReactNode> = {
 
 const NotificationsDropdown = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
 
@@ -180,7 +182,7 @@ const NotificationsDropdown = () => {
                     {n.title}
                   </p>
                   {n.body && (
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{n.body}</p>
+                   <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.body}</p>
                   )}
                   <p className="text-[10px] text-muted-foreground mt-1 font-display">
                     {getTimeAgo(n.created_at)}
@@ -192,6 +194,21 @@ const NotificationsDropdown = () => {
               </button>
             ))
           )}
+        </div>
+
+        {/* View all link */}
+        <div className="border-t border-border px-4 py-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full text-xs text-primary font-display rounded-full"
+            onClick={() => {
+              setOpen(false);
+              navigate("/notifications");
+            }}
+          >
+            View all notifications
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
