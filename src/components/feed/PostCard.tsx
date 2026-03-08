@@ -65,6 +65,7 @@ function dbPostToDisplay(p: DbPost): PostData {
     shares: p.share_count,
     isVerified: p.author_verified,
     isAnonymous: p.is_anonymous,
+    feeling: p.feeling || undefined,
   };
 }
 
