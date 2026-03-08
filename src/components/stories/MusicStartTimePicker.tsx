@@ -90,7 +90,7 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
   };
 
   return (
-    <div className="bg-muted/50 rounded-xl p-3 space-y-2">
+    <div className="bg-muted/50 rounded-xl p-3 space-y-2 overflow-hidden">
       <div className="flex items-center justify-between">
         <p className="text-[10px] font-display text-muted-foreground uppercase tracking-wider">
           Start point
@@ -119,18 +119,18 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
               audioRef.current.currentTime = v;
             }
           }}
-          className="flex-1"
+          className="flex-1 min-w-0"
         />
       </div>
       {/* +/- buttons for easier mobile control */}
-      <div className="flex items-center justify-center gap-3">
-        <Button variant="outline" size="sm" className="h-7 px-3 text-xs font-display" onClick={handleDecrement}>
+      <div className="flex items-center justify-center gap-2">
+        <Button variant="outline" size="sm" className="h-7 px-2.5 text-[11px] font-display shrink-0" onClick={handleDecrement}>
           − 5s
         </Button>
-        <span className="text-xs font-display font-semibold text-foreground min-w-[48px] text-center">
+        <span className="text-xs font-display font-semibold text-foreground min-w-[40px] text-center shrink-0">
           {formatTime(startTime)}
         </span>
-        <Button variant="outline" size="sm" className="h-7 px-3 text-xs font-display" onClick={handleIncrement}>
+        <Button variant="outline" size="sm" className="h-7 px-2.5 text-[11px] font-display shrink-0" onClick={handleIncrement}>
           + 5s
         </Button>
       </div>
