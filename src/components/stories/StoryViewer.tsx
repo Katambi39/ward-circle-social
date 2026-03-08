@@ -231,7 +231,7 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
       clearTimeout(timeout);
       elapsedRef.current += Date.now() - startTimeRef.current;
     };
-  }, [groupIndex, storyIndex, paused, goNext]);
+  }, [groupIndex, storyIndex, paused, goNext, storyDuration]);
 
   // Keyboard navigation
   useEffect(() => {

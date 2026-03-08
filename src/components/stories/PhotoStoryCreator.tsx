@@ -187,6 +187,16 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
             </div>
           )}
 
+          {/* Music start time picker */}
+          {selectedTrack && (
+            <MusicStartTimePicker
+              audioUrl={selectedTrack.audio_url}
+              durationSeconds={selectedTrack.duration_seconds || 30}
+              startTime={musicStartTime}
+              onStartTimeChange={setMusicStartTime}
+            />
+          )}
+
           {/* Visibility */}
           <StoryVisibilityToggle visibility={visibility} onChange={setVisibility} />
 
