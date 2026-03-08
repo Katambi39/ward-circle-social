@@ -46,6 +46,8 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
     setPreview(null);
     setCaption("");
     setShowCaption(false);
+    setShowMusic(false);
+    setSelectedTrack(null);
     setSubmitting(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
