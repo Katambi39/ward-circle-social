@@ -23,36 +23,50 @@ const TopBar = () => {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-md">
-      <div className="flex h-14 items-center gap-3 px-4">
-        <div className="flex items-center gap-2 min-w-[180px]">
-          <img src={conectLogo} alt="Conect" className="h-8 w-8" />
-          <span className="font-display text-xl font-bold text-primary">Conect</span>
+      <div className="flex h-14 items-center gap-2 sm:gap-3 px-3 sm:px-4">
+        {/* Logo */}
+        <div className="flex items-center gap-2 shrink-0">
+          <img src={conectLogo} alt="Conect" className="h-7 w-7 sm:h-8 sm:w-8" />
+          <span className="font-display text-lg sm:text-xl font-bold text-primary">Conect</span>
         </div>
 
-        <div className="flex-1 max-w-xl mx-auto">
+        {/* Search - hidden on small mobile, shown on larger screens */}
+        <div className="flex-1 max-w-xl mx-auto hidden sm:block">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search Conect..." className="pl-9 bg-muted border-none h-9 rounded-full" />
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 min-w-[220px] justify-end">
-          <IdentityToggle />
-          <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground">
+        {/* Mobile search icon */}
+        <div className="flex-1 sm:hidden" />
+        <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground sm:hidden h-8 w-8">
+          <Search className="h-5 w-5" />
+        </Button>
+
+        {/* Right actions */}
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+          <div className="hidden sm:block">
+            <IdentityToggle />
+          </div>
+          <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground h-8 w-8 hidden sm:flex">
             <MessageCircle className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground relative">
+          <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground relative h-8 w-8">
             <Bell className="h-5 w-5" />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-accent" />
+            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-accent" />
           </Button>
-          <Button size="sm" className="ml-1 rounded-full gradient-kenya text-primary-foreground font-display gap-1.5">
+          <Button size="sm" className="rounded-full gradient-kenya text-primary-foreground font-display gap-1.5 hidden md:flex">
             <Plus className="h-4 w-4" />
             Create
+          </Button>
+          <Button size="icon" className="rounded-full gradient-kenya text-primary-foreground md:hidden h-8 w-8">
+            <Plus className="h-4 w-4" />
           </Button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="ml-1 h-8 w-8 rounded-full overflow-hidden relative">
+              <button className="ml-0.5 h-8 w-8 rounded-full overflow-hidden relative shrink-0">
                 {profile?.avatar_url ? (
                   <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
                 ) : (
@@ -71,6 +85,10 @@ const TopBar = () => {
               <div className="px-3 py-2 border-b border-border">
                 <p className="font-display font-semibold text-sm">{profile?.display_name || "User"}</p>
                 <p className="text-xs text-muted-foreground">@{profile?.username}</p>
+              </div>
+              {/* Mobile-only identity toggle */}
+              <div className="px-3 py-2 border-b border-border sm:hidden">
+                <IdentityToggle />
               </div>
               <DropdownMenuItem onClick={() => navigate("/profile")} className="gap-2 cursor-pointer">
                 <UserCircle className="h-4 w-4" /> My Profile

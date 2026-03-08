@@ -1,6 +1,7 @@
 import TopBar from "./TopBar";
 import LeftSidebar from "./LeftSidebar";
 import RightSidebar from "./RightSidebar";
+import BottomNav from "./BottomNav";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -11,12 +12,17 @@ const AppLayout = ({ children }: AppLayoutProps) => {
     <div className="min-h-screen bg-background">
       <TopBar />
       <div className="flex">
-        <LeftSidebar />
-        <main className="flex-1 min-w-0">
+        <div className="hidden md:block">
+          <LeftSidebar />
+        </div>
+        <main className="flex-1 min-w-0 pb-16 md:pb-0">
           {children}
         </main>
-        <RightSidebar />
+        <div className="hidden lg:block">
+          <RightSidebar />
+        </div>
       </div>
+      <BottomNav />
     </div>
   );
 };
