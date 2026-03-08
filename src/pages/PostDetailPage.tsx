@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { moderateContent } from "@/lib/moderation";
 import { isExplicitLink } from "@/components/feed/LinkSafety";
+import ReportDialog from "@/components/moderation/ReportDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/layout/AppLayout";
 import PostCard from "@/components/feed/PostCard";
