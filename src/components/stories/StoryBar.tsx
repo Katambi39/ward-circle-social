@@ -136,16 +136,35 @@ const StoryBar = () => {
                   </div>
                 )}
               </div>
-              {!myStories && (
-                <div className="absolute -bottom-0.5 -right-0.5 h-5 w-5 rounded-full bg-primary flex items-center justify-center border-2 border-card">
-                  <Plus className="h-3 w-3 text-primary-foreground" />
-                </div>
-              )}
+              <div className="absolute -bottom-0.5 -right-0.5 h-5 w-5 rounded-full bg-primary flex items-center justify-center border-2 border-card">
+                <Plus className="h-3 w-3 text-primary-foreground" />
+              </div>
             </div>
             <span className="text-[10px] font-display text-muted-foreground truncate w-full text-center">
-              {myStories ? "Your Story" : "Add Story"}
+              Add Story
             </span>
           </button>
+
+          {/* View my stories */}
+          {myStories && (
+            <button
+              onClick={() => openViewer(0)}
+              className="flex flex-col items-center gap-1 shrink-0 w-16"
+            >
+              <div className={`h-14 w-14 rounded-full overflow-hidden border-2 ${myStories.hasUnviewed ? "border-primary ring-2 ring-primary/30" : "border-secondary"}`}>
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="h-full w-full gradient-kenya flex items-center justify-center text-primary-foreground font-display font-bold text-lg">
+                    {profile?.display_name?.[0]?.toUpperCase() || "U"}
+                  </div>
+                )}
+              </div>
+              <span className="text-[10px] font-display text-muted-foreground truncate w-full text-center">
+                Your Story
+              </span>
+            </button>
+          )
 
           {/* Other users' stories */}
           {storyGroups.map((group, i) => (
