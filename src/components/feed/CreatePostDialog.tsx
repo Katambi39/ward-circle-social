@@ -56,6 +56,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
   const { isAnonymous: globalAnon, anonAlias } = useAnonymous();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const linkInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
