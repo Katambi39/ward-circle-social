@@ -65,6 +65,7 @@ const PageDetailPage = () => {
   const [events, setEvents] = useState<PageEvent[]>([]);
   const [polls, setPolls] = useState<Poll[]>([]);
   const [rsvpedEvents, setRsvpedEvents] = useState<Set<string>>(new Set());
+  const [isAdmin, setIsAdmin] = useState(false);
   const isOwner = user && page && user.id === page.owner_id;
 
   // Review form
@@ -180,6 +181,18 @@ const PageDetailPage = () => {
   useEffect(() => {
     if (slug) fetchAll();
   }, [slug, user]);
+
+  // Check admin role
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle()
+      .then(({ data }) => setIsAdmin(!!data));
+  }, [user]);
 
   // Record page view once
   useEffect(() => {
@@ -483,7 +496,7 @@ const PageDetailPage = () => {
 
           {/* CONTENT TAB */}
           <TabsContent value="content" className="mt-4">
-            <ContentTab pageId={page.id} isOwner={!!isOwner} />
+            <ContentTab pageId={page.id} isOwner={!!isOwner} isAdmin={isAdmin} />
           </TabsContent>
 
           {/* POLLS TAB */}
@@ -875,7 +888,7 @@ const PageDetailPage = () => {
 };
 
 // Content showcase tab - shows page posts with media upload and comments
-const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) => {
+const ContentTab = ({ pageId, isOwner, isAdmin }: { pageId: string; isOwner: boolean; isAdmin: boolean }) => {
   const { user } = useAuth();
   const { toast: showToast } = useToast();
   const [posts, setPosts] = useState<any[]>([]);
@@ -1123,6 +1136,42 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
               <p className="text-xs text-muted-foreground font-display mr-1">
                 {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
               </p>
+              {isAdmin && !isOwner && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-full text-destructive hover:text-destructive hover:bg-destructive/10 gap-1 text-xs"
+                  onClick={async () => {
+                    const { error } = await supabase.from("posts").delete().eq("id", post.id);
+                    if (error) {
+                      showToast({ title: "Error", description: error.message, variant: "destructive" });
+                    } else {
+                      showToast({ title: "Post removed", description: "Content was removed for policy violation" });
+                      fetchPosts();
+                    }
+                  }}
+                >
+                  <Shield className="h-3.5 w-3.5" /> Remove
+                </Button>
+              )}
+              {isOwner && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-full text-destructive hover:text-destructive hover:bg-destructive/10 gap-1 text-xs"
+                  onClick={async () => {
+                    const { error } = await supabase.from("posts").delete().eq("id", post.id);
+                    if (error) {
+                      showToast({ title: "Error", description: error.message, variant: "destructive" });
+                    } else {
+                      showToast({ title: "Post deleted" });
+                      fetchPosts();
+                    }
+                  }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              )}
               <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground gap-1 text-xs" onClick={() => toggleComments(post.id)}>
                 <MessageSquare className="h-3.5 w-3.5" />
                 {post.comment_count || 0}
