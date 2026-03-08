@@ -38,7 +38,7 @@ const LeftSidebar = () => {
     <aside className="w-60 shrink-0 border-r border-border bg-card h-[calc(100vh-3.5rem)] sticky top-14 overflow-y-auto p-3">
       <nav className="space-y-1">
         <SidebarItem icon={<Home className="h-5 w-5" />} label="Home" active={location.pathname === "/"} onClick={() => navigate("/")} />
-        <SidebarItem icon={<Compass className="h-5 w-5" />} label="Discover" />
+        <SidebarItem icon={<Compass className="h-5 w-5" />} label="Discover" active={location.pathname === "/discover"} onClick={() => navigate("/discover")} />
         <SidebarItem icon={<TrendingUp className="h-5 w-5" />} label="Trending" badge="Hot" />
         <SidebarItem icon={<Users className="h-5 w-5" />} label="Groups" active={location.pathname === "/groups"} onClick={() => navigate("/groups")} />
         <SidebarItem icon={<UserCircle className="h-5 w-5" />} label="Pages" />
