@@ -274,6 +274,95 @@ export type Database = {
         }
         Relationships: []
       }
+      listing_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_favorites_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listings: {
+        Row: {
+          category: Database["public"]["Enums"]["listing_category"]
+          condition: string | null
+          constituency: string | null
+          county: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          images: string[] | null
+          is_negotiable: boolean
+          location: string | null
+          price: number
+          seller_id: string
+          status: Database["public"]["Enums"]["listing_status"]
+          title: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          category?: Database["public"]["Enums"]["listing_category"]
+          condition?: string | null
+          constituency?: string | null
+          county?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_negotiable?: boolean
+          location?: string | null
+          price?: number
+          seller_id: string
+          status?: Database["public"]["Enums"]["listing_status"]
+          title: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["listing_category"]
+          condition?: string | null
+          constituency?: string | null
+          county?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_negotiable?: boolean
+          location?: string | null
+          price?: number
+          seller_id?: string
+          status?: Database["public"]["Enums"]["listing_status"]
+          title?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -693,6 +782,50 @@ export type Database = {
         }
         Relationships: []
       }
+      transactions: {
+        Row: {
+          amount: number
+          counterparty_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          listing_id: string | null
+          status: Database["public"]["Enums"]["transaction_status"]
+          type: Database["public"]["Enums"]["transaction_type"]
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          counterparty_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          listing_id?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"]
+          type: Database["public"]["Enums"]["transaction_type"]
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          counterparty_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          listing_id?: string | null
+          status?: Database["public"]["Enums"]["transaction_status"]
+          type?: Database["public"]["Enums"]["transaction_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -743,6 +876,30 @@ export type Database = {
           },
         ]
       }
+      wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -759,6 +916,15 @@ export type Database = {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
+      process_purchase: {
+        Args: {
+          _amount: number
+          _buyer_id: string
+          _listing_id: string
+          _seller_id: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
@@ -770,6 +936,15 @@ export type Database = {
         | "community"
         | "interest"
         | "page"
+      listing_category: "products" | "services" | "digital" | "property"
+      listing_status: "active" | "sold" | "paused" | "removed"
+      transaction_status: "pending" | "completed" | "failed" | "refunded"
+      transaction_type:
+        | "deposit"
+        | "withdrawal"
+        | "purchase"
+        | "sale"
+        | "refund"
       verification_status: "unverified" | "pending" | "verified" | "rejected"
     }
     CompositeTypes: {
@@ -908,6 +1083,10 @@ export const Constants = {
         "interest",
         "page",
       ],
+      listing_category: ["products", "services", "digital", "property"],
+      listing_status: ["active", "sold", "paused", "removed"],
+      transaction_status: ["pending", "completed", "failed", "refunded"],
+      transaction_type: ["deposit", "withdrawal", "purchase", "sale", "refund"],
       verification_status: ["unverified", "pending", "verified", "rejected"],
     },
   },
