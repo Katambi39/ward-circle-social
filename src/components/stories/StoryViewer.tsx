@@ -387,15 +387,6 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
           )}
         </div>
 
-        {/* Synced Lyrics */}
-        {musicTrack && musicTrack.lyrics && (musicTrack.lyrics as any[]).length > 0 && (
-          <SyncedLyrics
-            lyrics={musicTrack.lyrics as any[]}
-            currentTime={musicTime}
-            isPlaying={!paused}
-            timeOffset={lyricsOffset}
-          />
-        )}
 
         {/* Music indicator */}
         {musicTrack && (
