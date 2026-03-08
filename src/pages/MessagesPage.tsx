@@ -192,6 +192,14 @@ const MessagesPage = () => {
 
   const handleSend = async () => {
     if (!user || !selectedConvo || !newMessage.trim()) return;
+
+    // Block explicit/adult content links in DMs
+    const urlsInMessage = newMessage.match(/https?:\/\/[^\s)]+/gi) || [];
+    if (urlsInMessage.some(u => isExplicitLink(u))) {
+      toast({ title: "Blocked", description: "Explicit or adult content links are not allowed.", variant: "destructive" });
+      return;
+    }
+
     setSending(true);
     try {
       const { error } = await supabase.from("direct_messages").insert({
