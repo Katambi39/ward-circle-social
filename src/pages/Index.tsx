@@ -8,11 +8,13 @@ import StoryBar from "@/components/stories/StoryBar";
 import FeedTabs from "@/components/feed/FeedTabs";
 import PostCard from "@/components/feed/PostCard";
 import { usePosts } from "@/hooks/usePosts";
+import { useBookmarks } from "@/hooks/useBookmarks";
 import { Loader2, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const { posts, loading, loadingMore, hasMore, loadMore } = usePosts();
+  const { bookmarkedIds, toggle: toggleBookmark } = useBookmarks();
   const { user, profile } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -94,7 +96,13 @@ const Index = () => {
         ) : (
           <div className="space-y-3">
             {filteredPosts.map((post, index) => (
-              <PostCard key={post.id} dbPost={post} index={index} />
+              <PostCard
+                key={post.id}
+                dbPost={post}
+                index={index}
+                isBookmarked={bookmarkedIds.has(post.id)}
+                onToggleBookmark={toggleBookmark}
+              />
             ))}
           </div>
         )}

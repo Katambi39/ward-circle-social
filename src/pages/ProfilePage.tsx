@@ -2,15 +2,17 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { UserCircle, FileText, Users, ShoppingBag } from "lucide-react";
+import { UserCircle, FileText, Users, ShoppingBag, Award, Bookmark } from "lucide-react";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileAboutTab from "@/components/profile/ProfileAboutTab";
 import ProfilePostsTab from "@/components/profile/ProfilePostsTab";
 import ProfileConnectionsTab from "@/components/profile/ProfileConnectionsTab";
 import ProfileListingsTab from "@/components/profile/ProfileListingsTab";
+import BadgesDisplay from "@/components/profile/BadgesDisplay";
+import SavedPostsTab from "@/components/profile/SavedPostsTab";
 
 const ProfilePage = () => {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [editing, setEditing] = useState(false);
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
@@ -39,30 +41,42 @@ const ProfilePage = () => {
         />
 
         <Tabs defaultValue="about" className="w-full">
-          <TabsList className="w-full bg-card border border-border rounded-xl p-1 shadow-card">
+          <TabsList className="w-full bg-card border border-border rounded-xl p-1 shadow-card flex-wrap h-auto gap-0.5">
             <TabsTrigger
               value="about"
-              className="flex-1 rounded-lg font-display text-xs gap-1.5 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground"
+              className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground min-w-0"
             >
-              <UserCircle className="h-4 w-4" /> About
+              <UserCircle className="h-3.5 w-3.5" /> About
             </TabsTrigger>
             <TabsTrigger
               value="posts"
-              className="flex-1 rounded-lg font-display text-xs gap-1.5 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground"
+              className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground min-w-0"
             >
-              <FileText className="h-4 w-4" /> Posts
+              <FileText className="h-3.5 w-3.5" /> Posts
+            </TabsTrigger>
+            <TabsTrigger
+              value="saved"
+              className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground min-w-0"
+            >
+              <Bookmark className="h-3.5 w-3.5" /> Saved
+            </TabsTrigger>
+            <TabsTrigger
+              value="badges"
+              className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground min-w-0"
+            >
+              <Award className="h-3.5 w-3.5" /> Badges
             </TabsTrigger>
             <TabsTrigger
               value="connections"
-              className="flex-1 rounded-lg font-display text-xs gap-1.5 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground"
+              className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground min-w-0"
             >
-              <Users className="h-4 w-4" /> Connections
+              <Users className="h-3.5 w-3.5" /> Konects
             </TabsTrigger>
             <TabsTrigger
               value="listings"
-              className="flex-1 rounded-lg font-display text-xs gap-1.5 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground"
+              className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground min-w-0"
             >
-              <ShoppingBag className="h-4 w-4" /> Listings
+              <ShoppingBag className="h-3.5 w-3.5" /> Listings
             </TabsTrigger>
           </TabsList>
 
@@ -76,6 +90,16 @@ const ProfilePage = () => {
 
           <TabsContent value="posts" className="mt-4">
             <ProfilePostsTab onPostCountChange={setPostCount} />
+          </TabsContent>
+
+          <TabsContent value="saved" className="mt-4">
+            <SavedPostsTab />
+          </TabsContent>
+
+          <TabsContent value="badges" className="mt-4">
+            <div className="bg-card border border-border rounded-xl p-5 shadow-card">
+              {user && <BadgesDisplay userId={user.id} />}
+            </div>
           </TabsContent>
 
           <TabsContent value="listings" className="mt-4">

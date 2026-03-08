@@ -6,6 +6,8 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { DbPost } from "@/hooks/usePosts";
 import { formatDistanceToNow } from "date-fns";
+import ReactionBar from "./ReactionBar";
+import PostPollDisplay from "./PostPollDisplay";
 
 // Keep legacy interface for backward compat
 export interface PostData {
@@ -30,6 +32,8 @@ interface PostCardProps {
   post?: PostData;
   dbPost?: DbPost;
   index: number;
+  isBookmarked?: boolean;
+  onToggleBookmark?: (postId: string) => void;
 }
 
 function dbPostToDisplay(p: DbPost): PostData {
@@ -52,19 +56,18 @@ function dbPostToDisplay(p: DbPost): PostData {
   };
 }
 
-const PostCard = ({ post: legacyPost, dbPost, index }: PostCardProps) => {
+const PostCard = ({ post: legacyPost, dbPost, index, isBookmarked = false, onToggleBookmark }: PostCardProps) => {
   const post = legacyPost || (dbPost ? dbPostToDisplay(dbPost) : null);
   
   if (!post) return null;
 
-  return <PostCardInner post={post} postId={dbPost?.id || post.id} authorUsername={dbPost?.author_username} index={index} />;
+  return <PostCardInner post={post} postId={dbPost?.id || post.id} authorUsername={dbPost?.author_username} index={index} isBookmarked={isBookmarked} onToggleBookmark={onToggleBookmark} />;
 };
 
-const PostCardInner = ({ post, postId, authorUsername, index }: { post: PostData; postId: string; authorUsername?: string; index: number }) => {
+const PostCardInner = ({ post, postId, authorUsername, index, isBookmarked, onToggleBookmark }: { post: PostData; postId: string; authorUsername?: string; index: number; isBookmarked: boolean; onToggleBookmark?: (id: string) => void }) => {
   const navigate = useNavigate();
   const [votes, setVotes] = useState(post.upvotes);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
-  const [saved, setSaved] = useState(false);
 
   const handleVote = (direction: "up" | "down") => {
     if (voted === direction) {
@@ -75,6 +78,9 @@ const PostCardInner = ({ post, postId, authorUsername, index }: { post: PostData
       setVoted(direction);
     }
   };
+
+  // Strip poll text from content for display (shown as PostPollDisplay instead)
+  const displayContent = post.content?.replace(/📊 Poll:\n[\s\S]*$/, "").trim();
 
   return (
     <motion.article
@@ -128,9 +134,9 @@ const PostCardInner = ({ post, postId, authorUsername, index }: { post: PostData
           <h3 className="font-display font-bold text-foreground mb-2 leading-snug">
             {post.title}
           </h3>
-          {post.content && (
+          {displayContent && (
             <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-              {post.content}
+              {displayContent}
             </p>
           )}
           {post.image && (
@@ -145,8 +151,11 @@ const PostCardInner = ({ post, postId, authorUsername, index }: { post: PostData
           )}
         </div>
 
+        {/* Poll Display */}
+        <PostPollDisplay postId={postId} />
+
         {/* Actions */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 mt-2">
           <div className="flex items-center bg-muted rounded-full">
             <button
               onClick={() => handleVote("up")}
@@ -174,12 +183,15 @@ const PostCardInner = ({ post, postId, authorUsername, index }: { post: PostData
             </button>
           </div>
 
-          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5">
+          {/* Emoji Reactions */}
+          <ReactionBar postId={postId} />
+
+          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2">
             <MessageCircle className="h-4 w-4" />
             <span className="text-xs font-display">{post.comments}</span>
           </Button>
 
-          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5">
+          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2">
             <Share2 className="h-4 w-4" />
             <span className="text-xs font-display">{post.shares}</span>
           </Button>
@@ -187,13 +199,13 @@ const PostCardInner = ({ post, postId, authorUsername, index }: { post: PostData
           <div className="flex-1" />
 
           <button
-            onClick={() => setSaved(!saved)}
+            onClick={() => onToggleBookmark?.(postId)}
             className={cn(
               "p-1.5 rounded-full transition-colors",
-              saved ? "text-kenya-gold" : "text-muted-foreground hover:text-foreground"
+              isBookmarked ? "text-kenya-gold" : "text-muted-foreground hover:text-foreground"
             )}
           >
-            <Bookmark className={cn("h-5 w-5", saved && "fill-kenya-gold")} />
+            <Bookmark className={cn("h-5 w-5", isBookmarked && "fill-kenya-gold")} />
           </button>
         </div>
       </div>

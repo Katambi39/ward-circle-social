@@ -240,12 +240,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
       if (selectedFeeling) {
         finalContent = `${selectedFeeling.emoji} Feeling ${selectedFeeling.label}${finalContent ? `\n\n${finalContent}` : ""}`;
       }
-      if (showPoll) {
-        const filledOptions = pollOptions.filter((o) => o.trim());
-        finalContent = `${finalContent ? `${finalContent}\n\n` : ""}📊 Poll:\n${filledOptions.map((o, i) => `${i + 1}. ${o}`).join("\n")}`;
-      }
-
-      const { error } = await supabase.from("posts").insert({
+      const { data: postData, error } = await supabase.from("posts").insert({
         user_id: user.id,
         title: title.trim(),
         content: finalContent || null,
@@ -254,9 +249,18 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         link_url: linkUrl.trim() || null,
         is_anonymous: isAnonymous,
         group_id: selectedGroup !== "none" ? selectedGroup : null,
-      } as any);
+      } as any).select("id").single();
 
       if (error) throw error;
+
+      // Create poll if needed
+      if (showPoll && postData) {
+        const filledOptions = pollOptions.filter((o) => o.trim());
+        await supabase.from("post_polls").insert({
+          post_id: postData.id,
+          options: filledOptions,
+        } as any);
+      }
 
       toast.success("Post created!");
       queryClient.invalidateQueries({ queryKey: ["posts"] });
