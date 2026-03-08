@@ -1,24 +1,33 @@
 import { cn } from "@/lib/utils";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const tabs = [
-  { label: "For You", path: null },
-  { label: "Following", path: null },
-  { label: "Locality", path: null },
+  { label: "For You", filter: null },
+  { label: "Following", filter: "following" },
+  { label: "Locality", filter: "locality" },
   { label: "Toboa Siri", path: "/toboa-siri" },
 ];
 
 const FeedTabs = () => {
-  const [active, setActive] = useState("For You");
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
+  const activeFilter = searchParams.get("filter");
+  const activeTab = activeFilter || "For You";
 
   const handleClick = (tab: typeof tabs[0]) => {
     if (tab.path) {
       navigate(tab.path);
+    } else if (tab.filter) {
+      setSearchParams({ filter: tab.filter });
     } else {
-      setActive(tab.label);
+      setSearchParams({});
     }
+  };
+
+  const isActive = (tab: typeof tabs[0]) => {
+    if (tab.path) return false;
+    if (!tab.filter) return !activeFilter || activeFilter === "verified";
+    return activeFilter === tab.filter;
   };
 
   return (
@@ -29,7 +38,7 @@ const FeedTabs = () => {
           onClick={() => handleClick(tab)}
           className={cn(
             "flex-1 py-2 text-xs sm:text-sm font-display font-medium rounded-lg transition-all whitespace-nowrap min-w-[4rem]",
-            active === tab.label && !tab.path
+            isActive(tab)
               ? "bg-primary text-primary-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground hover:bg-muted"
           )}
