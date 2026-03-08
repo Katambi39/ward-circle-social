@@ -562,7 +562,7 @@ const MessagesPage = () => {
                   </div>
                 )}
                 <div className="p-4 flex items-center gap-2">
-                  <input ref={fileInputRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleFileSelect} />
+                  <input ref={fileInputRef} type="file" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar" className="hidden" onChange={handleFileSelect} />
                   <Button
                     variant="ghost"
                     size="icon"
