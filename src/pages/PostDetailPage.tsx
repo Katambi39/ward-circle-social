@@ -289,7 +289,7 @@ const CommentItem = ({ comment, index, onReply, onDelete, depth = 0 }: { comment
       {comment.replies && comment.replies.length > 0 && (
         <div className="mt-2 space-y-2">
           {comment.replies.map((reply, ri) => (
-            <CommentItem key={reply.id} comment={reply} index={ri} onReply={onReply} depth={depth + 1} />
+            <CommentItem key={reply.id} comment={reply} index={ri} onReply={onReply} onDelete={onDelete} depth={depth + 1} />
           ))}
         </div>
       )}
