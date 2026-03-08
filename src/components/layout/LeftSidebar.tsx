@@ -61,7 +61,7 @@ const LeftSidebar = () => {
         </h3>
       </div>
       <nav className="space-y-1">
-        <SidebarItem icon={<Eye className="h-5 w-5" />} label="Toboa Siri" badge="Anon" />
+        <SidebarItem icon={<Eye className="h-5 w-5" />} label="Toboa Siri" badge="Anon" active={location.pathname === "/toboa-siri"} onClick={() => navigate("/toboa-siri")} />
         <SidebarItem icon={<Shield className="h-5 w-5" />} label="Verified Only" />
       </nav>
     </aside>
