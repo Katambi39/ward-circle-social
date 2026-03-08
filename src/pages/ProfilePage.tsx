@@ -355,7 +355,7 @@ const ProfilePage = () => {
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-display">Location (optional)</Label>
+                  <Label className="text-xs font-display">Constituency (optional)</Label>
                   <Input value={location} onChange={(e) => setLocation(e.target.value)} placeholder="e.g. Westlands" className="rounded-lg" />
                   {errors.location && <p className="text-xs text-accent">{errors.location}</p>}
                 </div>
@@ -429,7 +429,7 @@ const ProfilePage = () => {
                 />
                 <InfoRow
                   icon={<MapPin className="h-4 w-4 text-muted-foreground" />}
-                  label="Location"
+                  label="Constituency"
                   value={profile.location || "Not set"}
                   status={profile.location ? "done" : "pending"}
                 />
