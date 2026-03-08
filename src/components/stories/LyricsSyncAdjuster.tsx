@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Play, Pause, Minus, Plus } from "lucide-react";
+import { Play, Pause, Minus, Plus, Wand2, Loader2 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -16,13 +16,54 @@ interface LyricsSyncAdjusterProps {
   onOffsetChange: (offset: number) => void;
 }
 
+/**
+ * Auto-detect the best lyrics offset for a ~30s preview clip.
+ * Strategy: Deezer previews pick the most musically dense part of the song.
+ * We slide a 30s window across the lyrics timeline and find the offset
+ * that maximises the number of lyric lines within the window — that's
+ * likely where the preview starts.
+ */
+export function autoDetectLyricsOffset(lyrics: LyricLine[], previewDuration = 30): number {
+  if (!lyrics.length) return 0;
+
+  const lastTime = lyrics[lyrics.length - 1].time;
+  if (lastTime <= previewDuration) return 0;
+
+  let bestOffset = 0;
+  let bestCount = 0;
+
+  // Scan in 1-second steps
+  for (let offset = 0; offset <= lastTime - previewDuration; offset += 1) {
+    const windowEnd = offset + previewDuration;
+    let count = 0;
+    for (const line of lyrics) {
+      if (line.time >= offset && line.time < windowEnd) count++;
+    }
+    if (count > bestCount) {
+      bestCount = count;
+      bestOffset = offset;
+    }
+  }
+
+  return Math.round(bestOffset);
+}
+
 const LyricsSyncAdjuster = ({ audioUrl, lyrics, lyricsOffset, onOffsetChange }: LyricsSyncAdjusterProps) => {
   const [playing, setPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
+  const [detecting, setDetecting] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     return () => { audioRef.current?.pause(); };
+  }, []);
+
+  // Auto-detect on mount
+  useEffect(() => {
+    if (lyrics.length > 0 && lyricsOffset === 30) {
+      const detected = autoDetectLyricsOffset(lyrics);
+      onOffsetChange(detected);
+    }
   }, []);
 
   const togglePlay = () => {
@@ -39,6 +80,16 @@ const LyricsSyncAdjuster = ({ audioUrl, lyrics, lyricsOffset, onOffsetChange }: 
     audio.play().catch(() => {});
     audioRef.current = audio;
     setPlaying(true);
+  };
+
+  const handleAutoDetect = () => {
+    setDetecting(true);
+    // Small delay for visual feedback
+    setTimeout(() => {
+      const detected = autoDetectLyricsOffset(lyrics);
+      onOffsetChange(detected);
+      setDetecting(false);
+    }, 300);
   };
 
   // Find active lyric based on currentTime + offset
@@ -60,9 +111,21 @@ const LyricsSyncAdjuster = ({ audioUrl, lyrics, lyricsOffset, onOffsetChange }: 
         <p className="text-[10px] font-display text-muted-foreground uppercase tracking-wider">
           🎤 Lyrics Sync
         </p>
-        <span className="text-[10px] font-display text-muted-foreground">
-          Offset: {lyricsOffset >= 0 ? "+" : ""}{lyricsOffset.toFixed(0)}s
-        </span>
+        <div className="flex items-center gap-1.5">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-5 gap-1 rounded-full px-2 text-[10px] font-display"
+            onClick={handleAutoDetect}
+            disabled={detecting}
+          >
+            {detecting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Wand2 className="h-3 w-3" />}
+            Auto
+          </Button>
+          <span className="text-[10px] font-display text-muted-foreground">
+            {lyricsOffset >= 0 ? "+" : ""}{lyricsOffset.toFixed(0)}s
+          </span>
+        </div>
       </div>
 
       {/* Lyrics preview window */}
@@ -134,7 +197,7 @@ const LyricsSyncAdjuster = ({ audioUrl, lyrics, lyricsOffset, onOffsetChange }: 
       </div>
 
       <p className="text-[9px] text-muted-foreground/60 text-center font-display">
-        Play the preview and adjust until lyrics match the music
+        Tap <strong>Auto</strong> to detect, or play and adjust manually
       </p>
     </div>
   );

@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDistanceToNow } from "date-fns";
 import SyncedLyrics from "./SyncedLyrics";
+import { autoDetectLyricsOffset } from "./LyricsSyncAdjuster";
 import StoryReplyBar from "./StoryReplyBar";
 import StoryRepliesPanel from "./StoryRepliesPanel";
 
@@ -71,10 +72,17 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
   const currentGroup = groups[groupIndex];
   const currentStory = currentGroup?.stories[storyIndex];
 
+  // Initialize lyrics offset: use stored value, or auto-detect from lyrics density
   useEffect(() => {
     const rawOffset = (currentStory as any)?.lyrics_offset;
-    setLyricsOffset(Number.isFinite(rawOffset) ? Number(rawOffset) : 30);
-  }, [currentStory?.id]);
+    if (Number.isFinite(rawOffset) && rawOffset !== 0) {
+      setLyricsOffset(Number(rawOffset));
+    } else if (musicTrack?.lyrics && (musicTrack.lyrics as any[]).length > 0) {
+      setLyricsOffset(autoDetectLyricsOffset(musicTrack.lyrics as any[]));
+    } else {
+      setLyricsOffset(30);
+    }
+  }, [currentStory?.id, musicTrack?.id]);
 
   // Record view
   useEffect(() => {
