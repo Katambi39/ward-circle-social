@@ -666,7 +666,7 @@ const PageDetailPage = () => {
   );
 };
 
-// Content showcase tab - shows page posts
+// Content showcase tab - shows page posts with media upload and comments
 const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) => {
   const { user } = useAuth();
   const { toast: showToast } = useToast();
@@ -674,12 +674,20 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
   const [loading, setLoading] = useState(true);
   const [newContent, setNewContent] = useState("");
   const [posting, setPosting] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [selectedVideo, setSelectedVideo] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const [commentTexts, setCommentTexts] = useState<Record<string, string>>({});
+  const [postComments, setPostComments] = useState<Record<string, any[]>>({});
+  const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
 
   const fetchPosts = async () => {
     const { data } = await supabase
       .from("posts")
       .select("*")
-      .eq("group_id", pageId)
+      .eq("page_id" as any, pageId)
       .order("created_at", { ascending: false });
     setPosts(data || []);
     setLoading(false);
@@ -689,25 +697,131 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
     fetchPosts();
   }, [pageId]);
 
-  const handlePost = async () => {
-    if (!newContent.trim() || !user) return;
-    setPosting(true);
-    const title = newContent.trim().substring(0, 100);
-    const { error } = await supabase.from("posts").insert({
-      user_id: user.id,
-      title,
-      content: newContent.trim(),
-      group_id: pageId,
-      is_anonymous: false,
+  const fetchComments = async (postId: string) => {
+    const { data: comments } = await supabase
+      .from("comments")
+      .select("*")
+      .eq("post_id", postId)
+      .order("created_at", { ascending: true });
+    if (!comments || comments.length === 0) {
+      setPostComments((prev) => ({ ...prev, [postId]: [] }));
+      return;
+    }
+    const userIds = [...new Set(comments.map((c: any) => c.user_id))];
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("user_id, display_name, avatar_url")
+      .in("user_id", userIds);
+    const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
+    setPostComments((prev) => ({
+      ...prev,
+      [postId]: comments.map((c: any) => ({ ...c, profile: profileMap.get(c.user_id) })),
+    }));
+  };
+
+  const toggleComments = (postId: string) => {
+    setExpandedComments((prev) => {
+      const next = new Set(prev);
+      if (next.has(postId)) {
+        next.delete(postId);
+      } else {
+        next.add(postId);
+        if (!postComments[postId]) fetchComments(postId);
+      }
+      return next;
     });
-    if (error) {
-      showToast({ title: "Error", description: "Failed to post content", variant: "destructive" });
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      setSelectedVideo(null);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.size <= 50 * 1024 * 1024) {
+      setSelectedVideo(file);
+      setSelectedImage(null);
+      setImagePreview(null);
     } else {
+      showToast({ title: "File too large", description: "Max video size is 50MB", variant: "destructive" });
+    }
+  };
+
+  const handlePost = async () => {
+    if ((!newContent.trim() && !selectedImage && !selectedVideo) || !user) return;
+    setPosting(true);
+
+    let imageUrl: string | null = null;
+    let videoUrl: string | null = null;
+
+    try {
+      if (selectedImage) {
+        const ext = selectedImage.name.split(".").pop();
+        const path = `${user.id}/${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("post-images").upload(path, selectedImage);
+        if (upErr) throw upErr;
+        const { data: pubData } = supabase.storage.from("post-images").getPublicUrl(path);
+        imageUrl = pubData.publicUrl;
+      }
+
+      if (selectedVideo) {
+        const ext = selectedVideo.name.split(".").pop();
+        const path = `${user.id}/${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("post-videos").upload(path, selectedVideo);
+        if (upErr) throw upErr;
+        const { data: pubData } = supabase.storage.from("post-videos").getPublicUrl(path);
+        videoUrl = pubData.publicUrl;
+      }
+
+      const title = newContent.trim().substring(0, 100) || "Page post";
+      const { error } = await supabase.from("posts").insert({
+        user_id: user.id,
+        title,
+        content: newContent.trim() || null,
+        page_id: pageId,
+        image_url: imageUrl,
+        video_url: videoUrl,
+        is_anonymous: false,
+      } as any);
+
+      if (error) throw error;
+
       showToast({ title: "Posted!", description: "Your content has been shared" });
       setNewContent("");
+      setSelectedImage(null);
+      setSelectedVideo(null);
+      setImagePreview(null);
       fetchPosts();
+    } catch (err: any) {
+      showToast({ title: "Error", description: err.message || "Failed to post content", variant: "destructive" });
     }
     setPosting(false);
+  };
+
+  const handleComment = async (postId: string) => {
+    const text = commentTexts[postId]?.trim();
+    if (!text || !user) return;
+    const { error } = await supabase.from("comments").insert({
+      post_id: postId,
+      user_id: user.id,
+      content: text,
+    });
+    if (error) {
+      showToast({ title: "Error", description: "Failed to add comment", variant: "destructive" });
+    } else {
+      setCommentTexts((prev) => ({ ...prev, [postId]: "" }));
+      fetchComments(postId);
+      const post = posts.find((p) => p.id === postId);
+      if (post) {
+        await supabase.from("posts").update({ comment_count: (post.comment_count || 0) + 1 }).eq("id", postId);
+        fetchPosts();
+      }
+    }
   };
 
   if (loading) {
@@ -724,8 +838,35 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
             onChange={(e) => setNewContent(e.target.value)}
             className="min-h-[80px] resize-none"
           />
-          <div className="flex justify-end">
-            <Button onClick={handlePost} disabled={posting || !newContent.trim()} size="sm" className="rounded-full font-display gap-1.5">
+          {imagePreview && (
+            <div className="relative">
+              <img src={imagePreview} alt="Preview" className="w-full max-h-48 object-cover rounded-lg border border-border" />
+              <Button variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6 rounded-full" onClick={() => { setSelectedImage(null); setImagePreview(null); }}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
+          {selectedVideo && (
+            <div className="flex items-center gap-2 bg-muted rounded-lg p-2 text-sm text-muted-foreground">
+              <Video className="h-4 w-4" />
+              <span className="truncate flex-1">{selectedVideo.name}</span>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => setSelectedVideo(null)}>
+                <Trash2 className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
+          <div className="flex items-center justify-between">
+            <div className="flex gap-1">
+              <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageSelect} />
+              <input ref={videoInputRef} type="file" accept="video/*" className="hidden" onChange={handleVideoSelect} />
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground" onClick={() => imageInputRef.current?.click()}>
+                <ImagePlus className="h-4 w-4" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground" onClick={() => videoInputRef.current?.click()}>
+                <Video className="h-4 w-4" />
+              </Button>
+            </div>
+            <Button onClick={handlePost} disabled={posting || (!newContent.trim() && !selectedImage && !selectedVideo)} size="sm" className="rounded-full font-display gap-1.5">
               <Send className="h-4 w-4" />
               {posting ? "Posting..." : "Post"}
             </Button>
@@ -744,16 +885,61 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
       ) : (
         posts.map((post) => (
           <motion.div key={post.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-xl p-5 shadow-card">
-            <h3 className="font-display font-bold text-foreground text-sm mb-1">{post.title}</h3>
-            {post.content && <p className="text-sm text-muted-foreground line-clamp-3">{post.content}</p>}
+            {post.content && <p className="text-sm text-foreground mb-2">{post.content}</p>}
             {post.image_url && (
-              <div className="mt-3 rounded-lg overflow-hidden border border-border">
-                <img src={post.image_url} alt="" className="w-full h-48 object-cover" />
+              <div className="rounded-lg overflow-hidden border border-border mb-2">
+                <img src={post.image_url} alt="" className="w-full max-h-72 object-cover" />
               </div>
             )}
-            <p className="text-xs text-muted-foreground mt-2 font-display">
-              {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-            </p>
+            {post.video_url && (
+              <div className="rounded-lg overflow-hidden border border-border mb-2">
+                <video src={post.video_url} controls className="w-full max-h-72" />
+              </div>
+            )}
+            <div className="flex items-center justify-between mt-2">
+              <p className="text-xs text-muted-foreground font-display">
+                {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+              </p>
+              <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground gap-1 text-xs" onClick={() => toggleComments(post.id)}>
+                <MessageSquare className="h-3.5 w-3.5" />
+                {post.comment_count || 0}
+              </Button>
+            </div>
+
+            {expandedComments.has(post.id) && (
+              <div className="mt-3 border-t border-border pt-3 space-y-3">
+                {(postComments[post.id] || []).map((comment: any) => (
+                  <div key={comment.id} className="flex gap-2">
+                    <Avatar className="h-6 w-6">
+                      <AvatarImage src={comment.profile?.avatar_url} />
+                      <AvatarFallback className="text-[10px] font-display">
+                        {(comment.profile?.display_name || "?")[0]}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-display font-semibold text-foreground">
+                        {comment.profile?.display_name || "User"}
+                      </span>
+                      <p className="text-xs text-muted-foreground">{comment.content}</p>
+                    </div>
+                  </div>
+                ))}
+                {user && (
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Write a comment..."
+                      value={commentTexts[post.id] || ""}
+                      onChange={(e) => setCommentTexts((prev) => ({ ...prev, [post.id]: e.target.value }))}
+                      onKeyDown={(e) => { if (e.key === "Enter") handleComment(post.id); }}
+                      className="h-8 text-xs rounded-full"
+                    />
+                    <Button size="icon" className="h-8 w-8 rounded-full shrink-0" onClick={() => handleComment(post.id)} disabled={!commentTexts[post.id]?.trim()}>
+                      <Send className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            )}
           </motion.div>
         ))
       )}
