@@ -36,7 +36,8 @@ const TopBar = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-1 min-w-[180px] justify-end">
+        <div className="flex items-center gap-1.5 min-w-[220px] justify-end">
+          <IdentityToggle />
           <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground">
             <MessageCircle className="h-5 w-5" />
           </Button>
