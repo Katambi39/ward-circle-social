@@ -19,6 +19,12 @@ const AuthPage = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
+  const [signInEmail, setSignInEmail] = useState("");
+  const [signInPassword, setSignInPassword] = useState("");
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
+  const [signUpUsername, setSignUpUsername] = useState("");
+  const [signUpDisplayName, setSignUpDisplayName] = useState("");
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -26,13 +32,13 @@ const AuthPage = () => {
     }
   }, [user, authLoading, navigate]);
 
-  const [signInEmail, setSignInEmail] = useState("");
-  const [signInPassword, setSignInPassword] = useState("");
-
-  const [signUpEmail, setSignUpEmail] = useState("");
-  const [signUpPassword, setSignUpPassword] = useState("");
-  const [signUpUsername, setSignUpUsername] = useState("");
-  const [signUpDisplayName, setSignUpDisplayName] = useState("");
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
