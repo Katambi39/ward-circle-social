@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
+import EmojiPicker from "../feed/EmojiPicker";
 
 const QUICK_REACTIONS = ["❤️", "🔥", "😂", "😮", "😢", "👏"];
 
