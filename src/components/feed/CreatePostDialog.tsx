@@ -369,6 +369,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
 
         {/* Content */}
         <Textarea
+          ref={textareaRef}
           placeholder="What's on your mind? Share with your community..."
           value={content}
           onChange={(e) => setContent(e.target.value)}
