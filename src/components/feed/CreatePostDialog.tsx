@@ -222,7 +222,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
     }
   };
 
-
+  const handleSubmit = async () => {
     if (!user) return;
     if (!content.trim() && !imageFile && !videoFile && !showPoll) {
       toast.error("Please add some content");
