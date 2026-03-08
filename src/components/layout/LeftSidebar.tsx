@@ -1,4 +1,4 @@
-import { Home, Users, Compass, TrendingUp, Shield, UserCircle, Flame, MapPin, Building2, Eye, MessageSquare, ShoppingBag, BadgeCheck, ShieldCheck } from "lucide-react";
+import { Home, Users, Compass, TrendingUp, Shield, UserCircle, Flame, MapPin, Building2, Eye, MessageSquare, ShoppingBag, BadgeCheck, ShieldCheck, Flag } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -112,6 +112,7 @@ const LeftSidebar = () => {
           </div>
           <nav className="space-y-1">
             <SidebarItem icon={<ShieldCheck className="h-5 w-5" />} label="KYC Review" active={location.pathname === "/admin/kyc"} onClick={() => navigate("/admin/kyc")} />
+            <SidebarItem icon={<Flag className="h-5 w-5" />} label="Reports" active={location.pathname === "/admin/moderation"} onClick={() => navigate("/admin/moderation")} />
           </nav>
         </>
       )}
