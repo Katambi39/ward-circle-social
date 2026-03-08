@@ -148,4 +148,12 @@
   .shadow-glow {
     box-shadow: var(--shadow-glow);
   }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }

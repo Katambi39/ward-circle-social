@@ -12,6 +12,7 @@ import AuthPage from "./pages/AuthPage";
 import GroupsPage from "./pages/GroupsPage";
 import ToboaSiriPage from "./pages/ToboaSiriPage";
 import ProfilePage from "./pages/ProfilePage";
+import DiscoverPage from "./pages/DiscoverPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,7 @@ const App = () => (
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/groups" element={<ProtectedRoute><GroupsPage /></ProtectedRoute>} />
+              <Route path="/discover" element={<ProtectedRoute><DiscoverPage /></ProtectedRoute>} />
               <Route path="/toboa-siri" element={<ProtectedRoute><ToboaSiriPage /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
