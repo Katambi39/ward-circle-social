@@ -420,11 +420,23 @@ const MessagesPage = () => {
                               animate={{ opacity: 1, y: 0, scale: 1 }}
                               className={`flex ${isMe ? "justify-end" : "justify-start"} mb-1`}
                             >
-                              <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
+                              <div className={`group relative max-w-[75%] rounded-2xl px-4 py-2.5 ${
                                 isMe
                                   ? "gradient-kenya text-primary-foreground rounded-br-md"
                                   : "bg-card border border-border text-foreground rounded-bl-md"
                               }`}>
+                                {isMe && (
+                                  <button
+                                    onClick={async () => {
+                                      if (!window.confirm("Delete this message?")) return;
+                                      await supabase.from("direct_messages").delete().eq("id", msg.id);
+                                      setMessages((prev) => prev.filter((m) => m.id !== msg.id));
+                                    }}
+                                    className="absolute -top-2 -right-2 h-6 w-6 rounded-full bg-destructive text-destructive-foreground items-center justify-center hidden group-hover:flex shadow-sm"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </button>
+                                )}
                                 <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
                                 {/* Show link safety warnings for URLs in messages */}
                                 {(msg.content.match(/https?:\/\/[^\s)]+/gi) || []).map((url, idx) => (

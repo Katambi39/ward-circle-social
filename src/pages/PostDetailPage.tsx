@@ -264,6 +264,15 @@ const CommentItem = ({ comment, index, onReply, onDelete, depth = 0 }: { comment
         <button className="text-[10px] text-muted-foreground font-display hover:text-primary" onClick={() => onReply(comment.id)}>
           Reply
         </button>
+        {user && user.id === comment.user_id && (
+          <button className="text-[10px] text-muted-foreground font-display hover:text-destructive flex items-center gap-0.5" onClick={async () => {
+            if (!window.confirm("Delete this comment?")) return;
+            const { error } = await supabase.from("comments").delete().eq("id", comment.id);
+            if (!error) onDelete?.(comment.id);
+          }}>
+            <Trash2 className="h-3 w-3" /> Delete
+          </button>
+        )}
         {user && user.id !== comment.user_id && (
           <button className="text-[10px] text-muted-foreground font-display hover:text-destructive" onClick={() => setReportOpen(true)}>
             Report
