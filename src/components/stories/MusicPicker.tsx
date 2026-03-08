@@ -108,18 +108,42 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
     }
   };
 
-  const selectWebTrack = (wt: WebTrack) => {
-    const asTrack: MusicTrack = {
-      id: wt.id,
+  const selectWebTrack = async (wt: WebTrack) => {
+    // Toggle off if already selected
+    if (selectedTrack && (selectedTrack.id === wt.id || selectedTrack.title === wt.title)) {
+      onSelect(null);
+      return;
+    }
+
+    // Save to DB first to get a proper UUID (music_track_id is uuid type)
+    const { data: inserted, error } = await supabase.from("music_tracks").insert({
       title: wt.title,
       artist: wt.artist,
-      genre: "web",
       audio_url: wt.preview_url,
       cover_url: wt.cover_url,
       duration_seconds: wt.duration_seconds,
-      lyrics: [],
-    };
-    onSelect(selectedTrack?.id === wt.id ? null : asTrack);
+      genre: "saved",
+    }).select("*").single();
+
+    if (error || !inserted) {
+      // Might already exist, try to find it by title+artist
+      const { data: existing } = await supabase.from("music_tracks")
+        .select("*")
+        .eq("title", wt.title)
+        .eq("artist", wt.artist)
+        .limit(1)
+        .single();
+      if (existing) {
+        onSelect(existing as any as MusicTrack);
+        setSavedIds((prev) => new Set(prev).add(wt.id));
+        return;
+      }
+      toast.error("Failed to select track");
+      return;
+    }
+
+    setSavedIds((prev) => new Set(prev).add(wt.id));
+    onSelect(inserted as any as MusicTrack);
   };
 
   const saveToLibrary = async (wt: WebTrack, e: React.MouseEvent) => {
