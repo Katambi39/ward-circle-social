@@ -258,9 +258,12 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         finalContent = `${selectedFeeling.emoji} Feeling ${selectedFeeling.label}${finalContent ? `\n\n${finalContent}` : ""}`;
       }
 
+      // Auto-generate title from content (first 100 chars)
+      const autoTitle = (finalContent || content.trim() || "Post").substring(0, 100);
+
       const { data: postData, error } = await supabase.from("posts").insert({
         user_id: user.id,
-        title: title.trim(),
+        title: autoTitle,
         content: finalContent || null,
         image_url: imageUrl,
         video_url: videoUrl,
