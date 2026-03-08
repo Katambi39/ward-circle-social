@@ -75,6 +75,18 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
     return null;
   }
 
+  const handleDecrement = () => {
+    const newVal = Math.max(0, startTime - 5);
+    onStartTimeChange(newVal);
+    if (audioRef.current) audioRef.current.currentTime = newVal;
+  };
+
+  const handleIncrement = () => {
+    const newVal = Math.min(maxStart, startTime + 5);
+    onStartTimeChange(newVal);
+    if (audioRef.current) audioRef.current.currentTime = newVal;
+  };
+
   return (
     <div className="bg-muted/50 rounded-xl p-3 space-y-2">
       <div className="flex items-center justify-between">
@@ -108,8 +120,20 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
           className="flex-1"
         />
       </div>
+      {/* +/- buttons for easier mobile control */}
+      <div className="flex items-center justify-center gap-3">
+        <Button variant="outline" size="sm" className="h-7 px-3 text-xs font-display" onClick={handleDecrement}>
+          − 5s
+        </Button>
+        <span className="text-xs font-display font-semibold text-foreground min-w-[48px] text-center">
+          {formatTime(startTime)}
+        </span>
+        <Button variant="outline" size="sm" className="h-7 px-3 text-xs font-display" onClick={handleIncrement}>
+          + 5s
+        </Button>
+      </div>
       <p className="text-[9px] text-muted-foreground/60 text-center font-display">
-        Drag to choose where the music starts playing
+        Use slider or buttons to choose where music starts
       </p>
     </div>
   );
