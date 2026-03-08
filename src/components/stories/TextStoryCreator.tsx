@@ -10,6 +10,7 @@ import StoryFontPicker from "./StoryFontPicker";
 import StoryBackgroundPicker from "./StoryBackgroundPicker";
 import StoryVisibilityToggle from "./StoryVisibilityToggle";
 import MusicPicker from "./MusicPicker";
+import MusicStartTimePicker from "./MusicStartTimePicker";
 import EmojiPicker from "../feed/EmojiPicker";
 import { STORY_FONTS, STORY_BACKGROUNDS, type StoryFont, type StoryBackground } from "./storyConstants";
 
