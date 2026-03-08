@@ -70,7 +70,7 @@ const PostCard = ({ post: legacyPost, dbPost, index, isBookmarked = false, onTog
   
   if (!post) return null;
 
-  return <PostCardInner post={post} postId={dbPost?.id || post.id} authorUsername={dbPost?.author_username} index={index} isBookmarked={isBookmarked} onToggleBookmark={onToggleBookmark} />;
+  return <PostCardInner post={post} postId={dbPost?.id || post.id} authorUserId={dbPost?.user_id} authorUsername={dbPost?.author_username} index={index} isBookmarked={isBookmarked} onToggleBookmark={onToggleBookmark} />;
 };
 
 const PostCardInner = ({ post, postId, authorUsername, index, isBookmarked, onToggleBookmark }: { post: PostData; postId: string; authorUsername?: string; index: number; isBookmarked: boolean; onToggleBookmark?: (id: string) => void }) => {
