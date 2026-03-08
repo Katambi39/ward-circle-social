@@ -52,8 +52,19 @@ const TopBar = () => {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="ml-1 h-8 w-8 rounded-full gradient-kenya flex items-center justify-center text-primary-foreground font-display font-bold text-sm">
-                {profile?.display_name?.[0]?.toUpperCase() || "U"}
+              <button className="ml-1 h-8 w-8 rounded-full overflow-hidden relative">
+                {profile?.avatar_url ? (
+                  <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="h-full w-full gradient-kenya flex items-center justify-center text-primary-foreground font-display font-bold text-sm">
+                    {profile?.display_name?.[0]?.toUpperCase() || "U"}
+                  </div>
+                )}
+                {profile?.verification_status === "verified" && (
+                  <div className="absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-primary flex items-center justify-center border border-card">
+                    <CheckCircle2 className="h-2.5 w-2.5 text-primary-foreground" />
+                  </div>
+                )}
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
