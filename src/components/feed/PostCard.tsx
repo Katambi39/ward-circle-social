@@ -93,7 +93,10 @@ const PostCardInner = ({ post, postId, authorUsername, index }: { post: PostData
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="font-display font-semibold text-sm text-foreground">
+              <span
+                className="font-display font-semibold text-sm text-foreground cursor-pointer hover:underline"
+                onClick={(e) => { e.stopPropagation(); if (!post.isAnonymous && authorUsername) navigate(`/user/${authorUsername}`); }}
+              >
                 {post.isAnonymous ? "Anonymous" : post.author}
               </span>
               {post.isVerified && !post.isAnonymous && (
