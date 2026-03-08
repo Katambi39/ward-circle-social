@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X, ChevronLeft, ChevronRight, Eye, Pause, Play } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Eye, Pause, Play, Music } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDistanceToNow } from "date-fns";
+import SyncedLyrics from "./SyncedLyrics";
 
 interface StoryItem {
   id: string;
