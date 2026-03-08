@@ -105,18 +105,16 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
         >
           {playing ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 ml-0.5" />}
         </Button>
-        <Slider
-          value={[startTime]}
-          min={0}
-          max={maxStart}
-          step={1}
-          onValueChange={([v]) => {
-            onStartTimeChange(v);
-            if (audioRef.current) {
-              audioRef.current.currentTime = v;
-            }
+        <WaveformDisplay
+          audioUrl={audioUrl}
+          duration={effectiveDuration}
+          startTime={startTime}
+          onSeek={(t) => {
+            const clamped = Math.min(t, maxStart);
+            onStartTimeChange(clamped);
+            if (audioRef.current) audioRef.current.currentTime = clamped;
           }}
-          className="flex-1 min-w-0"
+          className="flex-1 h-10 min-w-0 rounded-lg"
         />
       </div>
       {/* +/- buttons for easier mobile control */}
