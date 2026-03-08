@@ -409,7 +409,7 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
                       </div>
                     </button>
 
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 overflow-hidden">
                       <p className="text-xs font-display font-medium truncate">{wt.title}</p>
                       <p className="text-[10px] text-muted-foreground truncate">{wt.artist}</p>
                     </div>
