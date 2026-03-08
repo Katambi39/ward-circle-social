@@ -66,7 +66,6 @@ const CreatePostBar = () => {
             <Smile className="h-4 w-4 text-kenya-gold" />
             <span className="text-[10px] sm:text-xs font-display">Feeling</span>
           </Button>
-          </Button>
         </div>
       </div>
       <CreatePostDialog open={dialogOpen} onOpenChange={handleOpenChange} intent={intent} />
