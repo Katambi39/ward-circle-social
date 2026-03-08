@@ -60,7 +60,6 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
   const videoInputRef = useRef<HTMLInputElement>(null);
   const linkInputRef = useRef<HTMLInputElement>(null);
 
-  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkInput, setShowLinkInput] = useState(false);
@@ -125,7 +124,6 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
   };
 
   const resetForm = () => {
-    setTitle("");
     setContent("");
     setLinkUrl("");
     setShowLinkInput(false);
@@ -191,8 +189,8 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
 
   const handleSubmit = async () => {
     if (!user) return;
-    if (!title.trim()) {
-      toast.error("Please add a title");
+    if (!content.trim() && !imageFile && !videoFile && !showPoll) {
+      toast.error("Please add some content");
       return;
     }
 
@@ -208,7 +206,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
 
     try {
       // Pre-check content with AI moderation
-      const textToCheck = `${title.trim()}\n${content.trim()}`.trim();
+      const textToCheck = content.trim();
       const modResult = await moderateContent(textToCheck, "post");
       
       if (modResult.should_block) {
@@ -260,9 +258,12 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         finalContent = `${selectedFeeling.emoji} Feeling ${selectedFeeling.label}${finalContent ? `\n\n${finalContent}` : ""}`;
       }
 
+      // Auto-generate title from content (first 100 chars)
+      const autoTitle = (finalContent || content.trim() || "Post").substring(0, 100);
+
       const { data: postData, error } = await supabase.from("posts").insert({
         user_id: user.id,
-        title: title.trim(),
+        title: autoTitle,
         content: finalContent || null,
         image_url: imageUrl,
         video_url: videoUrl,
@@ -334,14 +335,8 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
           </div>
         </div>
 
-        {/* Title */}
-        <Input
-          placeholder="Post title *"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="font-display font-semibold"
-          maxLength={200}
-        />
+
+        {/* Content */}
 
         {/* Content */}
         <Textarea
@@ -533,7 +528,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
           </div>
           <Button
             onClick={handleSubmit}
-            disabled={submitting || !title.trim()}
+            disabled={submitting || (!content.trim() && !imageFile && !videoFile && !showPoll)}
             className="rounded-full gradient-kenya text-primary-foreground font-display gap-1.5"
           >
             {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
