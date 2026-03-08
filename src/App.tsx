@@ -10,6 +10,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import AuthPage from "./pages/AuthPage";
 import GroupsPage from "./pages/GroupsPage";
+import GroupDetailPage from "./pages/GroupDetailPage";
 import ToboaSiriPage from "./pages/ToboaSiriPage";
 import ProfilePage from "./pages/ProfilePage";
 import DiscoverPage from "./pages/DiscoverPage";
