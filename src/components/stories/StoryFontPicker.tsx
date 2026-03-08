@@ -7,7 +7,7 @@ interface StoryFontPickerProps {
 
 const StoryFontPicker = ({ selected, onSelect }: StoryFontPickerProps) => {
   return (
-    <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
+    <div className="flex flex-wrap gap-1.5">
       {STORY_FONTS.map((font) => (
         <button
           key={font.id}
