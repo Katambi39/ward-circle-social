@@ -56,27 +56,40 @@ export function usePosts() {
       return;
     }
 
-    const mapped: DbPost[] = (data || []).map((p: any) => ({
-      id: p.id,
-      user_id: p.user_id,
-      title: p.title,
-      content: p.content,
-      image_url: p.image_url,
-      link_url: p.link_url,
-      is_anonymous: p.is_anonymous,
-      upvotes: p.upvotes,
-      downvotes: p.downvotes,
-      comment_count: p.comment_count,
-      share_count: p.share_count,
-      group_id: p.group_id,
-      created_at: p.created_at,
-      author_name: p.profiles?.display_name || "User",
-      author_username: p.profiles?.username || "user",
-      author_avatar: p.profiles?.avatar_url,
-      author_verified: p.profiles?.verification_status === "verified",
-      group_name: p.groups?.name || null,
-      group_location: p.groups?.location || null,
-    }));
+    const postsData = data || [];
+    
+    // Fetch profiles for all unique user_ids
+    const userIds = [...new Set(postsData.map((p: any) => p.user_id))];
+    const { data: profiles } = userIds.length > 0
+      ? await supabase.from("profiles").select("user_id, display_name, username, avatar_url, verification_status").in("user_id", userIds)
+      : { data: [] };
+
+    const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
+
+    const mapped: DbPost[] = postsData.map((p: any) => {
+      const profile = profileMap.get(p.user_id);
+      return {
+        id: p.id,
+        user_id: p.user_id,
+        title: p.title,
+        content: p.content,
+        image_url: p.image_url,
+        link_url: p.link_url,
+        is_anonymous: p.is_anonymous,
+        upvotes: p.upvotes,
+        downvotes: p.downvotes,
+        comment_count: p.comment_count,
+        share_count: p.share_count,
+        group_id: p.group_id,
+        created_at: p.created_at,
+        author_name: profile?.display_name || "User",
+        author_username: profile?.username || "user",
+        author_avatar: profile?.avatar_url || null,
+        author_verified: profile?.verification_status === "verified",
+        group_name: p.groups?.name || null,
+        group_location: p.groups?.location || null,
+      };
+    });
 
     setHasMore(mapped.length === PAGE_SIZE);
 
