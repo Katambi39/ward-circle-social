@@ -570,7 +570,7 @@ const MessagesPage = () => {
                     onClick={() => fileInputRef.current?.click()}
                     disabled={sending}
                   >
-                    <ImagePlus className="h-5 w-5" />
+                    <Paperclip className="h-5 w-5" />
                   </Button>
                   <Input
                     value={newMessage}
