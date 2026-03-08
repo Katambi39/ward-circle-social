@@ -133,9 +133,12 @@ const PostCardInner = ({ post, postId, authorUsername, index }: { post: PostData
           </p>
         )}
 
-        {post.image && (
-          <div className="rounded-lg overflow-hidden mb-3 border border-border">
-            <img src={post.image} alt="" className="w-full h-48 object-cover" />
+          {post.image && (
+            <div className="rounded-lg overflow-hidden mb-3 border border-border">
+              <img src={post.image} alt="" className="w-full h-48 object-cover" />
+            </div>
+          )}
+        </div>
           </div>
         )}
 
