@@ -966,4 +966,47 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
   );
 };
 
+// Threaded comment component for page posts
+const PageComment = ({ comment, postId, depth, onReply }: { comment: any; postId: string; depth: number; onReply: (id: string) => void }) => {
+  const verified = comment.profile?.verification_status === "verified";
+  return (
+    <div className={cn(depth > 0 && "ml-6 border-l-2 border-primary/15 pl-3")}>
+      <div className="flex gap-2">
+        <Avatar className="h-6 w-6 shrink-0">
+          <AvatarImage src={comment.profile?.avatar_url} />
+          <AvatarFallback className="text-[10px] font-display">
+            {(comment.profile?.display_name || "?")[0]}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-display font-semibold text-foreground">
+              {comment.profile?.display_name || "User"}
+            </span>
+            {verified && <CheckCircle2 className="h-3 w-3 text-primary" />}
+            <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+              <Clock className="h-2.5 w-2.5" />
+              {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-0.5">{comment.content}</p>
+          <button
+            onClick={() => onReply(comment.id)}
+            className="text-[10px] text-muted-foreground font-display hover:text-primary mt-1 flex items-center gap-1"
+          >
+            <Reply className="h-3 w-3" /> Reply
+          </button>
+        </div>
+      </div>
+      {comment.replies && comment.replies.length > 0 && (
+        <div className="mt-2 space-y-2">
+          {comment.replies.map((reply: any) => (
+            <PageComment key={reply.id} comment={reply} postId={postId} depth={depth + 1} onReply={onReply} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 export default PageDetailPage;
