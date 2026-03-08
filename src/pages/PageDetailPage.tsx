@@ -667,54 +667,95 @@ const PageDetailPage = () => {
 
 // Content showcase tab - shows page posts
 const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) => {
+  const { user } = useAuth();
+  const { toast: showToast } = useToast();
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [newContent, setNewContent] = useState("");
+  const [posting, setPosting] = useState(false);
+
+  const fetchPosts = async () => {
+    const { data } = await supabase
+      .from("posts")
+      .select("*")
+      .eq("group_id", pageId)
+      .order("created_at", { ascending: false });
+    setPosts(data || []);
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      const { data } = await supabase
-        .from("posts")
-        .select("*")
-        .eq("group_id", pageId)
-        .order("created_at", { ascending: false });
-      setPosts(data || []);
-      setLoading(false);
-    };
     fetchPosts();
   }, [pageId]);
+
+  const handlePost = async () => {
+    if (!newContent.trim() || !user) return;
+    setPosting(true);
+    const title = newContent.trim().substring(0, 100);
+    const { error } = await supabase.from("posts").insert({
+      user_id: user.id,
+      title,
+      content: newContent.trim(),
+      group_id: pageId,
+      is_anonymous: false,
+    });
+    if (error) {
+      showToast({ title: "Error", description: "Failed to post content", variant: "destructive" });
+    } else {
+      showToast({ title: "Posted!", description: "Your content has been shared" });
+      setNewContent("");
+      fetchPosts();
+    }
+    setPosting(false);
+  };
 
   if (loading) {
     return <div className="space-y-3">{[1, 2].map(i => <div key={i} className="bg-card border border-border rounded-xl p-5 animate-pulse"><div className="h-4 bg-muted rounded w-3/4" /></div>)}</div>;
   }
 
-  if (posts.length === 0) {
-    return (
-      <div className="bg-card border border-border rounded-xl p-8 text-center shadow-card">
-        <Image className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-        <h3 className="font-display font-bold text-foreground">No content yet</h3>
-        <p className="text-sm text-muted-foreground">
-          {isOwner ? "Start sharing content with your followers!" : "This page hasn't posted any content yet."}
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-3">
-      {posts.map((post) => (
-        <motion.div key={post.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-xl p-5 shadow-card">
-          <h3 className="font-display font-bold text-foreground text-sm mb-1">{post.title}</h3>
-          {post.content && <p className="text-sm text-muted-foreground line-clamp-3">{post.content}</p>}
-          {post.image_url && (
-            <div className="mt-3 rounded-lg overflow-hidden border border-border">
-              <img src={post.image_url} alt="" className="w-full h-48 object-cover" />
-            </div>
-          )}
-          <p className="text-xs text-muted-foreground mt-2 font-display">
-            {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+    <div className="space-y-4">
+      {isOwner && (
+        <div className="bg-card border border-border rounded-xl p-4 shadow-card space-y-3">
+          <Textarea
+            placeholder="Share something with your followers..."
+            value={newContent}
+            onChange={(e) => setNewContent(e.target.value)}
+            className="min-h-[80px] resize-none"
+          />
+          <div className="flex justify-end">
+            <Button onClick={handlePost} disabled={posting || !newContent.trim()} size="sm" className="rounded-full font-display gap-1.5">
+              <Send className="h-4 w-4" />
+              {posting ? "Posting..." : "Post"}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {posts.length === 0 ? (
+        <div className="bg-card border border-border rounded-xl p-8 text-center shadow-card">
+          <Image className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+          <h3 className="font-display font-bold text-foreground">No content yet</h3>
+          <p className="text-sm text-muted-foreground">
+            {isOwner ? "Start sharing content with your followers!" : "This page hasn't posted any content yet."}
           </p>
-        </motion.div>
-      ))}
+        </div>
+      ) : (
+        posts.map((post) => (
+          <motion.div key={post.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="bg-card border border-border rounded-xl p-5 shadow-card">
+            <h3 className="font-display font-bold text-foreground text-sm mb-1">{post.title}</h3>
+            {post.content && <p className="text-sm text-muted-foreground line-clamp-3">{post.content}</p>}
+            {post.image_url && (
+              <div className="mt-3 rounded-lg overflow-hidden border border-border">
+                <img src={post.image_url} alt="" className="w-full h-48 object-cover" />
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground mt-2 font-display">
+              {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+            </p>
+          </motion.div>
+        ))
+      )}
     </div>
   );
 };
