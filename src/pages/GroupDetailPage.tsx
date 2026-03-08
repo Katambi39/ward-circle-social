@@ -6,7 +6,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/layout/AppLayout";
 import PostCard from "@/components/feed/PostCard";
 import CreatePostBar from "@/components/feed/CreatePostBar";
-import CreatePostDialog from "@/components/feed/CreatePostDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
