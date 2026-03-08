@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { Music, Play, Pause, Check, X, Search, Globe, Library, Loader2 } from "lucide-react";
+import { Music, Play, Pause, Check, X, Search, Globe, Library, Loader2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/sonner";
 
 interface MusicTrack {
   id: string;
