@@ -175,16 +175,16 @@ const TrendingPage = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5 }}
-            className="mt-6 p-4 rounded-xl gradient-dark text-white text-center"
+            className="mt-6 p-4 rounded-xl bg-primary text-primary-foreground text-center"
           >
             <BarChart3 className="h-6 w-6 mx-auto mb-2 opacity-80" />
             <p className="font-display font-bold text-sm mb-1">Unlock Trend Insights</p>
-            <p className="text-xs text-white/60 mb-3">
+            <p className="text-xs opacity-70 mb-3">
               See where trends start, sentiment analysis, and engagement velocity for strategic insights
             </p>
             <Button
               size="sm"
-              className="rounded-full bg-white text-foreground hover:bg-white/90 font-display text-xs gap-1"
+              className="rounded-full bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-display text-xs gap-1"
               onClick={() => setShowAnalytics(true)}
             >
               <Zap className="h-3.5 w-3.5" /> Enable Insights
