@@ -138,8 +138,24 @@ const WaveformDisplay = ({ audioUrl, duration, startTime, onSeek, className }: W
         style={{ width: canvasSize.w, height: canvasSize.h }}
       />
       {peaks.length === 0 && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-[9px] text-muted-foreground/50 font-display">Loading waveform…</span>
+        <div className="absolute inset-0 flex items-center gap-[1.5px] px-1 overflow-hidden">
+          {Array.from({ length: BAR_COUNT }, (_, i) => (
+            <div
+              key={i}
+              className="flex-1 rounded-sm bg-muted-foreground/15 animate-pulse"
+              style={{
+                height: `${20 + 50 * Math.abs(Math.sin(i * 0.45))}%`,
+                animationDelay: `${i * 25}ms`,
+              }}
+            />
+          ))}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: "linear-gradient(90deg, transparent 0%, hsl(var(--primary) / 0.12) 50%, transparent 100%)",
+              animation: "shimmer 1.5s ease-in-out infinite",
+            }}
+          />
         </div>
       )}
     </div>
