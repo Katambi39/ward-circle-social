@@ -26,6 +26,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { PostDialogIntent } from "./CreatePostBar";
 import { moderateContent } from "@/lib/moderation";
 import EmojiPicker from "./EmojiPicker";
+import { checkLinkSafety } from "./LinkSafety";
 
 const FEELING_OPTIONS = [
   { emoji: "😊", label: "Happy" },
