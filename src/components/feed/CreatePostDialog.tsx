@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Image, Link2, X, Eye, EyeOff, Users, Loader2, BarChart3, Smile, Plus, Trash2, Video } from "lucide-react";
+import { Image, Link2, X, Eye, EyeOff, Users, Loader2, BarChart3, Smile, Plus, Trash2, Video, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
