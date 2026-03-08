@@ -13,6 +13,7 @@ import {
   Circle, ShieldAlert,
 } from "lucide-react";
 import { isExplicitLink } from "@/components/feed/LinkSafety";
+import DmLinkWarning from "@/components/messages/DmLinkWarning";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow, isToday, isYesterday } from "date-fns";
 
