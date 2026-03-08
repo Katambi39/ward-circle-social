@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
-import PollCard from "@/components/discover/PollCard";
+import CategoryCard from "@/components/discover/CategoryCard";
 import NearYouCard from "@/components/discover/NearYouCard";
 import CreationPromptCard from "@/components/discover/CreationPromptCard";
 import ChallengeCard from "@/components/discover/ChallengeCard";
