@@ -1,5 +1,6 @@
 import { Search, Bell, MessageCircle, Plus, LogOut, UserCircle, CheckCircle2 } from "lucide-react";
 import IdentityToggle from "@/components/feed/IdentityToggle";
+import NotificationsDropdown from "@/components/notifications/NotificationsDropdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
@@ -52,10 +53,7 @@ const TopBar = () => {
           <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground h-8 w-8 hidden sm:flex">
             <MessageCircle className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground hover:text-foreground relative h-8 w-8">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-accent" />
-          </Button>
+          <NotificationsDropdown />
           <Button size="sm" className="rounded-full gradient-kenya text-primary-foreground font-display gap-1.5 hidden md:flex">
             <Plus className="h-4 w-4" />
             Create
