@@ -457,6 +457,51 @@ export type Database = {
         }
         Relationships: []
       }
+      moderation_flags: {
+        Row: {
+          ai_confidence: number | null
+          content_id: string
+          content_type: string
+          created_at: string
+          flagged_text: string | null
+          id: string
+          reason: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          severity: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          ai_confidence?: number | null
+          content_id: string
+          content_type: string
+          created_at?: string
+          flagged_text?: string | null
+          id?: string
+          reason: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          ai_confidence?: number | null
+          content_id?: string
+          content_type?: string
+          created_at?: string
+          flagged_text?: string | null
+          id?: string
+          reason?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          severity?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -864,6 +909,8 @@ export type Database = {
           image_url: string | null
           is_anonymous: boolean
           link_url: string | null
+          moderation_reason: string | null
+          moderation_status: string
           share_count: number
           title: string
           updated_at: string
@@ -881,6 +928,8 @@ export type Database = {
           image_url?: string | null
           is_anonymous?: boolean
           link_url?: string | null
+          moderation_reason?: string | null
+          moderation_status?: string
           share_count?: number
           title: string
           updated_at?: string
@@ -898,6 +947,8 @@ export type Database = {
           image_url?: string | null
           is_anonymous?: boolean
           link_url?: string | null
+          moderation_reason?: string | null
+          moderation_status?: string
           share_count?: number
           title?: string
           updated_at?: string
