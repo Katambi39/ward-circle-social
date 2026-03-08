@@ -29,6 +29,12 @@ const ThemeDropdownItem = () => {
 const TopBar = () => {
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+  };
 
   const handleSignOut = async () => {
     await signOut();
