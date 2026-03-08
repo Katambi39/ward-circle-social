@@ -14,16 +14,333 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_anonymous: boolean
+          parent_id: string | null
+          post_id: string
+          updated_at: string
+          upvotes: number
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          parent_id?: string | null
+          post_id: string
+          updated_at?: string
+          upvotes?: number
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_anonymous?: boolean
+          parent_id?: string | null
+          post_id?: string
+          updated_at?: string
+          upvotes?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string
+          role: Database["public"]["Enums"]["group_member_role"]
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string
+          role?: Database["public"]["Enums"]["group_member_role"]
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string
+          role?: Database["public"]["Enums"]["group_member_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      groups: {
+        Row: {
+          avatar_url: string | null
+          banner_url: string | null
+          county: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          group_type: Database["public"]["Enums"]["group_type"]
+          id: string
+          is_locality_restricted: boolean
+          is_verified: boolean
+          location: string | null
+          member_count: number
+          name: string
+          slug: string
+          updated_at: string
+          ward: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          banner_url?: string | null
+          county?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          group_type?: Database["public"]["Enums"]["group_type"]
+          id?: string
+          is_locality_restricted?: boolean
+          is_verified?: boolean
+          location?: string | null
+          member_count?: number
+          name: string
+          slug: string
+          updated_at?: string
+          ward?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          banner_url?: string | null
+          county?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          group_type?: Database["public"]["Enums"]["group_type"]
+          id?: string
+          is_locality_restricted?: boolean
+          is_verified?: boolean
+          location?: string | null
+          member_count?: number
+          name?: string
+          slug?: string
+          updated_at?: string
+          ward?: string | null
+        }
+        Relationships: []
+      }
+      posts: {
+        Row: {
+          comment_count: number
+          content: string | null
+          created_at: string
+          downvotes: number
+          group_id: string | null
+          id: string
+          image_url: string | null
+          is_anonymous: boolean
+          link_url: string | null
+          share_count: number
+          title: string
+          updated_at: string
+          upvotes: number
+          user_id: string
+        }
+        Insert: {
+          comment_count?: number
+          content?: string | null
+          created_at?: string
+          downvotes?: number
+          group_id?: string | null
+          id?: string
+          image_url?: string | null
+          is_anonymous?: boolean
+          link_url?: string | null
+          share_count?: number
+          title: string
+          updated_at?: string
+          upvotes?: number
+          user_id: string
+        }
+        Update: {
+          comment_count?: number
+          content?: string | null
+          created_at?: string
+          downvotes?: number
+          group_id?: string | null
+          id?: string
+          image_url?: string | null
+          is_anonymous?: boolean
+          link_url?: string | null
+          share_count?: number
+          title?: string
+          updated_at?: string
+          upvotes?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          county: string | null
+          created_at: string
+          display_name: string
+          id: string
+          is_anonymous_account: boolean
+          location: string | null
+          national_id_hash: string | null
+          phone_number: string | null
+          updated_at: string
+          user_id: string
+          username: string
+          verification_status: Database["public"]["Enums"]["verification_status"]
+          ward: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          county?: string | null
+          created_at?: string
+          display_name: string
+          id?: string
+          is_anonymous_account?: boolean
+          location?: string | null
+          national_id_hash?: string | null
+          phone_number?: string | null
+          updated_at?: string
+          user_id: string
+          username: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
+          ward?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          county?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          is_anonymous_account?: boolean
+          location?: string | null
+          national_id_hash?: string | null
+          phone_number?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string
+          verification_status?: Database["public"]["Enums"]["verification_status"]
+          ward?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      votes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+          vote_type: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+          vote_type: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+          vote_type?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "votes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
+      group_member_role: "member" | "moderator" | "admin"
+      group_type:
+        | "ward"
+        | "location"
+        | "county"
+        | "community"
+        | "interest"
+        | "page"
+      verification_status: "unverified" | "pending" | "verified" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +467,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+      group_member_role: ["member", "moderator", "admin"],
+      group_type: [
+        "ward",
+        "location",
+        "county",
+        "community",
+        "interest",
+        "page",
+      ],
+      verification_status: ["unverified", "pending", "verified", "rejected"],
+    },
   },
 } as const
