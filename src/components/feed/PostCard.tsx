@@ -223,6 +223,9 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
           )}
         </div>
 
+        {/* Embedded Repost */}
+        {repostOf && <EmbeddedRepost originalPostId={repostOf} />}
+
         {/* Poll Display */}
         <PostPollDisplay postId={postId} />
 
