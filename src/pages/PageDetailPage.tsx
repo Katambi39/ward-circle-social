@@ -10,12 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import {
   Store, ArrowBigUp, ArrowBigDown, MessageCircle, MessageSquare, Shield, MapPin, Users, CheckCircle2, UserPlus, UserMinus,
   Star, Calendar, BarChart3, Plus, Send, Clock,
-  Globe, Phone, Image, ArrowLeft, TrendingUp, ImagePlus, Video, Trash2, Reply,
+  Globe, Phone, Image, ArrowLeft, TrendingUp, ImagePlus, Video, Trash2, Reply, Pencil,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PageAnalytics from "@/components/pages/PageAnalytics";
@@ -86,6 +87,51 @@ const PageDetailPage = () => {
   const [pollQuestion, setPollQuestion] = useState("");
   const [pollOptions, setPollOptions] = useState(["", ""]);
   const [creatingPoll, setCreatingPoll] = useState(false);
+
+  // Edit page form
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editWebsite, setEditWebsite] = useState("");
+  const [editCounty, setEditCounty] = useState("");
+  const [editConstituency, setEditConstituency] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const openEditDialog = () => {
+    if (!page) return;
+    setEditName(page.name);
+    setEditDescription(page.description || "");
+    setEditCategory(page.category);
+    setEditPhone(page.phone || "");
+    setEditWebsite(page.website || "");
+    setEditCounty(page.county || "");
+    setEditConstituency(page.constituency || "");
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!page || !editName.trim()) return;
+    setSavingEdit(true);
+    const { error } = await supabase.from("pages").update({
+      name: editName.trim(),
+      description: editDescription.trim() || null,
+      category: editCategory,
+      phone: editPhone.trim() || null,
+      website: editWebsite.trim() || null,
+      county: editCounty.trim() || null,
+      constituency: editConstituency.trim() || null,
+    }).eq("id", page.id);
+    setSavingEdit(false);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Page updated!" });
+    setEditDialogOpen(false);
+    fetchAll();
+  };
 
   const viewRecorded = useRef(false);
 
@@ -341,6 +387,11 @@ const PageDetailPage = () => {
                   )}
                 </div>
               </div>
+              {isOwner && (
+                <Button onClick={openEditDialog} variant="outline" size="sm" className="rounded-full font-display gap-1.5">
+                  <Pencil className="h-3.5 w-3.5" /> Edit Page
+                </Button>
+              )}
               {!isOwner && (
                 <div className="flex items-center gap-2">
                   <StartChatButton targetUserId={page.owner_id} />
@@ -663,6 +714,65 @@ const PageDetailPage = () => {
             </TabsContent>
           )}
         </Tabs>
+
+        {/* Edit Page Dialog */}
+        <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+          <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="font-display flex items-center gap-2">
+                <Pencil className="h-5 w-5 text-primary" /> Edit Page
+              </DialogTitle>
+              <DialogDescription>Update your page details below.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-2">
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Page Name *</Label>
+                <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Page name" className="rounded-xl" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Description</Label>
+                <Textarea value={editDescription} onChange={(e) => setEditDescription(e.target.value)} placeholder="Describe your page..." className="resize-none min-h-[80px]" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Category</Label>
+                <Select value={editCategory} onValueChange={setEditCategory}>
+                  <SelectTrigger className="rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["business", "brand", "community", "creator", "government", "ngo", "media", "other"].map((cat) => (
+                      <SelectItem key={cat} value={cat} className="capitalize">{cat}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label className="font-display text-xs">County</Label>
+                  <Input value={editCounty} onChange={(e) => setEditCounty(e.target.value)} placeholder="e.g. Nairobi" className="rounded-xl" />
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="font-display text-xs">Constituency</Label>
+                  <Input value={editConstituency} onChange={(e) => setEditConstituency(e.target.value)} placeholder="e.g. Westlands" className="rounded-xl" />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Phone</Label>
+                <Input value={editPhone} onChange={(e) => setEditPhone(e.target.value)} placeholder="+254..." className="rounded-xl" />
+              </div>
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Website</Label>
+                <Input value={editWebsite} onChange={(e) => setEditWebsite(e.target.value)} placeholder="https://..." className="rounded-xl" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditDialogOpen(false)} className="rounded-full font-display">Cancel</Button>
+              <Button onClick={handleSaveEdit} disabled={savingEdit || !editName.trim()} className="rounded-full font-display gradient-kenya text-primary-foreground gap-1.5">
+                {savingEdit ? "Saving..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );
