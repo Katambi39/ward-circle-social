@@ -988,6 +988,7 @@ export type Database = {
           link_url: string | null
           moderation_reason: string | null
           moderation_status: string
+          page_id: string | null
           repost_comment: string | null
           repost_of: string | null
           share_count: number
@@ -1011,6 +1012,7 @@ export type Database = {
           link_url?: string | null
           moderation_reason?: string | null
           moderation_status?: string
+          page_id?: string | null
           repost_comment?: string | null
           repost_of?: string | null
           share_count?: number
@@ -1034,6 +1036,7 @@ export type Database = {
           link_url?: string | null
           moderation_reason?: string | null
           moderation_status?: string
+          page_id?: string | null
           repost_comment?: string | null
           repost_of?: string | null
           share_count?: number
@@ -1049,6 +1052,13 @@ export type Database = {
             columns: ["group_id"]
             isOneToOne: false
             referencedRelation: "groups"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "pages"
             referencedColumns: ["id"]
           },
           {
