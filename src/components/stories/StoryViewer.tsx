@@ -50,6 +50,9 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose }: StoryViewerProps) =
   const timerRef = useRef<number | null>(null);
   const startTimeRef = useRef(0);
   const elapsedRef = useRef(0);
+  const musicAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [musicTrack, setMusicTrack] = useState<MusicTrackData | null>(null);
+  const [musicTime, setMusicTime] = useState(0);
 
   const currentGroup = groups[groupIndex];
   const currentStory = currentGroup?.stories[storyIndex];
