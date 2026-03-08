@@ -1,10 +1,12 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X, ChevronLeft, ChevronRight, Eye, Pause, Play, Music, Trash2, ChevronUp } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Eye, Pause, Play, Music, Trash2, ChevronUp, Send } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDistanceToNow } from "date-fns";
 import SyncedLyrics from "./SyncedLyrics";
+import StoryReplyBar from "./StoryReplyBar";
+import StoryRepliesPanel from "./StoryRepliesPanel";
 
 interface StoryItem {
   id: string;
@@ -58,6 +60,8 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
   const [viewCount, setViewCount] = useState(0);
   const [viewers, setViewers] = useState<Array<{ viewer_id: string; viewed_at: string; display_name: string; avatar_url: string | null; username: string }>>([]);
   const [showViewers, setShowViewers] = useState(false);
+  const [showReplies, setShowReplies] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
 
   const currentGroup = groups[groupIndex];
   const currentStory = currentGroup?.stories[storyIndex];
@@ -397,14 +401,14 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
 
         {/* Caption */}
         {currentStory.caption && !musicTrack?.lyrics?.length && (
-          <div className="absolute bottom-4 left-0 right-0 z-40 px-4">
+          <div className={`absolute left-0 right-0 z-40 px-4 ${user && currentGroup.user_id !== user.id ? 'bottom-28' : 'bottom-4'}`}>
             <div className="bg-black/50 backdrop-blur-sm rounded-xl px-4 py-2.5">
               <p className="text-white text-sm font-display text-center">{currentStory.caption}</p>
             </div>
           </div>
         )}
 
-        {/* View count + viewers panel for own stories */}
+        {/* View count + viewers/replies panel for own stories */}
         {user && currentGroup.user_id === user.id && (
           <div className="absolute bottom-0 left-0 right-0 z-40">
             {/* Viewers list panel */}
@@ -447,15 +451,45 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
               </div>
             )}
 
-            {/* Clickable view count button */}
-            <button
-              onClick={() => { setPaused(true); setShowViewers(!showViewers); }}
-              className="mx-auto mb-4 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5 w-fit"
-            >
-              <Eye className="h-3.5 w-3.5 text-white/80" />
-              <span className="text-xs text-white/80 font-display">{viewCount} {viewCount === 1 ? 'view' : 'views'}</span>
-              <ChevronUp className={`h-3 w-3 text-white/60 transition-transform ${showViewers ? 'rotate-180' : ''}`} />
-            </button>
+            {/* Replies panel for own stories */}
+            {showReplies && (
+              <StoryRepliesPanel
+                storyId={currentStory.id}
+                onClose={() => setShowReplies(false)}
+              />
+            )}
+
+            {/* Clickable view count + replies buttons */}
+            <div className="flex justify-center gap-2 mb-4">
+              <button
+                onClick={() => { setPaused(true); setShowViewers(!showViewers); setShowReplies(false); }}
+                className="flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5"
+              >
+                <Eye className="h-3.5 w-3.5 text-white/80" />
+                <span className="text-xs text-white/80 font-display">{viewCount} {viewCount === 1 ? 'view' : 'views'}</span>
+                <ChevronUp className={`h-3 w-3 text-white/60 transition-transform ${showViewers ? 'rotate-180' : ''}`} />
+              </button>
+              <button
+                onClick={() => { setPaused(true); setShowReplies(!showReplies); setShowViewers(false); }}
+                className="flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5"
+              >
+                <Send className="h-3.5 w-3.5 text-white/80" />
+                <span className="text-xs text-white/80 font-display">Replies</span>
+                <ChevronUp className={`h-3 w-3 text-white/60 transition-transform ${showReplies ? 'rotate-180' : ''}`} />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Reply bar for viewers (non-owners) */}
+        {user && currentGroup.user_id !== user.id && (
+          <div className="absolute bottom-0 left-0 right-0 z-40">
+            <StoryReplyBar
+              storyId={currentStory.id}
+              senderId={user.id}
+              onFocus={() => { setPaused(true); setIsTyping(true); }}
+              onBlur={() => { setIsTyping(false); }}
+            />
           </div>
         )}
       </div>
