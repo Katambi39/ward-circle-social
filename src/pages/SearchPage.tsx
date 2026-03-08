@@ -194,7 +194,7 @@ const SearchPage = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-display font-bold text-sm text-foreground flex items-center gap-1">
-                        {p.name}
+                        <Highlight text={p.name} query={debouncedQuery} />
                         {p.is_verified && <CheckCircle2 className="h-3.5 w-3.5 text-primary" />}
                       </p>
                       <p className="text-xs text-muted-foreground">{p.category} • {p.follower_count} followers</p>
