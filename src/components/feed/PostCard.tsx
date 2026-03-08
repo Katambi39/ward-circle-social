@@ -331,6 +331,14 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
           groupLocality: post.groupLocality,
         }}
       />
+
+      <ReportDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        contentId={postId}
+        contentType="post"
+        flaggedText={post.content?.substring(0, 200)}
+      />
     </motion.article>
   );
 };
