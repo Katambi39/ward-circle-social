@@ -45,26 +45,26 @@ const CreatePostBar = () => {
               : "What's on your mind? Share with your community..."}
           </button>
         </div>
-        <div className="flex items-center gap-1 mt-3 pt-3 border-t border-border">
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary gap-1.5 rounded-full" onClick={() => openWith("photo")}>
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-border">
+          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary gap-1 rounded-full px-2 sm:px-3 sm:gap-1.5" onClick={() => openWith("photo")}>
             <Image className="h-4 w-4 text-primary" />
-            <span className="text-xs font-display">Photo</span>
+            <span className="text-[10px] sm:text-xs font-display">Photo</span>
           </Button>
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full" onClick={() => openWith("video")}>
+          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1 rounded-full px-2 sm:px-3 sm:gap-1.5" onClick={() => openWith("video")}>
             <Video className="h-4 w-4 text-secondary" />
-            <span className="text-xs font-display">Video</span>
+            <span className="text-[10px] sm:text-xs font-display">Video</span>
           </Button>
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full" onClick={() => openWith("link")}>
+          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1 rounded-full px-2 sm:px-3 sm:gap-1.5" onClick={() => openWith("link")}>
             <Link2 className="h-4 w-4 text-secondary" />
-            <span className="text-xs font-display">Link</span>
+            <span className="text-[10px] sm:text-xs font-display">Link</span>
           </Button>
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-accent gap-1.5 rounded-full" onClick={() => openWith("poll")}>
+          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-accent gap-1 rounded-full px-2 sm:px-3 sm:gap-1.5" onClick={() => openWith("poll")}>
             <BarChart3 className="h-4 w-4 text-accent" />
-            <span className="text-xs font-display">Poll</span>
+            <span className="text-[10px] sm:text-xs font-display">Poll</span>
           </Button>
-          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-kenya-gold gap-1.5 rounded-full" onClick={() => openWith("feeling")}>
+          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-kenya-gold gap-1 rounded-full px-2 sm:px-3 sm:gap-1.5" onClick={() => openWith("feeling")}>
             <Smile className="h-4 w-4 text-kenya-gold" />
-            <span className="text-xs font-display">Feeling</span>
+            <span className="text-[10px] sm:text-xs font-display">Feeling</span>
           </Button>
         </div>
       </div>
