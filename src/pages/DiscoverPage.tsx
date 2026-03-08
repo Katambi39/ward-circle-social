@@ -49,6 +49,7 @@ const SectionHeader = ({
 );
 
 const DiscoverPage = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [locationEnabled, setLocationEnabled] = useState(false);
 
