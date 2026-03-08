@@ -8,6 +8,8 @@ import { DbPost } from "@/hooks/usePosts";
 import { formatDistanceToNow } from "date-fns";
 import ReactionBar from "./ReactionBar";
 import PostPollDisplay from "./PostPollDisplay";
+import RepostDialog from "./RepostDialog";
+import EmbeddedRepost from "./EmbeddedRepost";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
