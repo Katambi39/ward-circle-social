@@ -134,7 +134,7 @@ const GroupCard = ({ group, onJoined }: GroupCardProps) => {
   const localityLabel = [group.ward, group.county, group.location].filter(Boolean).join(" · ");
 
   return (
-    <div className="bg-card border border-border rounded-xl p-4 shadow-card hover:shadow-elevated transition-shadow">
+    <div className="bg-card border border-border rounded-xl p-4 shadow-card hover:shadow-elevated transition-shadow cursor-pointer" onClick={() => navigate(`/groups/${group.slug}`)}>
       <div className="flex items-start gap-3">
         <div className="h-12 w-12 rounded-xl gradient-kenya flex items-center justify-center text-primary-foreground shrink-0">
           {typeIcons[group.group_type] || <Users className="h-5 w-5" />}
