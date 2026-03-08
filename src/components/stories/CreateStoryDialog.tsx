@@ -75,7 +75,9 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
         media_url: urlData.publicUrl,
         media_type: mediaType,
         caption: caption.trim() || null,
-      });
+        music_track_id: selectedTrack?.id || null,
+        music_start_time: 0,
+      } as any);
 
       if (error) throw error;
 
