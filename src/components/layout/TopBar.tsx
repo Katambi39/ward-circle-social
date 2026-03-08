@@ -1,4 +1,5 @@
 import { Search, Bell, MessageCircle, Plus, LogOut } from "lucide-react";
+import IdentityToggle from "@/components/feed/IdentityToggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
