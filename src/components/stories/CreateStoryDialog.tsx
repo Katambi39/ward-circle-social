@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Camera, Type, X, Loader2, Music } from "lucide-react";
+import { Camera, Type, X, Loader2, Music, Globe, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,6 +28,7 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
   const [showCaption, setShowCaption] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
+  const [visibility, setVisibility] = useState<"public" | "friends_only">("public");
   const [submitting, setSubmitting] = useState(false);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -48,6 +49,7 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
     setShowCaption(false);
     setShowMusic(false);
     setSelectedTrack(null);
+    setVisibility("public");
     setSubmitting(false);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -77,6 +79,7 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
         caption: caption.trim() || null,
         music_track_id: selectedTrack?.id || null,
         music_start_time: 0,
+        visibility,
       } as any);
 
       if (error) throw error;
@@ -164,6 +167,32 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
                 <span className="text-xs font-display truncate">{selectedTrack.title} – {selectedTrack.artist}</span>
               </div>
             )}
+
+            {/* Visibility toggle */}
+            <div className="flex items-center gap-2 bg-muted/50 rounded-xl p-2">
+              <button
+                onClick={() => setVisibility("public")}
+                className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-display transition-colors ${
+                  visibility === "public"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Globe className="h-3.5 w-3.5" />
+                Public
+              </button>
+              <button
+                onClick={() => setVisibility("friends_only")}
+                className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-display transition-colors ${
+                  visibility === "friends_only"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Users className="h-3.5 w-3.5" />
+                Friends Only
+              </button>
+            </div>
 
             {/* Actions */}
             <div className="flex items-center justify-between">
