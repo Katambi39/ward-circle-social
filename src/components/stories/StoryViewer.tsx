@@ -24,6 +24,7 @@ interface MusicTrackData {
   title: string;
   artist: string;
   audio_url: string;
+  cover_url: string | null;
   lyrics: { time: number; text: string }[];
 }
 
