@@ -43,7 +43,7 @@ interface StoryViewerProps {
 
 const STORY_DURATION = 5000; // 5 seconds per story
 
-const StoryViewer = ({ groups, initialGroupIndex, onClose }: StoryViewerProps) => {
+const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryViewerProps) => {
   const { user } = useAuth();
   const [groupIndex, setGroupIndex] = useState(initialGroupIndex);
   const [storyIndex, setStoryIndex] = useState(0);
