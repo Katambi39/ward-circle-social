@@ -71,6 +71,11 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
   const currentGroup = groups[groupIndex];
   const currentStory = currentGroup?.stories[storyIndex];
 
+  useEffect(() => {
+    const rawOffset = (currentStory as any)?.lyrics_offset;
+    setLyricsOffset(Number.isFinite(rawOffset) ? Number(rawOffset) : 30);
+  }, [currentStory?.id]);
+
   // Record view
   useEffect(() => {
     if (!currentStory || !user || currentGroup.user_id === user.id) return;
