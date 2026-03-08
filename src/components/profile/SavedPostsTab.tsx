@@ -67,6 +67,8 @@ const SavedPostsTab = () => {
           author_verified: profile?.verification_status === "verified",
           group_name: p.groups?.name || null,
           group_location: p.groups?.location || null,
+          repost_of: p.repost_of || null,
+          repost_comment: p.repost_comment || null,
         };
       });
 
