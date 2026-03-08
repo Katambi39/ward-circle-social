@@ -46,6 +46,7 @@ interface CreatePostDialogProps {
   onOpenChange: (open: boolean) => void;
   intent?: PostDialogIntent;
   groupId?: string;
+  groupName?: string;
 }
 
 interface GroupOption {
