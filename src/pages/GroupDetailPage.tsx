@@ -339,7 +339,7 @@ const GroupDetailPage = () => {
                       </div>
                     )}
                     <PostCard dbPost={post} index={idx} />
-                    {isAdmin && (
+                    {canPin && (
                       <div className="absolute top-2 right-12">
                         <Button
                           variant="ghost"
