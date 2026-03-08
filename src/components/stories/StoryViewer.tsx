@@ -68,17 +68,6 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
   const currentGroup = groups[groupIndex];
   const currentStory = currentGroup?.stories[storyIndex];
 
-  // Initialize lyrics offset: use stored value, or auto-detect from lyrics density
-  useEffect(() => {
-    const rawOffset = (currentStory as any)?.lyrics_offset;
-    if (Number.isFinite(rawOffset) && rawOffset !== 0) {
-      setLyricsOffset(Number(rawOffset));
-    } else if (musicTrack?.lyrics && (musicTrack.lyrics as any[]).length > 0) {
-      setLyricsOffset(autoDetectLyricsOffset(musicTrack.lyrics as any[]));
-    } else {
-      setLyricsOffset(30);
-    }
-  }, [currentStory?.id, musicTrack?.id]);
 
   // Record view
   useEffect(() => {
