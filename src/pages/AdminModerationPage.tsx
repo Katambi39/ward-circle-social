@@ -228,6 +228,42 @@ const AdminModerationPage = () => {
             <TabsTrigger value="all" className="rounded-xl font-display text-xs">All</TabsTrigger>
           </TabsList>
 
+          {/* Severity & Type Filters */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-display text-muted-foreground">Severity:</span>
+            {["all", "high", "medium", "low"].map((s) => (
+              <button
+                key={s}
+                onClick={() => setSeverityFilter(s)}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-display font-medium border transition-colors ${
+                  severityFilter === s
+                    ? s === "high" ? "bg-destructive/10 text-destructive border-destructive/30"
+                    : s === "medium" ? "bg-yellow-500/10 text-yellow-500 border-yellow-500/30"
+                    : s === "low" ? "bg-blue-500/10 text-blue-500 border-blue-500/30"
+                    : "bg-primary/10 text-primary border-primary/30"
+                    : "bg-muted text-muted-foreground border-border hover:bg-accent"
+                }`}
+              >
+                {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+
+            <span className="text-xs font-display text-muted-foreground ml-2">Type:</span>
+            {["all", ...contentTypes].map((t) => (
+              <button
+                key={t}
+                onClick={() => setTypeFilter(t)}
+                className={`px-2.5 py-1 rounded-lg text-[11px] font-display font-medium border transition-colors capitalize ${
+                  typeFilter === t
+                    ? "bg-primary/10 text-primary border-primary/30"
+                    : "bg-muted text-muted-foreground border-border hover:bg-accent"
+                }`}
+              >
+                {t === "all" ? "All" : t}
+              </button>
+            ))}
+          </div>
+
           <TabsContent value={activeTab}>
             {loading ? (
               <div className="flex items-center justify-center py-16">
