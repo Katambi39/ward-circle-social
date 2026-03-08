@@ -1136,6 +1136,42 @@ const ContentTab = ({ pageId, isOwner, isAdmin }: { pageId: string; isOwner: boo
               <p className="text-xs text-muted-foreground font-display mr-1">
                 {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
               </p>
+              {isAdmin && !isOwner && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-full text-destructive hover:text-destructive hover:bg-destructive/10 gap-1 text-xs"
+                  onClick={async () => {
+                    const { error } = await supabase.from("posts").delete().eq("id", post.id);
+                    if (error) {
+                      showToast({ title: "Error", description: error.message, variant: "destructive" });
+                    } else {
+                      showToast({ title: "Post removed", description: "Content was removed for policy violation" });
+                      fetchPosts();
+                    }
+                  }}
+                >
+                  <Shield className="h-3.5 w-3.5" /> Remove
+                </Button>
+              )}
+              {isOwner && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-full text-destructive hover:text-destructive hover:bg-destructive/10 gap-1 text-xs"
+                  onClick={async () => {
+                    const { error } = await supabase.from("posts").delete().eq("id", post.id);
+                    if (error) {
+                      showToast({ title: "Error", description: error.message, variant: "destructive" });
+                    } else {
+                      showToast({ title: "Post deleted" });
+                      fetchPosts();
+                    }
+                  }}
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              )}
               <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground gap-1 text-xs" onClick={() => toggleComments(post.id)}>
                 <MessageSquare className="h-3.5 w-3.5" />
                 {post.comment_count || 0}
