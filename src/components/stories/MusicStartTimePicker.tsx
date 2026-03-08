@@ -87,7 +87,7 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
   };
 
   return (
-    <div className="bg-muted/50 rounded-xl p-3 space-y-2 overflow-hidden">
+    <div className="bg-muted/50 rounded-xl p-3 space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-[10px] font-display text-muted-foreground uppercase tracking-wider">
           Start point
