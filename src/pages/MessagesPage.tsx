@@ -44,6 +44,7 @@ interface Message {
 const MessagesPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedConvo, setSelectedConvo] = useState<Conversation | null>(null);
