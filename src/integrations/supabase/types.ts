@@ -1133,6 +1133,7 @@ export type Database = {
           created_at: string
           expires_at: string
           id: string
+          lyrics_offset: number | null
           media_type: string
           media_url: string
           music_start_time: number | null
@@ -1146,6 +1147,7 @@ export type Database = {
           created_at?: string
           expires_at?: string
           id?: string
+          lyrics_offset?: number | null
           media_type?: string
           media_url: string
           music_start_time?: number | null
@@ -1159,6 +1161,7 @@ export type Database = {
           created_at?: string
           expires_at?: string
           id?: string
+          lyrics_offset?: number | null
           media_type?: string
           media_url?: string
           music_start_time?: number | null

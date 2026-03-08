@@ -1,0 +1,1 @@
+ALTER TABLE public.stories ADD COLUMN lyrics_offset numeric DEFAULT 0;
