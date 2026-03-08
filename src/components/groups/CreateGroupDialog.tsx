@@ -76,7 +76,7 @@ const CreateGroupDialog = ({ open, onOpenChange, onCreated }: CreateGroupDialogP
         if (existing && existing.length > 0) {
           toast({
             title: "Group already exists",
-            description: `A ${groupType} group for this locality already exists. Only one per locality is allowed.`,
+            description: `A ${groupType === "location" ? "constituency" : groupType} group for this locality already exists. Only one per locality is allowed.`,
             variant: "destructive",
           });
           setLoading(false);
@@ -145,7 +145,7 @@ const CreateGroupDialog = ({ open, onOpenChange, onCreated }: CreateGroupDialogP
               <SelectContent>
                 <SelectItem value="ward">Ward (one per ward)</SelectItem>
                 <SelectItem value="county">County (one per county)</SelectItem>
-                <SelectItem value="location">Location (one per location)</SelectItem>
+                <SelectItem value="location">Constituency (one per constituency)</SelectItem>
                 <SelectItem value="community">Community</SelectItem>
                 <SelectItem value="interest">Interest</SelectItem>
                 <SelectItem value="page">Page</SelectItem>
@@ -208,11 +208,11 @@ const CreateGroupDialog = ({ open, onOpenChange, onCreated }: CreateGroupDialogP
 
               {groupType === "location" && (
                 <div className="space-y-2">
-                  <Label className="font-display text-sm">Location</Label>
+                  <Label className="font-display text-sm">Constituency</Label>
                   <Input
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
-                    placeholder="Enter location name"
+                    placeholder="Enter constituency name"
                     className="rounded-lg"
                   />
                 </div>

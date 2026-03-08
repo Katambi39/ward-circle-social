@@ -24,7 +24,7 @@ const typeIcons: Record<string, React.ReactNode> = {
 const typeLabels: Record<string, string> = {
   ward: "Ward",
   county: "County",
-  location: "Location",
+  location: "Constituency",
   community: "Community",
   interest: "Interest",
   page: "Page",
