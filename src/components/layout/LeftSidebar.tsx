@@ -95,6 +95,19 @@ const LeftSidebar = () => {
         <SidebarItem icon={<Eye className="h-5 w-5" />} label="Toboa Siri" badge="Anon" active={location.pathname === "/toboa-siri"} onClick={() => navigate("/toboa-siri")} />
         <SidebarItem icon={<Shield className="h-5 w-5" />} label="Verified Only" badge="✓" active={location.pathname === "/" && location.search.includes("filter=verified")} onClick={() => navigate("/?filter=verified")} />
       </nav>
+
+      {isAdmin && (
+        <>
+          <div className="mt-6 mb-2 px-3">
+            <h3 className="text-xs font-display font-semibold text-muted-foreground uppercase tracking-wider">
+              Admin
+            </h3>
+          </div>
+          <nav className="space-y-1">
+            <SidebarItem icon={<ShieldCheck className="h-5 w-5" />} label="KYC Review" active={location.pathname === "/admin/kyc"} onClick={() => navigate("/admin/kyc")} />
+          </nav>
+        </>
+      )}
     </aside>
   );
 };
