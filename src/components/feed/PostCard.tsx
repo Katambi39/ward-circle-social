@@ -79,6 +79,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBo
   const [votes, setVotes] = useState(post.upvotes);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
   const [deleted, setDeleted] = useState(false);
+  const [shareCount, setShareCount] = useState(post.shares);
 
   const isOwnPost = !!(user && authorUserId && user.id === authorUserId);
 
@@ -94,13 +95,20 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBo
 
   const handleShare = async () => {
     const url = `${window.location.origin}/post/${postId}`;
+    let shared = false;
     if (navigator.share) {
       try {
         await navigator.share({ title: post.title, url });
+        shared = true;
       } catch {}
     } else {
       await navigator.clipboard.writeText(url);
       toast.success("Link copied to clipboard");
+      shared = true;
+    }
+    if (shared) {
+      setShareCount((c) => c + 1);
+      supabase.from("posts").update({ share_count: post.shares + 1 }).eq("id", postId).then();
     }
   };
 
@@ -261,7 +269,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBo
 
           <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2" onClick={(e) => { e.stopPropagation(); handleShare(); }}>
             <Share2 className="h-4 w-4" />
-            <span className="text-xs font-display">{post.shares}</span>
+            <span className="text-xs font-display">{shareCount}</span>
           </Button>
 
           <div className="flex-1" />
