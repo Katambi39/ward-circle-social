@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  ArrowLeft, Shield, Users, MapPin, Crown, MessageSquare, FileText, Settings, Pin, ShieldCheck, ShieldOff,
+  ArrowLeft, Shield, Users, MapPin, Crown, MessageSquare, FileText, Settings, Pin, ShieldCheck, ShieldOff, Trash2,
 } from "lucide-react";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -333,7 +333,8 @@ const GroupDetailPage = () => {
               </div>
             ) : (
               posts.map((post, idx) => {
-                const canPin = membership?.role === "moderator";
+                const isMod = membership?.role === "moderator";
+                const canPin = isMod;
                 return (
                   <div key={post.id} className="relative">
                     {(post as any).is_pinned && (
@@ -342,21 +343,39 @@ const GroupDetailPage = () => {
                       </div>
                     )}
                     <PostCard dbPost={post} index={idx} />
-                    {canPin && (
-                      <div className="absolute top-2 right-12">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 rounded-full text-muted-foreground hover:text-primary"
-                          title={(post as any).is_pinned ? "Unpin post" : "Pin post"}
-                          onClick={async () => {
-                            const newPinned = !(post as any).is_pinned;
-                            await supabase.from("posts").update({ is_pinned: newPinned } as any).eq("id", post.id);
-                            queryClient.invalidateQueries({ queryKey: ["group-posts", group!.id] });
-                          }}
-                        >
-                          <Pin className={`h-3.5 w-3.5 ${(post as any).is_pinned ? "text-primary fill-primary" : ""}`} />
-                        </Button>
+                    {(canPin || isMod) && (
+                      <div className="absolute top-2 right-12 flex items-center gap-0.5">
+                        {canPin && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 rounded-full text-muted-foreground hover:text-primary"
+                            title={(post as any).is_pinned ? "Unpin post" : "Pin post"}
+                            onClick={async () => {
+                              const newPinned = !(post as any).is_pinned;
+                              await supabase.from("posts").update({ is_pinned: newPinned } as any).eq("id", post.id);
+                              queryClient.invalidateQueries({ queryKey: ["group-posts", group!.id] });
+                            }}
+                          >
+                            <Pin className={`h-3.5 w-3.5 ${(post as any).is_pinned ? "text-primary fill-primary" : ""}`} />
+                          </Button>
+                        )}
+                        {isMod && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 rounded-full text-muted-foreground hover:text-destructive"
+                            title="Remove post"
+                            onClick={async () => {
+                              if (!window.confirm("Remove this post from the group?")) return;
+                              await supabase.from("posts").delete().eq("id", post.id);
+                              queryClient.invalidateQueries({ queryKey: ["group-posts", group!.id] });
+                              toast({ title: "Post removed", description: "The post has been removed from the group." });
+                            }}
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        )}
                       </div>
                     )}
                   </div>
