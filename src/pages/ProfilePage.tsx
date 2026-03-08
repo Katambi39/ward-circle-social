@@ -58,6 +58,12 @@ const ProfilePage = () => {
             >
               <Users className="h-4 w-4" /> Connections
             </TabsTrigger>
+            <TabsTrigger
+              value="listings"
+              className="flex-1 rounded-lg font-display text-xs gap-1.5 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground"
+            >
+              <ShoppingBag className="h-4 w-4" /> Listings
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="about" className="mt-4">
