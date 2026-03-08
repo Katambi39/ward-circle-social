@@ -12,6 +12,16 @@ interface StoryItem {
   caption: string | null;
   created_at: string;
   expires_at: string;
+  music_track_id?: string | null;
+  music_start_time?: number;
+}
+
+interface MusicTrackData {
+  id: string;
+  title: string;
+  artist: string;
+  audio_url: string;
+  lyrics: { time: number; text: string }[];
 }
 
 interface StoryGroup {
