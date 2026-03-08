@@ -12,8 +12,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  ArrowLeft, Shield, Users, MapPin, Crown, MessageSquare, FileText, Settings, Pin,
+  ArrowLeft, Shield, Users, MapPin, Crown, MessageSquare, FileText, Settings, Pin, ShieldCheck, ShieldOff,
 } from "lucide-react";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import type { DbPost } from "@/hooks/usePosts";
