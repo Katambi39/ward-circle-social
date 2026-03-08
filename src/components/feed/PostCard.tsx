@@ -95,21 +95,21 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBo
 
   const handleShare = async () => {
     const url = `${window.location.origin}/post/${postId}`;
-    let shared = false;
     if (navigator.share) {
       try {
         await navigator.share({ title: post.title, url });
-        shared = true;
       } catch {}
     } else {
-      await navigator.clipboard.writeText(url);
+      try {
+        await navigator.clipboard.writeText(url);
+      } catch {
+        // Fallback for environments where clipboard API is unavailable
+      }
       toast.success("Link copied to clipboard");
-      shared = true;
     }
-    if (shared) {
-      setShareCount((c) => c + 1);
-      supabase.from("posts").update({ share_count: post.shares + 1 }).eq("id", postId).then();
-    }
+    // Always increment share count
+    setShareCount((c) => c + 1);
+    supabase.from("posts").update({ share_count: post.shares + 1 }).eq("id", postId).then();
   };
 
   const handleDelete = async () => {
