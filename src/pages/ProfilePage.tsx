@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { KENYA_COUNTIES, SAMPLE_WARDS } from "@/data/kenyaLocalities";
 import {
-  Shield, MapPin, Phone, CreditCard, Edit3, Save, X,
+  Shield, MapPin, Phone, CreditCard, Edit3, Save, X, Camera,
   CheckCircle2, Clock, AlertCircle, UserCircle, Mail,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -40,6 +40,8 @@ const ProfilePage = () => {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
 
   const [displayName, setDisplayName] = useState("");
   const [username, setUsername] = useState("");
