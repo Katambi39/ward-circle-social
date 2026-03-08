@@ -19,6 +19,12 @@ const AuthPage = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [socialLoading, setSocialLoading] = useState<string | null>(null);
+  const [signInEmail, setSignInEmail] = useState("");
+  const [signInPassword, setSignInPassword] = useState("");
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
+  const [signUpUsername, setSignUpUsername] = useState("");
+  const [signUpDisplayName, setSignUpDisplayName] = useState("");
 
   useEffect(() => {
     if (!authLoading && user) {
@@ -33,13 +39,6 @@ const AuthPage = () => {
       </div>
     );
   }
-  const [signInEmail, setSignInEmail] = useState("");
-  const [signInPassword, setSignInPassword] = useState("");
-
-  const [signUpEmail, setSignUpEmail] = useState("");
-  const [signUpPassword, setSignUpPassword] = useState("");
-  const [signUpUsername, setSignUpUsername] = useState("");
-  const [signUpDisplayName, setSignUpDisplayName] = useState("");
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
