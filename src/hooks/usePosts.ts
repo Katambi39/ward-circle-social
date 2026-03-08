@@ -16,6 +16,8 @@ export interface DbPost {
   share_count: number;
   group_id: string | null;
   created_at: string;
+  repost_of: string | null;
+  repost_comment: string | null;
   // Joined data
   author_name: string;
   author_username: string;
