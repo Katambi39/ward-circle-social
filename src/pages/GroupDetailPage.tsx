@@ -280,7 +280,7 @@ const GroupDetailPage = () => {
 
           <TabsContent value="posts" className="mt-4 space-y-3">
             {membership && (
-              <CreatePostBar groupId={group.id} />
+              <CreatePostBar groupId={group.id} groupName={group.name} />
             )}
 
             {postsLoading ? (
