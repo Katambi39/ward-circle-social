@@ -9,6 +9,7 @@ import { isExplicitLink } from "@/components/feed/LinkSafety";
 import StoryFontPicker from "./StoryFontPicker";
 import StoryVisibilityToggle from "./StoryVisibilityToggle";
 import MusicPicker from "./MusicPicker";
+import MusicStartTimePicker from "./MusicStartTimePicker";
 import EmojiPicker from "../feed/EmojiPicker";
 import { STORY_FONTS, type StoryFont } from "./storyConstants";
 
