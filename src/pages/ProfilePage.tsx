@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { UserCircle, FileText, Users } from "lucide-react";
+import { UserCircle, FileText, Users, ShoppingBag } from "lucide-react";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileAboutTab from "@/components/profile/ProfileAboutTab";
 import ProfilePostsTab from "@/components/profile/ProfilePostsTab";
 import ProfileConnectionsTab from "@/components/profile/ProfileConnectionsTab";
+import ProfileListingsTab from "@/components/profile/ProfileListingsTab";
 
 const ProfilePage = () => {
   const { profile } = useAuth();
