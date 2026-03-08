@@ -82,35 +82,62 @@ const WaveformDisplay = ({ audioUrl, duration, startTime, playbackPosition, onSe
     ctx.clearRect(0, 0, w, h);
 
     const barW = (w - (BAR_COUNT - 1) * BAR_GAP) / BAR_COUNT;
-    const progress = duration > 0 ? startTime / duration : 0;
+    const startProgress = duration > 0 ? startTime / duration : 0;
+    const playProgress = playbackPosition != null && duration > 0 ? playbackPosition / duration : null;
+
+    const activeStyle = getComputedStyle(canvas).getPropertyValue("--waveform-active").trim() || "hsl(142 76% 36%)";
+    const inactiveStyle = getComputedStyle(canvas).getPropertyValue("--waveform-inactive").trim() || "hsl(0 0% 50% / 0.3)";
+    const playedStyle = getComputedStyle(canvas).getPropertyValue("--waveform-played").trim() || "hsl(142 76% 50% / 0.6)";
 
     for (let i = 0; i < peaks.length; i++) {
       const x = i * (barW + BAR_GAP);
       const barH = Math.max(2, peaks[i] * (h - 4));
       const y = (h - barH) / 2;
-      const barProgress = i / peaks.length;
+      const barPos = i / peaks.length;
 
       ctx.beginPath();
       ctx.roundRect(x, y, barW, barH, 1);
 
-      if (barProgress <= progress) {
-        // Played region — use primary color
-        ctx.fillStyle = getComputedStyle(canvas).getPropertyValue("--waveform-active").trim() || "hsl(142 76% 36%)";
+      if (playProgress != null && barPos <= playProgress) {
+        // Currently playing region
+        ctx.fillStyle = playedStyle;
+      } else if (barPos <= startProgress) {
+        ctx.fillStyle = activeStyle;
       } else {
-        ctx.fillStyle = getComputedStyle(canvas).getPropertyValue("--waveform-inactive").trim() || "hsl(0 0% 50% / 0.3)";
+        ctx.fillStyle = inactiveStyle;
       }
       ctx.fill();
     }
 
-    // Draw playhead line
-    const px = progress * w;
+    // Draw start-point line
+    const sx = startProgress * w;
     ctx.beginPath();
-    ctx.moveTo(px, 0);
-    ctx.lineTo(px, h);
-    ctx.strokeStyle = getComputedStyle(canvas).getPropertyValue("--waveform-active").trim() || "hsl(142 76% 36%)";
+    ctx.moveTo(sx, 0);
+    ctx.lineTo(sx, h);
+    ctx.strokeStyle = activeStyle;
     ctx.lineWidth = 2;
     ctx.stroke();
-  }, [peaks, startTime, duration, canvasSize]);
+
+    // Draw playback head (animated)
+    if (playProgress != null) {
+      const px = playProgress * w;
+      ctx.beginPath();
+      ctx.moveTo(px, 0);
+      ctx.lineTo(px, h);
+      ctx.strokeStyle = playedStyle;
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Glow effect on playhead
+      ctx.shadowColor = playedStyle;
+      ctx.shadowBlur = 6;
+      ctx.beginPath();
+      ctx.arc(px, h / 2, 3.5, 0, Math.PI * 2);
+      ctx.fillStyle = activeStyle;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }, [peaks, startTime, playbackPosition, duration, canvasSize]);
 
   const handlePointer = (e: React.PointerEvent | React.MouseEvent | React.TouchEvent) => {
     const rect = containerRef.current?.getBoundingClientRect();
