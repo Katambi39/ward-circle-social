@@ -207,6 +207,24 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
     setSubmitting(true);
 
     try {
+      // Pre-check content with AI moderation
+      const textToCheck = `${title.trim()}\n${content.trim()}`.trim();
+      const modResult = await moderateContent(textToCheck, "post");
+      
+      if (modResult.should_block) {
+        toast.error(
+          <div className="flex items-start gap-2">
+            <ShieldAlert className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+            <div>
+              <p className="font-display font-semibold">Content blocked</p>
+              <p className="text-xs mt-0.5">{modResult.reason}</p>
+            </div>
+          </div>
+        );
+        setSubmitting(false);
+        return;
+      }
+
       let imageUrl: string | null = null;
       let videoUrl: string | null = null;
 
@@ -236,11 +254,12 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         videoUrl = urlData.publicUrl;
       }
 
-      // Build content with feeling and poll info
+      // Build content with feeling
       let finalContent = content.trim();
       if (selectedFeeling) {
         finalContent = `${selectedFeeling.emoji} Feeling ${selectedFeeling.label}${finalContent ? `\n\n${finalContent}` : ""}`;
       }
+
       const { data: postData, error } = await supabase.from("posts").insert({
         user_id: user.id,
         title: title.trim(),
@@ -250,9 +269,16 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         link_url: linkUrl.trim() || null,
         is_anonymous: isAnonymous,
         group_id: selectedGroup !== "none" ? selectedGroup : null,
+        moderation_status: modResult.is_flagged ? "flagged" : "approved",
+        moderation_reason: modResult.is_flagged ? modResult.reason : null,
       } as any).select("id").single();
 
       if (error) throw error;
+
+      // Log flagged content asynchronously
+      if (modResult.is_flagged && postData) {
+        moderateContent(textToCheck, "post", postData.id, user.id).catch(() => {});
+      }
 
       // Create poll if needed
       if (showPoll && postData) {
@@ -263,7 +289,11 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         } as any);
       }
 
-      toast.success("Post created!");
+      if (modResult.is_flagged) {
+        toast.warning("Post created but flagged for review by our moderation system.");
+      } else {
+        toast.success("Post created!");
+      }
       queryClient.invalidateQueries({ queryKey: ["posts"] });
       handleOpenChange(false);
     } catch (err: any) {
