@@ -12,7 +12,7 @@ interface WaveformDisplayProps {
 const BAR_COUNT = 80;
 const BAR_GAP = 1.5;
 
-const WaveformDisplay = ({ audioUrl, duration, startTime, onSeek, className }: WaveformDisplayProps) => {
+const WaveformDisplay = ({ audioUrl, duration, startTime, playbackPosition, onSeek, className }: WaveformDisplayProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [peaks, setPeaks] = useState<number[]>([]);
