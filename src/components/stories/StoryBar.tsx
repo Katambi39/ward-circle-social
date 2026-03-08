@@ -117,6 +117,8 @@ const StoryBar = () => {
         caption: s.caption,
         created_at: s.created_at,
         expires_at: s.expires_at,
+        music_track_id: s.music_track_id,
+        music_start_time: s.music_start_time,
       });
       if (!viewedIds.includes(s.id)) group.hasUnviewed = true;
     }
