@@ -60,6 +60,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
   const videoInputRef = useRef<HTMLInputElement>(null);
   const linkInputRef = useRef<HTMLInputElement>(null);
 
+  const [anonTitle, setAnonTitle] = useState("");
   const [content, setContent] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkInput, setShowLinkInput] = useState(false);
