@@ -496,7 +496,7 @@ const PageDetailPage = () => {
 
           {/* CONTENT TAB */}
           <TabsContent value="content" className="mt-4">
-            <ContentTab pageId={page.id} isOwner={!!isOwner} />
+            <ContentTab pageId={page.id} isOwner={!!isOwner} isAdmin={isAdmin} />
           </TabsContent>
 
           {/* POLLS TAB */}
