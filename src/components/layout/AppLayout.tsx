@@ -9,13 +9,13 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children }: AppLayoutProps) => {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       <TopBar />
       <div className="flex">
         <div className="hidden md:block">
           <LeftSidebar />
         </div>
-        <main className="flex-1 min-w-0 pb-16 md:pb-0">
+        <main className="flex-1 min-w-0 pb-16 md:pb-0 overflow-x-hidden">
           {children}
         </main>
         <div className="hidden lg:block">

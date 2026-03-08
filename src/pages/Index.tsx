@@ -60,7 +60,7 @@ const Index = () => {
 
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto py-4 px-4">
+      <div className="max-w-2xl mx-auto py-4 px-4 overflow-x-hidden">
         <FeedTabs />
 
         {filterLabel && (
