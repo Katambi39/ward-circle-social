@@ -342,6 +342,19 @@ const MarketplacePage = () => {
           </div>
         </div>
 
+        {/* Main Tabs: Browse / My Listings */}
+        <Tabs value={mainTab} onValueChange={setMainTab} className="mb-4">
+          <TabsList className="w-full bg-card border border-border rounded-xl p-1 shadow-card">
+            <TabsTrigger value="browse" className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground">
+              <ShoppingBag className="h-3.5 w-3.5" /> Browse
+            </TabsTrigger>
+            <TabsTrigger value="mine" className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground">
+              <User className="h-3.5 w-3.5" /> My Listings {myListings.length > 0 && `(${myListings.length})`}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {mainTab === "browse" && (<>
         {/* Category Tabs */}
         <Tabs value={filterCategory} onValueChange={setFilterCategory} className="mb-4">
           <TabsList className="w-full bg-card border border-border rounded-xl p-1 shadow-card">
