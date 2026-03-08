@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import StartChatButton from "@/components/messages/StartChatButton";
 import ListingReviews from "@/components/marketplace/ListingReviews";
+import EditListingDialog from "@/components/marketplace/EditListingDialog";
 import {
   ArrowLeft, MapPin, Heart, Eye, Shield, CheckCircle2,
   ShoppingBag, Tag, Clock, ShoppingCart, AlertCircle,
@@ -251,7 +252,14 @@ const ListingDetailPage = () => {
               <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {formatDistanceToNow(new Date(listing.created_at), { addSuffix: true })}</span>
             </div>
 
-            {/* Actions */}
+            {/* Owner Actions */}
+            {isOwner && !isSold && (
+              <div className="mt-5">
+                <EditListingDialog listing={listing} onUpdated={fetchListing} />
+              </div>
+            )}
+
+            {/* Buyer Actions */}
             {!isOwner && !isSold && (
               <div className="mt-5 flex items-center gap-3">
                 <Dialog open={buyDialogOpen} onOpenChange={setBuyDialogOpen}>
