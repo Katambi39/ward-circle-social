@@ -305,6 +305,9 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId }: C
         toast.success("Post created!");
       }
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      if (selectedGroup !== "none") {
+        queryClient.invalidateQueries({ queryKey: ["group-posts", selectedGroup] });
+      }
       handleOpenChange(false);
     } catch (err: any) {
       toast.error(err.message || "Failed to create post");

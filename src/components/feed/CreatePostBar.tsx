@@ -68,7 +68,7 @@ const CreatePostBar = ({ groupId }: { groupId?: string }) => {
           </Button>
         </div>
       </div>
-      <CreatePostDialog open={dialogOpen} onOpenChange={handleOpenChange} intent={intent} />
+      <CreatePostDialog open={dialogOpen} onOpenChange={handleOpenChange} intent={intent} groupId={groupId} />
     </>
   );
 };
