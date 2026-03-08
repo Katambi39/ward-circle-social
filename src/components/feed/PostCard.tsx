@@ -68,6 +68,7 @@ function dbPostToDisplay(p: DbPost): PostData {
     isVerified: p.author_verified,
     isAnonymous: p.is_anonymous,
     feeling: p.feeling || undefined,
+    linkUrl: p.link_url || undefined,
   };
 }
 
