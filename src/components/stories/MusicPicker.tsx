@@ -212,7 +212,7 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
         <button
           onClick={() => setTab("library")}
           className={cn(
-            "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-display transition-colors",
+            "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-display transition-colors",
             tab === "library"
               ? "bg-primary text-primary-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
@@ -224,14 +224,26 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
         <button
           onClick={() => setTab("web")}
           className={cn(
-            "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-display transition-colors",
+            "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-display transition-colors",
             tab === "web"
               ? "bg-primary text-primary-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           )}
         >
           <Globe className="h-3.5 w-3.5" />
-          Search Web
+          Web
+        </button>
+        <button
+          onClick={() => setTab("upload")}
+          className={cn(
+            "flex-1 flex items-center justify-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-display transition-colors",
+            tab === "upload"
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
+          )}
+        >
+          <Upload className="h-3.5 w-3.5" />
+          Upload
         </button>
       </div>
 
