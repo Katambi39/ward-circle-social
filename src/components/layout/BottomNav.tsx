@@ -36,6 +36,7 @@ const BottomNav = () => {
   const { profile } = useAuth();
   const [open, setOpen] = useState(false);
   const isUnverified = !profile?.verification_status || profile.verification_status === "unverified";
+  const unreadMsgCount = useUnreadMessages();
 
   const handleNav = (path: string) => {
     navigate(path);
