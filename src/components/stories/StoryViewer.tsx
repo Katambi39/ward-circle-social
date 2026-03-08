@@ -279,8 +279,27 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose }: StoryViewerProps) =
           )}
         </div>
 
+        {/* Synced Lyrics */}
+        {musicTrack && musicTrack.lyrics && (musicTrack.lyrics as any[]).length > 0 && (
+          <SyncedLyrics
+            lyrics={musicTrack.lyrics as any[]}
+            currentTime={musicTime}
+            isPlaying={!paused}
+          />
+        )}
+
+        {/* Music indicator */}
+        {musicTrack && (
+          <div className="absolute top-14 right-2 z-40 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full px-2.5 py-1">
+            <Music className="h-3 w-3 text-white animate-pulse" />
+            <span className="text-[10px] text-white/80 font-display truncate max-w-[100px]">
+              {musicTrack.title}
+            </span>
+          </div>
+        )}
+
         {/* Caption */}
-        {currentStory.caption && (
+        {currentStory.caption && !musicTrack?.lyrics?.length && (
           <div className="absolute bottom-4 left-0 right-0 z-40 px-4">
             <div className="bg-black/50 backdrop-blur-sm rounded-xl px-4 py-2.5">
               <p className="text-white text-sm font-display text-center">{currentStory.caption}</p>
