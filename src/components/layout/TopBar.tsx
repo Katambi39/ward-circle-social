@@ -1,4 +1,4 @@
-import { Search, Bell, MessageCircle, Plus, LogOut, UserCircle, CheckCircle2 } from "lucide-react";
+import { Search, Bell, MessageCircle, Plus, LogOut, UserCircle, CheckCircle2, Moon, Sun } from "lucide-react";
 import IdentityToggle from "@/components/feed/IdentityToggle";
 import NotificationsDropdown from "@/components/notifications/NotificationsDropdown";
 import { Button } from "@/components/ui/button";
@@ -6,12 +6,25 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import conectLogo from "@/assets/conect-logo.png";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "next-themes";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+const ThemeDropdownItem = () => {
+  const { theme, setTheme } = useTheme();
+  return (
+    <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="gap-2 cursor-pointer">
+      <Sun className="h-4 w-4 dark:hidden" />
+      <Moon className="h-4 w-4 hidden dark:block" />
+      {theme === "dark" ? "Light Mode" : "Dark Mode"}
+    </DropdownMenuItem>
+  );
+};
 
 const TopBar = () => {
   const { profile, signOut } = useAuth();
@@ -54,6 +67,9 @@ const TopBar = () => {
             <MessageCircle className="h-5 w-5" />
           </Button>
           <NotificationsDropdown />
+          <div className="hidden sm:block">
+            <ThemeToggle />
+          </div>
           <Button size="sm" className="rounded-full gradient-kenya text-primary-foreground font-display gap-1.5 hidden md:flex">
             <Plus className="h-4 w-4" />
             Create
@@ -91,6 +107,7 @@ const TopBar = () => {
               <DropdownMenuItem onClick={() => navigate("/profile")} className="gap-2 cursor-pointer">
                 <UserCircle className="h-4 w-4" /> My Profile
               </DropdownMenuItem>
+              <ThemeDropdownItem />
               <DropdownMenuItem onClick={handleSignOut} className="text-accent gap-2 cursor-pointer">
                 <LogOut className="h-4 w-4" /> Sign Out
               </DropdownMenuItem>
