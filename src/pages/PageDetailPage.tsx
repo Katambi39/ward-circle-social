@@ -160,14 +160,19 @@ const PageDetailPage = () => {
         avatar_url: avatarUrl,
         cover_url: coverUrl,
       }).eq("id", page.id);
-    setSavingEdit(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-      return;
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+        setSavingEdit(false);
+        return;
+      }
+      toast({ title: "Page updated!" });
+      setEditDialogOpen(false);
+      fetchAll();
+    } catch (err: any) {
+      toast({ title: "Upload error", description: err.message, variant: "destructive" });
+    } finally {
+      setSavingEdit(false);
     }
-    toast({ title: "Page updated!" });
-    setEditDialogOpen(false);
-    fetchAll();
   };
 
   const viewRecorded = useRef(false);
