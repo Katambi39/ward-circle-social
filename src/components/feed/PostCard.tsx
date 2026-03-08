@@ -138,6 +138,11 @@ const PostCardInner = ({ post, postId, authorUsername, index }: { post: PostData
               <img src={post.image} alt="" className="w-full h-48 object-cover" />
             </div>
           )}
+          {post.video && (
+            <div className="rounded-lg overflow-hidden mb-3 border border-border">
+              <video src={post.video} controls className="w-full max-h-72" />
+            </div>
+          )}
         </div>
 
         {/* Actions */}
