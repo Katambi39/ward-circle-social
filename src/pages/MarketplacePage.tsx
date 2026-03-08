@@ -55,9 +55,11 @@ const MarketplacePage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [listings, setListings] = useState<Listing[]>([]);
+  const [myListings, setMyListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
+  const [mainTab, setMainTab] = useState("browse");
   const [createOpen, setCreateOpen] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
