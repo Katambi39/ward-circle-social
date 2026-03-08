@@ -28,6 +28,7 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
   const [visibility, setVisibility] = useState<"public" | "friends_only">("public");
   const [showMusic, setShowMusic] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
+  const [musicStartTime, setMusicStartTime] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
   const textColor = background.id.includes("white") || background.id.includes("warm") ? "#000000" : "#ffffff";
