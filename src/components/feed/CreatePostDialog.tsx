@@ -142,7 +142,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId }: C
     setImagePreview(null);
     setVideoFile(null);
     setVideoPreview(null);
-    setSelectedGroup("none");
+    setSelectedGroup(groupId || "none");
     setSubmitting(false);
     setSelectedFeeling(null);
     setShowFeelingPicker(false);
