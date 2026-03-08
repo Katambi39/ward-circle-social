@@ -33,7 +33,6 @@ async function fetchLyrics(title: string, artist: string, durationSecs: number):
     });
     if (!res.ok) return null;
     const data = await res.json();
-    // Prefer synced lyrics
     if (data.syncedLyrics) {
       const parsed = parseLrc(data.syncedLyrics);
       if (parsed.length > 0) return parsed;
@@ -42,6 +41,80 @@ async function fetchLyrics(title: string, artist: string, durationSecs: number):
   } catch {
     return null;
   }
+}
+
+interface RawTrack {
+  id: string;
+  title: string;
+  artist: string;
+  preview_url: string | null;
+  cover_url: string | null;
+  duration_seconds: number;
+  source: 'deezer' | 'itunes';
+}
+
+async function searchDeezer(query: string): Promise<RawTrack[]> {
+  try {
+    const encoded = encodeURIComponent(query.trim());
+    const response = await fetch(`https://api.deezer.com/search?q=${encoded}&limit=15`);
+    if (!response.ok) {
+      await response.text(); // consume body
+      return [];
+    }
+    const data = await response.json();
+    return (data.data || []).map((t: any) => ({
+      id: `deezer_${t.id}`,
+      title: t.title_short || t.title,
+      artist: t.artist?.name || 'Unknown',
+      preview_url: t.preview || null,
+      cover_url: t.album?.cover_medium || t.album?.cover_small || null,
+      duration_seconds: t.duration || 30,
+      source: 'deezer' as const,
+    }));
+  } catch (err) {
+    console.error('Deezer search error:', err);
+    return [];
+  }
+}
+
+async function searchItunes(query: string): Promise<RawTrack[]> {
+  try {
+    const encoded = encodeURIComponent(query.trim());
+    const response = await fetch(`https://itunes.apple.com/search?term=${encoded}&media=music&entity=song&limit=15`);
+    if (!response.ok) {
+      await response.text();
+      return [];
+    }
+    const data = await response.json();
+    return (data.results || []).map((t: any) => ({
+      id: `itunes_${t.trackId}`,
+      title: t.trackName || 'Unknown',
+      artist: t.artistName || 'Unknown',
+      preview_url: t.previewUrl || null,
+      cover_url: t.artworkUrl100?.replace('100x100', '300x300') || t.artworkUrl60 || null,
+      duration_seconds: t.trackTimeMillis ? Math.round(t.trackTimeMillis / 1000) : 30,
+      source: 'itunes' as const,
+    }));
+  } catch (err) {
+    console.error('iTunes search error:', err);
+    return [];
+  }
+}
+
+// Deduplicate by title+artist (case-insensitive), preferring tracks with previews
+function deduplicateTracks(tracks: RawTrack[]): RawTrack[] {
+  const seen = new Map<string, RawTrack>();
+  for (const t of tracks) {
+    const key = `${t.title.toLowerCase()}::${t.artist.toLowerCase()}`;
+    const existing = seen.get(key);
+    if (!existing) {
+      seen.set(key, t);
+    } else if (!existing.preview_url && t.preview_url) {
+      // Prefer the one with a preview
+      seen.set(key, t);
+    }
+  }
+  return Array.from(seen.values());
 }
 
 Deno.serve(async (req) => {
@@ -59,30 +132,21 @@ Deno.serve(async (req) => {
       );
     }
 
-    const encoded = encodeURIComponent(query.trim());
-    const response = await fetch(`https://api.deezer.com/search?q=${encoded}&limit=20`);
+    // Search both APIs in parallel
+    const [deezerResults, itunesResults] = await Promise.all([
+      searchDeezer(query),
+      searchItunes(query),
+    ]);
 
-    if (!response.ok) {
-      return new Response(
-        JSON.stringify({ success: false, error: `Deezer API returned ${response.status}` }),
-        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    // Merge: Deezer first, then iTunes-only tracks
+    const merged = deduplicateTracks([...deezerResults, ...itunesResults]);
 
-    const data = await response.json();
+    // Filter to only tracks with previews, then add lyrics
+    const withPreviews = merged.filter(t => t.preview_url);
 
-    const rawTracks = (data.data || []).map((t: any) => ({
-      id: `deezer_${t.id}`,
-      title: t.title_short || t.title,
-      artist: t.artist?.name || 'Unknown',
-      preview_url: t.preview,
-      cover_url: t.album?.cover_medium || t.album?.cover_small || null,
-      duration_seconds: t.duration || 30,
-    }));
-
-    // Fetch lyrics for all tracks in parallel (best effort)
+    // Fetch lyrics in parallel (best effort)
     const tracks = await Promise.all(
-      rawTracks.map(async (t: any) => {
+      withPreviews.map(async (t) => {
         const lyrics = await fetchLyrics(t.title, t.artist, t.duration_seconds);
         return { ...t, lyrics: lyrics || [] };
       })
