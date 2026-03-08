@@ -1,11 +1,22 @@
 import { useState } from "react";
-import { MapPin, Building2, Users, Shield, Crown } from "lucide-react";
+import { MapPin, Building2, Users, Shield, Crown, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import type { Tables } from "@/integrations/supabase/types";
 
 interface GroupCardProps {
@@ -34,6 +45,21 @@ const GroupCard = ({ group, onJoined }: GroupCardProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [joining, setJoining] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const { data: isAdmin } = useQuery({
+    queryKey: ["is-admin", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", user!.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      return !!data;
+    },
+  });
 
   const { data: membership, refetch: refetchMembership } = useQuery({
     queryKey: ["group-membership", group.id, user?.id],
@@ -88,6 +114,21 @@ const GroupCard = ({ group, onJoined }: GroupCardProps) => {
     }
   };
 
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await supabase.from("group_members").delete().eq("group_id", group.id);
+      const { error } = await supabase.from("groups").delete().eq("id", group.id);
+      if (error) throw error;
+      toast({ title: "Group deleted", description: `${group.name} has been removed.` });
+      onJoined?.();
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const localityLabel = [group.ward, group.county, group.location].filter(Boolean).join(" · ");
 
   return (
@@ -135,7 +176,38 @@ const GroupCard = ({ group, onJoined }: GroupCardProps) => {
             )}
           </div>
         </div>
-        <div className="shrink-0">
+        <div className="shrink-0 flex items-center gap-1.5">
+          {isAdmin && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-full"
+                  disabled={deleting}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="font-display">Delete Group</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete <strong>{group.name}</strong>? This action cannot be undone and all members will be removed.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="rounded-full font-display">Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDelete}
+                    className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90 font-display"
+                  >
+                    {deleting ? "Deleting..." : "Delete"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
           {membership ? (
             <Button
               variant="outline"
