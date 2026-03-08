@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Shield, Camera, CreditCard, CheckCircle2, Loader2, ArrowRight, AlertTriangle, X, User } from "lucide-react";
+import { Shield, Camera, CreditCard, CheckCircle2, Loader2, ArrowRight, AlertTriangle, X, User, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import conectLogo from "@/assets/conect-logo.png";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const VerifyIdentityPage = () => {
   const { user, profile, refreshProfile } = useAuth();
@@ -26,6 +28,7 @@ const VerifyIdentityPage = () => {
   const [idPhotoFile, setIdPhotoFile] = useState<File | null>(null);
   const [idPhotoPreview, setIdPhotoPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const isAlreadyVerified = profile?.verification_status === "verified";
   const isPending = profile?.verification_status === "pending";
@@ -37,6 +40,15 @@ const VerifyIdentityPage = () => {
     { title: "Confirm & Submit", subtitle: "Review your documents before submitting", icon: Shield },
   ];
 
+  const idError = useMemo(() => {
+    const trimmed = nationalId.trim();
+    if (!trimmed) return "National ID number is required";
+    if (trimmed.length < 6) return "ID number must be at least 6 digits";
+    if (trimmed.length > 10) return "ID number must be at most 10 digits";
+    if (!/^\d+$/.test(trimmed)) return "ID number must contain only digits";
+    return null;
+  }, [nationalId]);
+
   const handleFileSelect = (
     e: React.ChangeEvent<HTMLInputElement>,
     setFile: (f: File | null) => void,
@@ -44,7 +56,7 @@ const VerifyIdentityPage = () => {
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > MAX_FILE_SIZE) {
       toast({ title: "File too large", description: "Photo must be under 5MB", variant: "destructive" });
       return;
     }
@@ -66,11 +78,17 @@ const VerifyIdentityPage = () => {
     if (ref.current) ref.current.value = "";
   };
 
-  const canAdvance = () => {
-    if (step === 0) return nationalId.trim().length >= 6;
-    if (step === 1) return !!selfieFile;
-    if (step === 2) return !!idPhotoFile;
+  const canAdvance = (s: number) => {
+    if (s === 0) return !idError;
+    if (s === 1) return !!selfieFile;
+    if (s === 2) return !!idPhotoFile;
     return true;
+  };
+
+  const handleNext = () => {
+    if (step === 0) setTouched((t) => ({ ...t, nationalId: true }));
+    if (!canAdvance(step)) return;
+    setStep(step + 1);
   };
 
   const handleSubmit = async () => {
@@ -78,14 +96,12 @@ const VerifyIdentityPage = () => {
     setSaving(true);
 
     try {
-      // Hash the national ID
       const encoder = new TextEncoder();
       const data = encoder.encode(nationalId.trim());
       const hashBuffer = await crypto.subtle.digest("SHA-256", data);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
       const hashHex = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
 
-      // Upload selfie
       const selfieExt = selfieFile.name.split(".").pop();
       const selfiePath = `${user.id}/selfie_${Date.now()}.${selfieExt}`;
       const { error: selfieError } = await supabase.storage
@@ -93,7 +109,6 @@ const VerifyIdentityPage = () => {
         .upload(selfiePath, selfieFile);
       if (selfieError) throw selfieError;
 
-      // Upload ID photo
       const idExt = idPhotoFile.name.split(".").pop();
       const idPath = `${user.id}/id_photo_${Date.now()}.${idExt}`;
       const { error: idError } = await supabase.storage
@@ -101,7 +116,6 @@ const VerifyIdentityPage = () => {
         .upload(idPath, idPhotoFile);
       if (idError) throw idError;
 
-      // Update profile
       const { error } = await supabase.from("profiles").update({
         national_id_hash: hashHex,
         verification_status: "pending",
@@ -156,6 +170,21 @@ const VerifyIdentityPage = () => {
     );
   }
 
+  const StepIndicator = ({ index, label }: { index: number; label: string }) => {
+    const done = index < step;
+    const active = index === step;
+    return (
+      <div className="flex flex-col items-center gap-1 flex-1 min-w-0">
+        <div className={`h-7 w-7 rounded-full flex items-center justify-center text-[10px] font-bold transition-all duration-300 ${
+          done ? "bg-primary text-primary-foreground" : active ? "gradient-kenya text-primary-foreground shadow-md scale-110" : "bg-muted text-muted-foreground"
+        }`}>
+          {done ? <CheckCircle2 className="h-3.5 w-3.5" /> : index + 1}
+        </div>
+        <span className={`text-[9px] font-display transition-colors truncate text-center w-full ${active ? "text-foreground font-medium" : "text-muted-foreground"}`}>{label}</span>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md">
@@ -165,10 +194,10 @@ const VerifyIdentityPage = () => {
           <p className="text-sm text-muted-foreground">Required to join groups, access wallet & full features</p>
         </div>
 
-        {/* Progress */}
-        <div className="flex gap-1.5 mb-6">
-          {steps.map((_, i) => (
-            <div key={i} className={`flex-1 h-1.5 rounded-full transition-colors ${i <= step ? "gradient-kenya" : "bg-muted"}`} />
+        {/* Step indicators */}
+        <div className="flex items-center justify-between mb-6 px-2">
+          {steps.map((s, i) => (
+            <StepIndicator key={i} index={i} label={s.title.split(" ").slice(0, 2).join(" ")} />
           ))}
         </div>
 
@@ -177,7 +206,7 @@ const VerifyIdentityPage = () => {
             <div className="flex items-center gap-3">
               {(() => {
                 const Icon = steps[step].icon;
-                return <div className="h-10 w-10 rounded-xl gradient-kenya flex items-center justify-center"><Icon className="h-5 w-5 text-primary-foreground" /></div>;
+                return <div className="h-10 w-10 rounded-xl gradient-kenya flex items-center justify-center shrink-0"><Icon className="h-5 w-5 text-primary-foreground" /></div>;
               })()}
               <div>
                 <CardTitle className="font-display text-lg">{steps[step].title}</CardTitle>
@@ -192,14 +221,23 @@ const VerifyIdentityPage = () => {
               {step === 0 && (
                 <motion.div key="s0" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-xs font-display">National ID Number</Label>
+                    <div className="flex items-center justify-between">
+                      <Label className="text-xs font-display">National ID Number <span className="text-destructive">*</span></Label>
+                      <span className="text-[10px] text-muted-foreground font-display">{nationalId.length}/10</span>
+                    </div>
                     <Input
                       value={nationalId}
                       onChange={(e) => setNationalId(e.target.value.replace(/\D/g, ""))}
+                      onBlur={() => setTouched((t) => ({ ...t, nationalId: true }))}
                       placeholder="e.g. 12345678"
-                      className="rounded-xl text-lg tracking-wider"
+                      className={`rounded-xl text-lg tracking-wider ${touched.nationalId && idError ? "border-destructive focus-visible:ring-destructive" : ""}`}
                       maxLength={10}
                     />
+                    {touched.nationalId && idError && (
+                      <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-destructive flex items-center gap-1">
+                        <AlertCircle className="h-3 w-3" /> {idError}
+                      </motion.p>
+                    )}
                   </div>
                   <div className="flex items-start gap-2 p-3 bg-muted rounded-lg">
                     <Shield className="h-4 w-4 text-primary shrink-0 mt-0.5" />
@@ -233,18 +271,21 @@ const VerifyIdentityPage = () => {
                       >
                         <X className="h-4 w-4" />
                       </Button>
+                      <div className="absolute bottom-2 left-2 bg-primary/90 text-primary-foreground text-[10px] font-display px-2 py-1 rounded-full flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" /> Photo added
+                      </div>
                     </div>
                   ) : (
                     <button
                       onClick={() => selfieInputRef.current?.click()}
-                      className="w-full h-48 rounded-xl border-2 border-dashed border-primary/30 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-colors"
+                      className="w-full h-48 rounded-xl border-2 border-dashed border-primary/30 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all hover:scale-[1.01]"
                     >
                       <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
                         <Camera className="h-7 w-7 text-primary" />
                       </div>
                       <div className="text-center">
                         <p className="text-sm font-display font-medium text-foreground">Take or Upload Selfie</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Clear front-facing photo of your face</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Clear front-facing photo • Max 5MB</p>
                       </div>
                     </button>
                   )}
@@ -286,18 +327,21 @@ const VerifyIdentityPage = () => {
                       >
                         <X className="h-4 w-4" />
                       </Button>
+                      <div className="absolute bottom-2 left-2 bg-primary/90 text-primary-foreground text-[10px] font-display px-2 py-1 rounded-full flex items-center gap-1">
+                        <CheckCircle2 className="h-3 w-3" /> Photo added
+                      </div>
                     </div>
                   ) : (
                     <button
                       onClick={() => idPhotoInputRef.current?.click()}
-                      className="w-full h-48 rounded-xl border-2 border-dashed border-primary/30 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-colors"
+                      className="w-full h-48 rounded-xl border-2 border-dashed border-primary/30 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all hover:scale-[1.01]"
                     >
                       <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center">
                         <CreditCard className="h-7 w-7 text-primary" />
                       </div>
                       <div className="text-center">
                         <p className="text-sm font-display font-medium text-foreground">Upload ID Photo</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Front side of your National ID card</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Front side of your National ID • Max 5MB</p>
                       </div>
                     </button>
                   )}
@@ -322,7 +366,7 @@ const VerifyIdentityPage = () => {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 bg-muted rounded-xl">
                       <span className="text-xs font-display text-muted-foreground">National ID</span>
-                      <span className="text-sm font-display font-medium">
+                      <span className="text-sm font-display font-medium font-mono">
                         {"•".repeat(Math.max(0, nationalId.length - 3))}{nationalId.slice(-3)}
                       </span>
                     </div>
@@ -332,7 +376,9 @@ const VerifyIdentityPage = () => {
                         {selfiePreview && (
                           <div>
                             <img src={selfiePreview} alt="Selfie" className="w-full h-28 object-cover" />
-                            <p className="text-[10px] font-display text-muted-foreground text-center py-1.5">Selfie</p>
+                            <p className="text-[10px] font-display text-muted-foreground text-center py-1.5 flex items-center justify-center gap-1">
+                              <CheckCircle2 className="h-3 w-3 text-primary" /> Selfie
+                            </p>
                           </div>
                         )}
                       </div>
@@ -340,7 +386,9 @@ const VerifyIdentityPage = () => {
                         {idPhotoPreview && (
                           <div>
                             <img src={idPhotoPreview} alt="ID" className="w-full h-28 object-cover" />
-                            <p className="text-[10px] font-display text-muted-foreground text-center py-1.5">National ID</p>
+                            <p className="text-[10px] font-display text-muted-foreground text-center py-1.5 flex items-center justify-center gap-1">
+                              <CheckCircle2 className="h-3 w-3 text-primary" /> National ID
+                            </p>
                           </div>
                         )}
                       </div>
@@ -365,22 +413,22 @@ const VerifyIdentityPage = () => {
               )}
               {step < 3 ? (
                 <Button
-                  onClick={() => setStep(step + 1)}
-                  disabled={!canAdvance()}
+                  onClick={handleNext}
+                  disabled={!canAdvance(step)}
                   className="rounded-xl gradient-kenya text-primary-foreground font-display flex-1 gap-1"
                 >
                   Next <ArrowRight className="h-4 w-4" />
                 </Button>
               ) : (
                 <Button onClick={handleSubmit} disabled={saving} className="rounded-xl gradient-kenya text-primary-foreground font-display flex-1 gap-1">
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Shield className="h-4 w-4" />}
                   {saving ? "Submitting..." : "Submit Verification"}
                 </Button>
               )}
             </div>
 
-            <button onClick={() => navigate("/")} className="w-full text-center text-xs text-muted-foreground font-display mt-4 hover:text-foreground">
-              Skip for now
+            <button onClick={() => navigate("/")} className="w-full text-center text-xs text-muted-foreground font-display mt-4 hover:text-foreground transition-colors">
+              I'll do this later
             </button>
           </CardContent>
         </Card>
