@@ -15,8 +15,9 @@ import { Progress } from "@/components/ui/progress";
 import {
   Store, CheckCircle2, MapPin, Users, Shield, UserPlus, UserMinus,
   Star, Calendar, MessageSquare, BarChart3, Plus, Send, Clock,
-  Globe, Phone, Image, ArrowLeft, TrendingUp,
+  Globe, Phone, Image, ArrowLeft, TrendingUp, ImagePlus, Video, Trash2,
 } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PageAnalytics from "@/components/pages/PageAnalytics";
 import StartChatButton from "@/components/messages/StartChatButton";
 import { motion } from "framer-motion";
