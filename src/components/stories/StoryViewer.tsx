@@ -412,7 +412,7 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
 
 
         {/* Caption */}
-        {currentStory.caption && !musicTrack?.lyrics?.length && (
+        {currentStory.caption && (
           <div className={`absolute left-0 right-0 z-40 px-4 ${user && currentGroup.user_id !== user.id ? 'bottom-28' : 'bottom-4'}`}>
             <div className="bg-black/50 backdrop-blur-sm rounded-xl px-4 py-2.5">
               <p className="text-white text-sm font-display text-center">{currentStory.caption}</p>

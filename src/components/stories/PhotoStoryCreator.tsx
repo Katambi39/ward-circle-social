@@ -200,15 +200,6 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
             />
           )}
 
-          {/* Lyrics sync adjuster */}
-          {selectedTrack && selectedTrack.lyrics && (selectedTrack.lyrics as any[]).length > 0 && (
-            <LyricsSyncAdjuster
-              audioUrl={selectedTrack.audio_url}
-              lyrics={selectedTrack.lyrics as any[]}
-              lyricsOffset={lyricsOffset}
-              onOffsetChange={setLyricsOffset}
-            />
-          )}
 
           {/* Visibility */}
           <StoryVisibilityToggle visibility={visibility} onChange={setVisibility} />
