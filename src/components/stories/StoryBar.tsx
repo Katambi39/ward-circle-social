@@ -164,7 +164,7 @@ const StoryBar = () => {
                 Your Story
               </span>
             </button>
-          )
+          )}
 
           {/* Other users' stories */}
           {storyGroups.map((group, i) => (
