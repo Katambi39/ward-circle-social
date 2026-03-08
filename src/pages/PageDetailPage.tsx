@@ -22,6 +22,7 @@ import PageAnalytics from "@/components/pages/PageAnalytics";
 import ReactionBar from "@/components/feed/ReactionBar";
 import StartChatButton from "@/components/messages/StartChatButton";
 import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 import { format, formatDistanceToNow, isPast } from "date-fns";
 
 // Types
