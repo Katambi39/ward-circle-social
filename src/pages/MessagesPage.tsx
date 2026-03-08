@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   MessageSquare, Send, ArrowLeft, CheckCircle2, Shield, Search,
-  Circle, ShieldAlert, Trash2, ImagePlus, Loader2, X,
+  Circle, ShieldAlert, Trash2, Paperclip, Loader2, X, FileText, Download,
 } from "lucide-react";
 import { isExplicitLink } from "@/components/feed/LinkSafety";
 import DmLinkWarning from "@/components/messages/DmLinkWarning";
@@ -485,11 +485,24 @@ const MessagesPage = () => {
                                   (() => {
                                     const url = (msg as any).media_url as string;
                                     const isVideo = /\.(mp4|webm|mov)(\?|$)/i.test(url);
-                                    return isVideo ? (
-                                      <video src={url} controls className="rounded-lg max-w-full max-h-48 mt-1" />
-                                    ) : (
-                                      <img src={url} alt="" className="rounded-lg max-w-full max-h-48 mt-1 cursor-pointer" onClick={() => window.open(url, "_blank")} />
-                                    );
+                                    const isImage = /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?|$)/i.test(url);
+                                    const isDoc = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar)(\?|$)/i.test(url);
+                                    const fileName = decodeURIComponent(url.split("/").pop()?.split("?")[0] || "file").replace(/^\d+_[a-z0-9]+\./, "");
+                                    if (isVideo) {
+                                      return <video src={url} controls className="rounded-lg max-w-full max-h-48 mt-1" />;
+                                    } else if (isImage) {
+                                      return <img src={url} alt="" className="rounded-lg max-w-full max-h-48 mt-1 cursor-pointer" onClick={() => window.open(url, "_blank")} />;
+                                    } else {
+                                      return (
+                                        <a href={url} target="_blank" rel="noopener noreferrer"
+                                          className={`flex items-center gap-2 mt-1 rounded-lg px-3 py-2 ${isMe ? "bg-white/15" : "bg-muted"}`}
+                                        >
+                                          <FileText className="h-5 w-5 shrink-0" />
+                                          <span className="text-xs font-display truncate flex-1">{isDoc ? fileName : "Attachment"}</span>
+                                          <Download className="h-4 w-4 shrink-0 opacity-60" />
+                                        </a>
+                                      );
+                                    }
                                   })()
                                 )}
                                 {msg.content && msg.content !== "📎 Media" && (
@@ -541,7 +554,11 @@ const MessagesPage = () => {
                 {mediaFile && !mediaPreview && (
                   <div className="px-4 pt-3 pb-1">
                     <div className="relative inline-flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
+                      <FileText className="h-4 w-4 text-primary shrink-0" />
                       <span className="text-xs text-foreground truncate max-w-[200px]">{mediaFile.name}</span>
+                      <span className="text-[10px] text-muted-foreground shrink-0">
+                        {(mediaFile.size / 1024).toFixed(0)}KB
+                      </span>
                       <button onClick={clearMedia} className="text-muted-foreground hover:text-destructive">
                         <X className="h-3.5 w-3.5" />
                       </button>
@@ -549,7 +566,7 @@ const MessagesPage = () => {
                   </div>
                 )}
                 <div className="p-4 flex items-center gap-2">
-                  <input ref={fileInputRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleFileSelect} />
+                  <input ref={fileInputRef} type="file" accept="image/*,video/*,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.zip,.rar" className="hidden" onChange={handleFileSelect} />
                   <Button
                     variant="ghost"
                     size="icon"
@@ -557,7 +574,7 @@ const MessagesPage = () => {
                     onClick={() => fileInputRef.current?.click()}
                     disabled={sending}
                   >
-                    <ImagePlus className="h-5 w-5" />
+                    <Paperclip className="h-5 w-5" />
                   </Button>
                   <Input
                     value={newMessage}
