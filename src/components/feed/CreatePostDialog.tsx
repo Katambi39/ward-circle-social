@@ -78,6 +78,11 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
   const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
   const [showPoll, setShowPoll] = useState(false);
 
+  // Sync anonymous state when dialog opens
+  useEffect(() => {
+    if (open) setIsAnonymous(globalAnon);
+  }, [open, globalAnon]);
+
   // Handle intents when dialog opens
   useEffect(() => {
     if (!open) return;
