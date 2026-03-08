@@ -24,24 +24,25 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
   // Detect actual audio file duration (preview may be ~30s, not full track)
   useEffect(() => {
     const audio = new Audio(audioUrl);
+    let cancelled = false;
     const onLoaded = () => {
-      if (audio.duration && isFinite(audio.duration)) {
+      if (cancelled) return;
+      if (audio.duration && isFinite(audio.duration) && audio.duration > 0) {
         setActualDuration(audio.duration);
-        // Clamp startTime if it exceeds actual duration
-        if (startTime > Math.max(0, audio.duration - 5)) {
-          onStartTimeChange(0);
-        }
       }
     };
     audio.addEventListener("loadedmetadata", onLoaded);
-    // Also try canplaythrough for reliability
     audio.addEventListener("canplaythrough", onLoaded);
+    // Also handle durationchange for streams that update duration progressively
+    audio.addEventListener("durationchange", onLoaded);
     audio.preload = "metadata";
     audio.load();
 
     return () => {
+      cancelled = true;
       audio.removeEventListener("loadedmetadata", onLoaded);
       audio.removeEventListener("canplaythrough", onLoaded);
+      audio.removeEventListener("durationchange", onLoaded);
       audio.src = "";
     };
   }, [audioUrl]);
