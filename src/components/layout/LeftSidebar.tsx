@@ -72,7 +72,7 @@ const LeftSidebar = () => {
         <SidebarItem icon={<TrendingUp className="h-5 w-5" />} label="Trending" badge="Hot" active={location.pathname === "/trending"} onClick={() => navigate("/trending")} />
         <SidebarItem icon={<Users className="h-5 w-5" />} label="Groups" active={location.pathname === "/groups"} onClick={() => navigate("/groups")} />
         <SidebarItem icon={<UserCircle className="h-5 w-5" />} label="Pages" active={location.pathname === "/pages" || location.pathname.startsWith("/pages/")} onClick={() => navigate("/pages")} />
-        <SidebarItem icon={<MessageSquare className="h-5 w-5" />} label="Messages" active={location.pathname === "/messages"} onClick={() => navigate("/messages")} />
+        <SidebarItem icon={<MessageSquare className="h-5 w-5" />} label="Messages" badge={unreadMsgCount > 0 ? String(unreadMsgCount) : undefined} active={location.pathname === "/messages"} onClick={() => navigate("/messages")} />
         <SidebarItem icon={<ShoppingBag className="h-5 w-5" />} label="Marketplace" active={location.pathname === "/marketplace" || location.pathname.startsWith("/marketplace/")} onClick={() => navigate("/marketplace")} />
       </nav>
 
