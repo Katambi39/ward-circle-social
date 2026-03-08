@@ -340,11 +340,10 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         {isAnonymous && (
           <Input
             placeholder="Add a title (optional)"
-            value={content}
-            onChange={() => {}}
+            value={anonTitle}
+            onChange={(e) => setAnonTitle(e.target.value)}
             className="font-display font-semibold"
             maxLength={200}
-            id="anon-title-input"
           />
         )}
 
