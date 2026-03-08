@@ -71,17 +71,50 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
       .then(() => {});
   }, [currentStory?.id]);
 
-  // Fetch view count for own stories
+  // Fetch view count and viewers for own stories
   useEffect(() => {
     if (!currentStory || !user || currentGroup.user_id !== user.id) {
       setViewCount(0);
+      setViewers([]);
+      setShowViewers(false);
       return;
     }
-    supabase
-      .from("story_views")
-      .select("id", { count: "exact", head: true })
-      .eq("story_id", currentStory.id)
-      .then(({ count }) => setViewCount(count || 0));
+    const fetchViewers = async () => {
+      const { data: views } = await supabase
+        .from("story_views")
+        .select("viewer_id, viewed_at")
+        .eq("story_id", currentStory.id)
+        .order("viewed_at", { ascending: false });
+
+      if (!views || views.length === 0) {
+        setViewCount(0);
+        setViewers([]);
+        return;
+      }
+
+      setViewCount(views.length);
+
+      const viewerIds = views.map((v) => v.viewer_id);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, avatar_url, username")
+        .in("user_id", viewerIds);
+
+      const profileMap = new Map((profiles || []).map((p) => [p.user_id, p]));
+      setViewers(
+        views.map((v) => {
+          const p = profileMap.get(v.viewer_id);
+          return {
+            viewer_id: v.viewer_id,
+            viewed_at: v.viewed_at,
+            display_name: p?.display_name || "User",
+            avatar_url: p?.avatar_url || null,
+            username: p?.username || "",
+          };
+        })
+      );
+    };
+    fetchViewers();
   }, [currentStory?.id]);
 
   // Load music track
