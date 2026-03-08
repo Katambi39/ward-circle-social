@@ -88,6 +88,51 @@ const PageDetailPage = () => {
   const [pollOptions, setPollOptions] = useState(["", ""]);
   const [creatingPoll, setCreatingPoll] = useState(false);
 
+  // Edit page form
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [editCategory, setEditCategory] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editWebsite, setEditWebsite] = useState("");
+  const [editCounty, setEditCounty] = useState("");
+  const [editConstituency, setEditConstituency] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  const openEditDialog = () => {
+    if (!page) return;
+    setEditName(page.name);
+    setEditDescription(page.description || "");
+    setEditCategory(page.category);
+    setEditPhone(page.phone || "");
+    setEditWebsite(page.website || "");
+    setEditCounty(page.county || "");
+    setEditConstituency(page.constituency || "");
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!page || !editName.trim()) return;
+    setSavingEdit(true);
+    const { error } = await supabase.from("pages").update({
+      name: editName.trim(),
+      description: editDescription.trim() || null,
+      category: editCategory,
+      phone: editPhone.trim() || null,
+      website: editWebsite.trim() || null,
+      county: editCounty.trim() || null,
+      constituency: editConstituency.trim() || null,
+    }).eq("id", page.id);
+    setSavingEdit(false);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Page updated!" });
+    setEditDialogOpen(false);
+    fetchAll();
+  };
+
   const viewRecorded = useRef(false);
 
   useEffect(() => {
