@@ -121,7 +121,7 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
         caption: null,
         music_track_id: selectedTrack?.id || null,
         music_start_time: selectedTrack ? musicStartTime : 0,
-        lyrics_offset: selectedTrack?.lyrics?.length > 0 ? lyricsOffset : 0,
+        lyrics_offset: 0,
         visibility,
       } as any);
 
