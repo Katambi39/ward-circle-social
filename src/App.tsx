@@ -16,6 +16,7 @@ import DiscoverPage from "./pages/DiscoverPage";
 import TrendingPage from "./pages/TrendingPage";
 import PagesPage from "./pages/PagesPage";
 import PageDetailPage from "./pages/PageDetailPage";
+import MessagesPage from "./pages/MessagesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
               <Route path="/pages" element={<ProtectedRoute><PagesPage /></ProtectedRoute>} />
               <Route path="/pages/:slug" element={<ProtectedRoute><PageDetailPage /></ProtectedRoute>} />
+              <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
