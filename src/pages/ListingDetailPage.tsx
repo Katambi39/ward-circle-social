@@ -6,13 +6,14 @@ import { useToast } from "@/hooks/use-toast";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import StartChatButton from "@/components/messages/StartChatButton";
 import ListingReviews from "@/components/marketplace/ListingReviews";
 import EditListingDialog from "@/components/marketplace/EditListingDialog";
 import {
   ArrowLeft, MapPin, Heart, Eye, Shield, CheckCircle2,
-  ShoppingBag, Tag, Clock, ShoppingCart, AlertCircle,
+  ShoppingBag, Tag, Clock, ShoppingCart, AlertCircle, Trash2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { format, formatDistanceToNow } from "date-fns";
@@ -254,8 +255,38 @@ const ListingDetailPage = () => {
 
             {/* Owner Actions */}
             {isOwner && !isSold && (
-              <div className="mt-5">
+              <div className="mt-5 flex items-center gap-3">
                 <EditListingDialog listing={listing} onUpdated={fetchListing} />
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" className="rounded-xl font-display gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/10">
+                      <Trash2 className="h-4 w-4" /> Delete
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="font-display">Delete listing?</AlertDialogTitle>
+                      <AlertDialogDescription>This will permanently remove "{listing.title}" from the marketplace. This action cannot be undone.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel className="rounded-full font-display">Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        className="rounded-full font-display bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        onClick={async () => {
+                          const { error } = await supabase.from("listings").delete().eq("id", listing.id);
+                          if (error) {
+                            toast({ title: "Error", description: error.message, variant: "destructive" });
+                          } else {
+                            toast({ title: "Listing deleted" });
+                            navigate("/marketplace");
+                          }
+                        }}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             )}
 
