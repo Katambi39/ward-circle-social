@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { MapPin, Building2, Users, Shield, Crown, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +45,7 @@ const typeLabels: Record<string, string> = {
 const GroupCard = ({ group, onJoined }: GroupCardProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [joining, setJoining] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
@@ -132,7 +134,7 @@ const GroupCard = ({ group, onJoined }: GroupCardProps) => {
   const localityLabel = [group.ward, group.county, group.location].filter(Boolean).join(" · ");
 
   return (
-    <div className="bg-card border border-border rounded-xl p-4 shadow-card hover:shadow-elevated transition-shadow">
+    <div className="bg-card border border-border rounded-xl p-4 shadow-card hover:shadow-elevated transition-shadow cursor-pointer" onClick={() => navigate(`/groups/${group.slug}`)}>
       <div className="flex items-start gap-3">
         <div className="h-12 w-12 rounded-xl gradient-kenya flex items-center justify-center text-primary-foreground shrink-0">
           {typeIcons[group.group_type] || <Users className="h-5 w-5" />}
@@ -176,7 +178,7 @@ const GroupCard = ({ group, onJoined }: GroupCardProps) => {
             )}
           </div>
         </div>
-        <div className="shrink-0 flex items-center gap-1.5">
+        <div className="shrink-0 flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
           {isAdmin && (
             <AlertDialog>
               <AlertDialogTrigger asChild>
