@@ -1,17 +1,13 @@
-import { useState, useRef } from "react";
-import { Camera, Type, X, Loader2, Music, Globe, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
+import { Camera, Type } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/sonner";
-import MusicPicker from "./MusicPicker";
+import PhotoStoryCreator from "./PhotoStoryCreator";
+import TextStoryCreator from "./TextStoryCreator";
 
 interface CreateStoryDialogProps {
   open: boolean;
@@ -19,213 +15,69 @@ interface CreateStoryDialogProps {
   onCreated: () => void;
 }
 
+type StoryMode = "choose" | "photo" | "text";
+
 const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogProps) => {
-  const { user } = useAuth();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [caption, setCaption] = useState("");
-  const [showCaption, setShowCaption] = useState(false);
-  const [showMusic, setShowMusic] = useState(false);
-  const [selectedTrack, setSelectedTrack] = useState<any>(null);
-  const [visibility, setVisibility] = useState<"public" | "friends_only">("public");
-  const [submitting, setSubmitting] = useState(false);
+  const [mode, setMode] = useState<StoryMode>("choose");
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (!f) return;
-    if (f.size > 10 * 1024 * 1024) {
-      toast.error("File must be under 10MB");
-      return;
-    }
-    setFile(f);
-    setPreview(URL.createObjectURL(f));
+  const reset = () => setMode("choose");
+
+  const handleClose = () => {
+    reset();
+    onOpenChange(false);
   };
 
-  const reset = () => {
-    setFile(null);
-    setPreview(null);
-    setCaption("");
-    setShowCaption(false);
-    setShowMusic(false);
-    setSelectedTrack(null);
-    setVisibility("public");
-    setSubmitting(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  const handleSubmit = async () => {
-    if (!user || !file) return;
-    setSubmitting(true);
-
-    try {
-      const ext = file.name.split(".").pop();
-      const path = `${user.id}/${Date.now()}.${ext}`;
-      const { error: uploadError } = await supabase.storage
-        .from("story-media")
-        .upload(path, file);
-      if (uploadError) throw uploadError;
-
-      const { data: urlData } = supabase.storage
-        .from("story-media")
-        .getPublicUrl(path);
-
-      const mediaType = file.type.startsWith("video") ? "video" : "image";
-
-      const { error } = await supabase.from("stories").insert({
-        user_id: user.id,
-        media_url: urlData.publicUrl,
-        media_type: mediaType,
-        caption: caption.trim() || null,
-        music_track_id: selectedTrack?.id || null,
-        music_start_time: 0,
-        visibility,
-      } as any);
-
-      if (error) throw error;
-
-      toast.success("Story posted!");
-      onCreated();
-      reset();
-      onOpenChange(false);
-    } catch (err: any) {
-      toast.error(err.message || "Failed to post story");
-    } finally {
-      setSubmitting(false);
-    }
+  const handleCreated = () => {
+    onCreated();
+    reset();
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) reset(); onOpenChange(o); }}>
+    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); else onOpenChange(o); }}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-display">Create Story</DialogTitle>
+          <DialogTitle className="font-display">
+            {mode === "choose" ? "Create Story" : mode === "photo" ? "Photo Story" : "Text Story"}
+          </DialogTitle>
         </DialogHeader>
 
-        {!preview ? (
-          <div className="flex flex-col items-center gap-4 py-8">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*,video/*"
-              className="hidden"
-              onChange={handleFileSelect}
-            />
+        {mode === "choose" && (
+          <div className="grid grid-cols-2 gap-3 py-4">
             <button
-              onClick={() => fileInputRef.current?.click()}
-              className="h-32 w-32 rounded-2xl border-2 border-dashed border-primary/40 flex flex-col items-center justify-center gap-2 hover:border-primary hover:bg-primary/5 transition-colors"
+              onClick={() => setMode("photo")}
+              className="group flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-border hover:border-primary hover:bg-primary/5 transition-all"
             >
-              <Camera className="h-8 w-8 text-primary" />
-              <span className="text-xs font-display text-muted-foreground">Tap to select</span>
+              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Camera className="h-8 w-8 text-primary" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-display font-semibold text-foreground">Photo</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Photo or video story</p>
+              </div>
             </button>
-            <p className="text-sm text-muted-foreground font-display">
-              Photo or video · Up to 10MB · Disappears after 24h
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {/* Preview */}
-            <div className="relative rounded-xl overflow-hidden bg-black aspect-[9/16] max-h-[60vh]">
-              {file?.type.startsWith("video") ? (
-                <video src={preview} className="w-full h-full object-contain" controls muted />
-              ) : (
-                <img src={preview} alt="Preview" className="w-full h-full object-contain" />
-              )}
-              <Button
-                variant="destructive"
-                size="icon"
-                className="absolute top-2 right-2 h-8 w-8 rounded-full"
-                onClick={reset}
-              >
-                <X className="h-4 w-4" />
-              </Button>
 
-              {/* Caption overlay */}
-              {showCaption && (
-                <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
-                  <Input
-                    placeholder="Add a caption..."
-                    value={caption}
-                    onChange={(e) => setCaption(e.target.value)}
-                    maxLength={200}
-                    className="bg-white/20 border-white/30 text-white placeholder:text-white/60 backdrop-blur-sm"
-                    autoFocus
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Music picker */}
-            {showMusic && (
-              <MusicPicker selectedTrack={selectedTrack} onSelect={setSelectedTrack} />
-            )}
-
-            {/* Selected track badge */}
-            {selectedTrack && !showMusic && (
-              <div className="flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5">
-                <Music className="h-3.5 w-3.5 text-primary" />
-                <span className="text-xs font-display truncate">{selectedTrack.title} – {selectedTrack.artist}</span>
+            <button
+              onClick={() => setMode("text")}
+              className="group flex flex-col items-center gap-3 p-6 rounded-2xl border-2 border-border hover:border-secondary hover:bg-secondary/5 transition-all"
+            >
+              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-secondary/20 to-accent/20 flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Type className="h-8 w-8 text-secondary" />
               </div>
-            )}
-
-            {/* Visibility toggle */}
-            <div className="flex items-center gap-2 bg-muted/50 rounded-xl p-2">
-              <button
-                onClick={() => setVisibility("public")}
-                className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-display transition-colors ${
-                  visibility === "public"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Globe className="h-3.5 w-3.5" />
-                Public
-              </button>
-              <button
-                onClick={() => setVisibility("friends_only")}
-                className={`flex-1 flex items-center justify-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-display transition-colors ${
-                  visibility === "friends_only"
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Users className="h-3.5 w-3.5" />
-                Friends Only
-              </button>
-            </div>
-
-            {/* Actions */}
-            <div className="flex items-center justify-between">
-              <div className="flex gap-1">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="gap-1.5 rounded-full"
-                  onClick={() => setShowCaption(!showCaption)}
-                >
-                  <Type className="h-4 w-4" />
-                  <span className="text-xs font-display">Caption</span>
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="gap-1.5 rounded-full"
-                  onClick={() => setShowMusic(!showMusic)}
-                >
-                  <Music className="h-4 w-4 text-secondary" />
-                  <span className="text-xs font-display">Music</span>
-                </Button>
+              <div className="text-center">
+                <p className="text-sm font-display font-semibold text-foreground">Text</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Colorful text story</p>
               </div>
-              <Button
-                onClick={handleSubmit}
-                disabled={submitting}
-                className="rounded-full gradient-kenya text-primary-foreground font-display gap-1.5"
-              >
-                {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-                Share Story
-              </Button>
-            </div>
+            </button>
           </div>
+        )}
+
+        {mode === "photo" && (
+          <PhotoStoryCreator onBack={reset} onCreated={handleCreated} onClose={handleClose} />
+        )}
+
+        {mode === "text" && (
+          <TextStoryCreator onBack={reset} onCreated={handleCreated} onClose={handleClose} />
         )}
       </DialogContent>
     </Dialog>
