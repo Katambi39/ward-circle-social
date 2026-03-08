@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Play, Pause } from "lucide-react";
-import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
+import WaveformDisplay from "./WaveformDisplay";
 
 interface MusicStartTimePickerProps {
   audioUrl: string;
