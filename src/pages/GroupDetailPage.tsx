@@ -94,6 +94,7 @@ const GroupDetailPage = () => {
         .select("*, groups(name, location)")
         .eq("group_id", group!.id)
         .eq("moderation_status", "approved")
+        .order("is_pinned", { ascending: false })
         .order("created_at", { ascending: false })
         .limit(50);
       if (error) throw error;
