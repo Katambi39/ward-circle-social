@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy, Repeat2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ export interface PostData {
   isVerified: boolean;
   isAnonymous?: boolean;
   feeling?: string;
+  linkUrl?: string;
 }
 
 interface PostCardProps {
@@ -66,6 +68,7 @@ function dbPostToDisplay(p: DbPost): PostData {
     isVerified: p.author_verified,
     isAnonymous: p.is_anonymous,
     feeling: p.feeling || undefined,
+    linkUrl: p.link_url || undefined,
   };
 }
 
@@ -234,6 +237,20 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
             <div className="rounded-lg overflow-hidden mb-3 border border-border">
               <video src={post.video} controls className="w-full max-h-72" />
             </div>
+          )}
+          {post.linkUrl && (
+            <a
+              href={post.linkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className="flex items-center gap-2 p-3 mb-3 rounded-lg border border-border bg-muted/50 hover:bg-muted transition-colors group"
+            >
+              <ExternalLink className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-sm text-primary font-display truncate group-hover:underline">
+                {post.linkUrl}
+              </span>
+            </a>
           )}
         </div>
 
