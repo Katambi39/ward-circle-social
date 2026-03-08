@@ -44,7 +44,7 @@ const GENRE_LABELS: Record<string, string> = {
 };
 
 const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
-  const [tab, setTab] = useState<"library" | "web">("library");
+  const [tab, setTab] = useState<"library" | "web" | "upload">("library");
   const [tracks, setTracks] = useState<MusicTrack[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
