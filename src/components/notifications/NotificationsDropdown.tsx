@@ -31,6 +31,7 @@ const typeIcons: Record<string, React.ReactNode> = {
 
 const NotificationsDropdown = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
 
