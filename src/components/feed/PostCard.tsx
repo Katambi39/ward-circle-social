@@ -3,7 +3,10 @@ import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizont
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { DbPost } from "@/hooks/usePosts";
+import { formatDistanceToNow } from "date-fns";
 
+// Keep legacy interface for backward compat
 export interface PostData {
   id: string;
   author: string;
@@ -22,11 +25,39 @@ export interface PostData {
 }
 
 interface PostCardProps {
-  post: PostData;
+  post?: PostData;
+  dbPost?: DbPost;
   index: number;
 }
 
-const PostCard = ({ post, index }: PostCardProps) => {
+function dbPostToDisplay(p: DbPost): PostData {
+  return {
+    id: p.id,
+    author: p.is_anonymous ? "Anonymous" : p.author_name,
+    authorAvatar: p.is_anonymous ? undefined : (p.author_avatar || undefined),
+    group: p.group_name || "General",
+    groupLocality: p.group_location || undefined,
+    timeAgo: formatDistanceToNow(new Date(p.created_at), { addSuffix: true }),
+    title: p.title,
+    content: p.content || "",
+    image: p.image_url || undefined,
+    upvotes: p.upvotes - p.downvotes,
+    comments: p.comment_count,
+    shares: p.share_count,
+    isVerified: p.author_verified,
+    isAnonymous: p.is_anonymous,
+  };
+}
+
+const PostCard = ({ post: legacyPost, dbPost, index }: PostCardProps) => {
+  const post = legacyPost || (dbPost ? dbPostToDisplay(dbPost) : null);
+  
+  if (!post) return null;
+
+  return <PostCardInner post={post} index={index} />;
+};
+
+const PostCardInner = ({ post, index }: { post: PostData; index: number }) => {
   const [votes, setVotes] = useState(post.upvotes);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
   const [saved, setSaved] = useState(false);
@@ -45,15 +76,19 @@ const PostCard = ({ post, index }: PostCardProps) => {
     <motion.article
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.08, duration: 0.4 }}
+      transition={{ delay: Math.min(index * 0.08, 0.4), duration: 0.4 }}
       className="bg-card border border-border rounded-xl shadow-card hover:shadow-elevated transition-shadow"
     >
       <div className="p-4">
         {/* Header */}
         <div className="flex items-center gap-2 mb-3">
-          <div className="h-8 w-8 rounded-full gradient-kenya flex items-center justify-center text-primary-foreground font-display font-bold text-sm">
-            {post.isAnonymous ? "?" : post.author[0]}
-          </div>
+          {post.authorAvatar ? (
+            <img src={post.authorAvatar} alt="" className="h-8 w-8 rounded-full object-cover" />
+          ) : (
+            <div className="h-8 w-8 rounded-full gradient-kenya flex items-center justify-center text-primary-foreground font-display font-bold text-sm">
+              {post.isAnonymous ? "?" : post.author[0]}
+            </div>
+          )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
               <span className="font-display font-semibold text-sm text-foreground">
@@ -85,9 +120,11 @@ const PostCard = ({ post, index }: PostCardProps) => {
         <h3 className="font-display font-bold text-foreground mb-2 leading-snug">
           {post.title}
         </h3>
-        <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-          {post.content}
-        </p>
+        {post.content && (
+          <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+            {post.content}
+          </p>
+        )}
 
         {post.image && (
           <div className="rounded-lg overflow-hidden mb-3 border border-border">
@@ -97,7 +134,6 @@ const PostCard = ({ post, index }: PostCardProps) => {
 
         {/* Actions */}
         <div className="flex items-center gap-1">
-          {/* Vote */}
           <div className="flex items-center bg-muted rounded-full">
             <button
               onClick={() => handleVote("up")}
