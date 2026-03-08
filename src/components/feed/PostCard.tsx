@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy, Repeat2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -85,6 +85,15 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
   const [deleted, setDeleted] = useState(false);
   const [shareCount, setShareCount] = useState(post.shares);
   const [repostOpen, setRepostOpen] = useState(false);
+  const [repostCount, setRepostCount] = useState(0);
+
+  useEffect(() => {
+    supabase
+      .from("posts")
+      .select("id", { count: "exact", head: true })
+      .eq("repost_of", postId)
+      .then(({ count }) => setRepostCount(count || 0));
+  }, [postId]);
 
   const isOwnPost = !!(user && authorUserId && user.id === authorUserId);
 
@@ -281,6 +290,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
 
           <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2" onClick={(e) => { e.stopPropagation(); setRepostOpen(true); }}>
             <Repeat2 className="h-4 w-4" />
+            {repostCount > 0 && <span className="text-xs font-display">{repostCount}</span>}
           </Button>
 
           <div className="flex-1" />
@@ -299,7 +309,13 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
 
       <RepostDialog
         open={repostOpen}
-        onOpenChange={setRepostOpen}
+        onOpenChange={(open) => {
+          setRepostOpen(open);
+          if (!open) {
+            // Refresh count after dialog closes (user may have reposted)
+            supabase.from("posts").select("id", { count: "exact", head: true }).eq("repost_of", postId).then(({ count }) => setRepostCount(count || 0));
+          }
+        }}
         originalPost={{
           id: postId,
           title: post.title,
