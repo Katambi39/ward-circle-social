@@ -105,10 +105,41 @@ const MarketplacePage = () => {
       setFavorites(new Set((favs || []).map((f: any) => f.listing_id)));
     }
 
+    // Fetch user's own listings (all statuses)
+    if (user) {
+      const { data: mine } = await supabase
+        .from("listings")
+        .select("*")
+        .eq("seller_id", user.id)
+        .order("created_at", { ascending: false });
+      setMyListings((mine as Listing[]) || []);
+    }
+
     setLoading(false);
   };
 
   useEffect(() => { fetchListings(); }, [user]);
+
+  const handleDeleteListing = async (listingId: string) => {
+    const { error } = await supabase.from("listings").delete().eq("id", listingId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Listing deleted" });
+      fetchListings();
+    }
+  };
+
+  const handleToggleStatus = async (listingId: string, currentStatus: string) => {
+    const newStatus = currentStatus === "active" ? "paused" : "active";
+    const { error } = await supabase.from("listings").update({ status: newStatus } as any).eq("id", listingId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: newStatus === "active" ? "Listing reactivated" : "Listing paused" });
+      fetchListings();
+    }
+  };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
