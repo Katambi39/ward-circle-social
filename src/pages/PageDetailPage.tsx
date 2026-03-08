@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PageAnalytics from "@/components/pages/PageAnalytics";
+import ReactionBar from "@/components/feed/ReactionBar";
 import StartChatButton from "@/components/messages/StartChatButton";
 import { motion } from "framer-motion";
 import { format, formatDistanceToNow, isPast } from "date-fns";
@@ -896,8 +897,10 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
                 <video src={post.video_url} controls className="w-full max-h-72" />
               </div>
             )}
-            <div className="flex items-center justify-between mt-2">
-              <p className="text-xs text-muted-foreground font-display">
+            <div className="flex items-center gap-1 mt-2">
+              <ReactionBar postId={post.id} />
+              <div className="flex-1" />
+              <p className="text-xs text-muted-foreground font-display mr-1">
                 {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
               </p>
               <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground gap-1 text-xs" onClick={() => toggleComments(post.id)}>
