@@ -60,6 +60,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
   const videoInputRef = useRef<HTMLInputElement>(null);
   const linkInputRef = useRef<HTMLInputElement>(null);
 
+  const [anonTitle, setAnonTitle] = useState("");
   const [content, setContent] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkInput, setShowLinkInput] = useState(false);
@@ -124,6 +125,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
   };
 
   const resetForm = () => {
+    setAnonTitle("");
     setContent("");
     setLinkUrl("");
     setShowLinkInput(false);
@@ -258,8 +260,8 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         finalContent = `${selectedFeeling.emoji} Feeling ${selectedFeeling.label}${finalContent ? `\n\n${finalContent}` : ""}`;
       }
 
-      // Auto-generate title from content (first 100 chars)
-      const autoTitle = (finalContent || content.trim() || "Post").substring(0, 100);
+      // Use anon title if provided, otherwise auto-generate from content
+      const autoTitle = (isAnonymous && anonTitle.trim()) ? anonTitle.trim() : (finalContent || content.trim() || "Post").substring(0, 100);
 
       const { data: postData, error } = await supabase.from("posts").insert({
         user_id: user.id,
@@ -335,6 +337,16 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
           </div>
         </div>
 
+        {/* Optional title for anonymous posts */}
+        {isAnonymous && (
+          <Input
+            placeholder="Add a title (optional)"
+            value={anonTitle}
+            onChange={(e) => setAnonTitle(e.target.value)}
+            className="font-display font-semibold"
+            maxLength={200}
+          />
+        )}
 
         {/* Content */}
 
