@@ -24,6 +24,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import type { PostDialogIntent } from "./CreatePostBar";
+import { moderateContent } from "@/lib/moderation";
 
 const FEELING_OPTIONS = [
   { emoji: "😊", label: "Happy" },
