@@ -83,7 +83,6 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
   const [votes, setVotes] = useState(post.upvotes);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
   const [deleted, setDeleted] = useState(false);
-  const [shareCount, setShareCount] = useState(post.shares);
   const [repostOpen, setRepostOpen] = useState(false);
   const [repostCount, setRepostCount] = useState(0);
 
@@ -115,8 +114,6 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
       navigator.clipboard.writeText(url).catch(() => {});
     }
     toast.success("Link copied to clipboard");
-    setShareCount((c) => c + 1);
-    supabase.from("posts").update({ share_count: post.shares + 1 }).eq("id", postId).then();
   };
 
   const handleDelete = async () => {
@@ -283,9 +280,8 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
             <span className="text-xs font-display">{post.comments}</span>
           </Button>
 
-          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2" onClick={(e) => { e.stopPropagation(); handleShare(); }}>
+          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground px-2" onClick={(e) => { e.stopPropagation(); handleShare(); }}>
             <Share2 className="h-4 w-4" />
-            <span className="text-xs font-display">{shareCount}</span>
           </Button>
 
           <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2" onClick={(e) => { e.stopPropagation(); setRepostOpen(true); }}>
