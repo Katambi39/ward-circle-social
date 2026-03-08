@@ -17,7 +17,7 @@ const suggestedGroups = [
 
 const RightSidebar = () => {
   return (
-    <aside className="w-72 shrink-0 h-[calc(100vh-3.5rem)] sticky top-14 overflow-y-auto p-4 space-y-4">
+    <aside className="w-72 shrink-0 h-full overflow-y-auto p-4 space-y-4">
       {/* Trending */}
       <div className="bg-card rounded-xl border border-border p-4 shadow-card">
         <h3 className="font-display font-bold text-foreground flex items-center gap-2 mb-3">
