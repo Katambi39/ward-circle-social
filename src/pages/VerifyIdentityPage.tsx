@@ -116,12 +116,23 @@ const VerifyIdentityPage = () => {
         .upload(idPath, idPhotoFile);
       if (idError) throw idError;
 
-      const { error } = await supabase.from("profiles").update({
+      const { error: profileError } = await supabase.from("profiles").update({
         national_id_hash: hashHex,
         verification_status: "pending",
       } as any).eq("user_id", user.id);
 
-      if (error) throw error;
+      if (profileError) throw profileError;
+
+      // Record submission with document paths for admin review
+      const { error: kycError } = await supabase.from("kyc_submissions").upsert({
+        user_id: user.id,
+        national_id_hash: hashHex,
+        selfie_path: selfiePath,
+        id_photo_path: idPath,
+        status: "pending",
+      } as any, { onConflict: "user_id" });
+
+      if (kycError) throw kycError;
 
       await refreshProfile();
       toast({
