@@ -259,11 +259,8 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         videoUrl = urlData.publicUrl;
       }
 
-      // Build content with feeling
+      // Build content — feeling is stored separately, not mixed in
       let finalContent = content.trim();
-      if (selectedFeeling) {
-        finalContent = `${selectedFeeling.emoji} Feeling ${selectedFeeling.label}${finalContent ? `\n\n${finalContent}` : ""}`;
-      }
 
       // Use anon title if provided, otherwise auto-generate from content
       const autoTitle = (isAnonymous && anonTitle.trim()) ? anonTitle.trim() : (finalContent || content.trim() || "Post").substring(0, 100);
@@ -279,6 +276,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         group_id: selectedGroup !== "none" ? selectedGroup : null,
         moderation_status: modResult.is_flagged ? "flagged" : "approved",
         moderation_reason: modResult.is_flagged ? modResult.reason : null,
+        feeling: selectedFeeling ? `${selectedFeeling.emoji} ${selectedFeeling.label}` : null,
       } as any).select("id").single();
 
       if (error) throw error;

@@ -940,6 +940,7 @@ export type Database = {
           content: string | null
           created_at: string
           downvotes: number
+          feeling: string | null
           group_id: string | null
           id: string
           image_url: string | null
@@ -961,6 +962,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           downvotes?: number
+          feeling?: string | null
           group_id?: string | null
           id?: string
           image_url?: string | null
@@ -982,6 +984,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           downvotes?: number
+          feeling?: string | null
           group_id?: string | null
           id?: string
           image_url?: string | null

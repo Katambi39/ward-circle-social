@@ -37,6 +37,7 @@ export interface PostData {
   shares: number;
   isVerified: boolean;
   isAnonymous?: boolean;
+  feeling?: string;
 }
 
 interface PostCardProps {
@@ -64,6 +65,7 @@ function dbPostToDisplay(p: DbPost): PostData {
     shares: p.share_count,
     isVerified: p.author_verified,
     isAnonymous: p.is_anonymous,
+    feeling: p.feeling || undefined,
   };
 }
 
@@ -126,8 +128,11 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
 
   if (deleted) return null;
 
-  // Strip poll text from content for display (shown as PostPollDisplay instead)
-  const displayContent = post.content?.replace(/📊 Poll:\n[\s\S]*$/, "").trim();
+  // Strip poll text and old feeling prefix from content for display
+  const displayContent = post.content
+    ?.replace(/📊 Poll:\n[\s\S]*$/, "")
+    ?.replace(/^[\p{Emoji_Presentation}\p{Emoji}\uFE0F]+ Feeling \w+\n*/u, "")
+    ?.trim();
 
   return (
     <motion.article
@@ -147,7 +152,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
             </div>
           )}
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 flex-wrap">
               <span
                 className="font-display font-semibold text-sm text-foreground cursor-pointer hover:underline"
                 onClick={(e) => { e.stopPropagation(); if (!post.isAnonymous && authorUsername) navigate(`/user/${authorUsername}`); }}
@@ -156,6 +161,9 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
               </span>
               {post.isVerified && !post.isAnonymous && (
                 <Shield className="h-3.5 w-3.5 text-primary fill-primary/20" />
+              )}
+              {post.feeling && (
+                <span className="text-xs text-muted-foreground">— {post.feeling}</span>
               )}
               <span className="text-muted-foreground text-xs">·</span>
               <span className="text-xs text-muted-foreground">{post.timeAgo}</span>

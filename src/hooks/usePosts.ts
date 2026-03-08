@@ -18,6 +18,7 @@ export interface DbPost {
   created_at: string;
   repost_of: string | null;
   repost_comment: string | null;
+  feeling: string | null;
   // Joined data
   author_name: string;
   author_username: string;
@@ -94,6 +95,7 @@ export function usePosts() {
         group_location: p.groups?.location || null,
         repost_of: p.repost_of || null,
         repost_comment: p.repost_comment || null,
+        feeling: p.feeling || null,
       };
     });
 
@@ -164,6 +166,7 @@ export function usePosts() {
               group_location: p.groups?.location || null,
               repost_of: p.repost_of || null,
               repost_comment: p.repost_comment || null,
+              feeling: p.feeling || null,
             };
             setPosts((prev) => [newPost, ...prev]);
           }
