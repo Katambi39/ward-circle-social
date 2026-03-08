@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/" },
