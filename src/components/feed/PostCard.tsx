@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ExternalLink } from "lucide-react";
+import SafeLink from "./SafeLink";
 import { useNavigate } from "react-router-dom";
 import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy, Repeat2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -239,18 +239,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
             </div>
           )}
           {post.linkUrl && (
-            <a
-              href={post.linkUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-2 p-3 mb-3 rounded-lg border border-border bg-muted/50 hover:bg-muted transition-colors group"
-            >
-              <ExternalLink className="h-4 w-4 text-primary shrink-0" />
-              <span className="text-sm text-primary font-display truncate group-hover:underline">
-                {post.linkUrl}
-              </span>
-            </a>
+            <SafeLink url={post.linkUrl} />
           )}
         </div>
 
