@@ -125,6 +125,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
   };
 
   const resetForm = () => {
+    setAnonTitle("");
     setContent("");
     setLinkUrl("");
     setShowLinkInput(false);
