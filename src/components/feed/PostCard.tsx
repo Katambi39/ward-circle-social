@@ -83,7 +83,6 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
   const [votes, setVotes] = useState(post.upvotes);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
   const [deleted, setDeleted] = useState(false);
-  const [shareCount, setShareCount] = useState(post.shares);
   const [repostOpen, setRepostOpen] = useState(false);
   const [repostCount, setRepostCount] = useState(0);
 
