@@ -17,6 +17,9 @@ import TrendingPage from "./pages/TrendingPage";
 import PagesPage from "./pages/PagesPage";
 import PageDetailPage from "./pages/PageDetailPage";
 import MessagesPage from "./pages/MessagesPage";
+import MarketplacePage from "./pages/MarketplacePage";
+import ListingDetailPage from "./pages/ListingDetailPage";
+import WalletPage from "./pages/WalletPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +44,9 @@ const App = () => (
               <Route path="/pages" element={<ProtectedRoute><PagesPage /></ProtectedRoute>} />
               <Route path="/pages/:slug" element={<ProtectedRoute><PageDetailPage /></ProtectedRoute>} />
               <Route path="/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+              <Route path="/marketplace" element={<ProtectedRoute><MarketplacePage /></ProtectedRoute>} />
+              <Route path="/marketplace/:id" element={<ProtectedRoute><ListingDetailPage /></ProtectedRoute>} />
+              <Route path="/wallet" element={<ProtectedRoute><WalletPage /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
