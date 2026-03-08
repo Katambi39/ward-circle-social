@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { Bell, MessageCircle, ArrowBigUp, Users, Check, CheckCheck } from "lucide-react";
+import { Bell, MessageCircle, ArrowBigUp, Users, Check, CheckCheck, Heart, Reply } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -27,6 +27,8 @@ const typeIcons: Record<string, React.ReactNode> = {
   comment: <MessageCircle className="h-4 w-4 text-primary" />,
   upvote: <ArrowBigUp className="h-4 w-4 text-secondary" />,
   group_join: <Users className="h-4 w-4 text-primary" />,
+  story_reaction: <Heart className="h-4 w-4 text-rose-500" />,
+  story_reply: <Reply className="h-4 w-4 text-primary" />,
 };
 
 const NotificationsDropdown = () => {
