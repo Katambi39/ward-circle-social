@@ -182,6 +182,18 @@ const PageDetailPage = () => {
     if (slug) fetchAll();
   }, [slug, user]);
 
+  // Check admin role
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle()
+      .then(({ data }) => setIsAdmin(!!data));
+  }, [user]);
+
   // Record page view once
   useEffect(() => {
     if (page && user && !viewRecorded.current) {
