@@ -206,7 +206,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
 
     try {
       // Pre-check content with AI moderation
-      const textToCheck = `${title.trim()}\n${content.trim()}`.trim();
+      const textToCheck = content.trim();
       const modResult = await moderateContent(textToCheck, "post");
       
       if (modResult.should_block) {
