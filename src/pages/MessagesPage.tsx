@@ -480,7 +480,24 @@ const MessagesPage = () => {
                                     <Trash2 className="h-3 w-3" />
                                   </button>
                                 )}
-                                <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
+                                {/* Media display */}
+                                {(msg as any).media_url && (
+                                  (() => {
+                                    const url = (msg as any).media_url as string;
+                                    const isVideo = /\.(mp4|webm|mov)(\?|$)/i.test(url);
+                                    return isVideo ? (
+                                      <video src={url} controls className="rounded-lg max-w-full max-h-48 mt-1" />
+                                    ) : (
+                                      <img src={url} alt="" className="rounded-lg max-w-full max-h-48 mt-1 cursor-pointer" onClick={() => window.open(url, "_blank")} />
+                                    );
+                                  })()
+                                )}
+                                {msg.content && msg.content !== "📎 Media" && (
+                                  <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
+                                )}
+                                {msg.content === "📎 Media" && !(msg as any).media_url && (
+                                  <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
+                                )}
                                 {/* Show link safety warnings for URLs in messages */}
                                 {(msg.content.match(/https?:\/\/[^\s)]+/gi) || []).map((url, idx) => (
                                   <DmLinkWarning key={idx} url={url} isMe={isMe} />
