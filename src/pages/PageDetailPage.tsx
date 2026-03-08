@@ -83,9 +83,19 @@ const PageDetailPage = () => {
   const [pollOptions, setPollOptions] = useState(["", ""]);
   const [creatingPoll, setCreatingPoll] = useState(false);
 
+  const viewRecorded = useRef(false);
+
   useEffect(() => {
     if (slug) fetchAll();
   }, [slug, user]);
+
+  // Record page view once
+  useEffect(() => {
+    if (page && user && !viewRecorded.current) {
+      viewRecorded.current = true;
+      supabase.from("page_views").insert({ page_id: page.id, viewer_id: user.id } as any).then(() => {});
+    }
+  }, [page, user]);
 
   const fetchAll = async () => {
     // Fetch page
