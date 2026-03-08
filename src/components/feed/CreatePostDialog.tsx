@@ -332,6 +332,21 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
           </div>
         )}
 
+        {/* Video preview */}
+        {videoPreview && (
+          <div className="relative rounded-lg overflow-hidden border border-border">
+            <video src={videoPreview} controls className="w-full max-h-60" />
+            <Button
+              variant="destructive"
+              size="icon"
+              className="absolute top-2 right-2 h-7 w-7 rounded-full"
+              onClick={removeVideo}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
         {/* Link input */}
         {showLinkInput && (
           <div className="flex items-center gap-2">
