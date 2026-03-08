@@ -4,8 +4,6 @@ import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDistanceToNow } from "date-fns";
-import SyncedLyrics from "./SyncedLyrics";
-import { autoDetectLyricsOffset } from "./LyricsSyncAdjuster";
 import StoryReplyBar from "./StoryReplyBar";
 import StoryRepliesPanel from "./StoryRepliesPanel";
 
@@ -65,24 +63,11 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
   const [viewers, setViewers] = useState<Array<{ viewer_id: string; viewed_at: string; display_name: string; avatar_url: string | null; username: string }>>([]);
   const [showViewers, setShowViewers] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
-  const [lyricsOffset, setLyricsOffset] = useState(30);
-  const [savingLyricsOffset, setSavingLyricsOffset] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
   const currentGroup = groups[groupIndex];
   const currentStory = currentGroup?.stories[storyIndex];
 
-  // Initialize lyrics offset: use stored value, or auto-detect from lyrics density
-  useEffect(() => {
-    const rawOffset = (currentStory as any)?.lyrics_offset;
-    if (Number.isFinite(rawOffset) && rawOffset !== 0) {
-      setLyricsOffset(Number(rawOffset));
-    } else if (musicTrack?.lyrics && (musicTrack.lyrics as any[]).length > 0) {
-      setLyricsOffset(autoDetectLyricsOffset(musicTrack.lyrics as any[]));
-    } else {
-      setLyricsOffset(30);
-    }
-  }, [currentStory?.id, musicTrack?.id]);
 
   // Record view
   useEffect(() => {
@@ -298,22 +283,6 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
     }
   };
 
-  const saveLyricsOffset = async () => {
-    if (!currentStory || !user || currentGroup.user_id !== user.id) return;
-    setSavingLyricsOffset(true);
-    const { error } = await supabase
-      .from("stories")
-      .update({ lyrics_offset: lyricsOffset } as any)
-      .eq("id", currentStory.id)
-      .eq("user_id", user.id);
-
-    setSavingLyricsOffset(false);
-    if (error) {
-      toast.error("Failed to save lyrics sync");
-      return;
-    }
-    toast.success("Lyrics sync saved");
-  };
 
   if (!currentGroup || !currentStory) return null;
 
@@ -418,15 +387,6 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
           )}
         </div>
 
-        {/* Synced Lyrics */}
-        {musicTrack && musicTrack.lyrics && (musicTrack.lyrics as any[]).length > 0 && (
-          <SyncedLyrics
-            lyrics={musicTrack.lyrics as any[]}
-            currentTime={musicTime}
-            isPlaying={!paused}
-            timeOffset={lyricsOffset}
-          />
-        )}
 
         {/* Music indicator */}
         {musicTrack && (
@@ -450,33 +410,9 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
           </div>
         )}
 
-        {user && currentGroup.user_id === user.id && musicTrack?.lyrics?.length ? (
-          <div className="absolute top-24 right-2 z-40 flex items-center gap-1.5 bg-black/45 backdrop-blur-sm rounded-full px-2 py-1 border border-white/10">
-            <button
-              onClick={() => setLyricsOffset((prev) => Math.max(-120, prev - 2))}
-              className="text-[10px] text-white/80 px-1.5 py-0.5 rounded hover:bg-white/10 font-display"
-            >
-              -2s
-            </button>
-            <span className="text-[10px] text-white/70 font-display min-w-[38px] text-center">{lyricsOffset}s</span>
-            <button
-              onClick={() => setLyricsOffset((prev) => Math.min(120, prev + 2))}
-              className="text-[10px] text-white/80 px-1.5 py-0.5 rounded hover:bg-white/10 font-display"
-            >
-              +2s
-            </button>
-            <button
-              onClick={saveLyricsOffset}
-              disabled={savingLyricsOffset}
-              className="text-[10px] text-white px-2 py-0.5 rounded bg-white/15 hover:bg-white/25 disabled:opacity-60 font-display"
-            >
-              {savingLyricsOffset ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save"}
-            </button>
-          </div>
-        ) : null}
 
         {/* Caption */}
-        {currentStory.caption && !musicTrack?.lyrics?.length && (
+        {currentStory.caption && (
           <div className={`absolute left-0 right-0 z-40 px-4 ${user && currentGroup.user_id !== user.id ? 'bottom-28' : 'bottom-4'}`}>
             <div className="bg-black/50 backdrop-blur-sm rounded-xl px-4 py-2.5">
               <p className="text-white text-sm font-display text-center">{currentStory.caption}</p>

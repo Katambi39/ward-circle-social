@@ -422,9 +422,6 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
                         {wt.source === 'itunes' ? '🍎' : '🎵'}
                       </span>
                     )}
-                    {wt.lyrics && wt.lyrics.length > 0 && (
-                      <span className="text-[9px] bg-primary/10 text-primary rounded-full px-1.5 py-0.5 font-display shrink-0">🎤 Lyrics</span>
-                    )}
 
                     {/* Save to library button */}
                     <button
@@ -458,15 +455,6 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
         </>
       )}
 
-      {/* Lyrics preview */}
-      {selectedTrack && selectedTrack.lyrics && (selectedTrack.lyrics as any[]).length > 0 && (
-        <div className="bg-muted/50 rounded-lg p-2.5">
-          <p className="text-[10px] font-display font-semibold text-muted-foreground mb-1">🎤 Lyrics Preview</p>
-          <p className="text-[10px] text-muted-foreground italic line-clamp-2">
-            {(selectedTrack.lyrics as any[]).slice(0, 3).map((l: any) => l.text).join(" · ")}
-          </p>
-        </div>
-      )}
     </div>
   );
 };

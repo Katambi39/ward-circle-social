@@ -11,7 +11,7 @@ import StoryBackgroundPicker from "./StoryBackgroundPicker";
 import StoryVisibilityToggle from "./StoryVisibilityToggle";
 import MusicPicker from "./MusicPicker";
 import MusicStartTimePicker from "./MusicStartTimePicker";
-import LyricsSyncAdjuster from "./LyricsSyncAdjuster";
+
 import EmojiPicker from "../feed/EmojiPicker";
 import { STORY_FONTS, STORY_BACKGROUNDS, type StoryFont, type StoryBackground } from "./storyConstants";
 
@@ -30,7 +30,7 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
   const [showMusic, setShowMusic] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
   const [musicStartTime, setMusicStartTime] = useState(0);
-  const [lyricsOffset, setLyricsOffset] = useState(30);
+  
   const [submitting, setSubmitting] = useState(false);
 
   const textColor = background.id.includes("white") || background.id.includes("warm") ? "#000000" : "#ffffff";
@@ -121,7 +121,7 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
         caption: null,
         music_track_id: selectedTrack?.id || null,
         music_start_time: selectedTrack ? musicStartTime : 0,
-        lyrics_offset: selectedTrack?.lyrics?.length > 0 ? lyricsOffset : 0,
+        lyrics_offset: 0,
         visibility,
       } as any);
 
@@ -216,15 +216,6 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
         />
       )}
 
-      {/* Lyrics sync adjuster */}
-      {selectedTrack && selectedTrack.lyrics && (selectedTrack.lyrics as any[]).length > 0 && (
-        <LyricsSyncAdjuster
-          audioUrl={selectedTrack.audio_url}
-          lyrics={selectedTrack.lyrics as any[]}
-          lyricsOffset={lyricsOffset}
-          onOffsetChange={setLyricsOffset}
-        />
-      )}
 
       {/* Visibility */}
       <StoryVisibilityToggle visibility={visibility} onChange={setVisibility} />
