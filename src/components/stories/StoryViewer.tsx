@@ -416,7 +416,7 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
             lyrics={musicTrack.lyrics as any[]}
             currentTime={musicTime}
             isPlaying={!paused}
-            timeOffset={(currentStory as any)?.lyrics_offset ?? 30}
+            timeOffset={lyricsOffset}
           />
         )}
 
