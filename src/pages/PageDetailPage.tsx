@@ -18,6 +18,7 @@ import {
   Globe, Phone, Image, ArrowLeft, TrendingUp,
 } from "lucide-react";
 import PageAnalytics from "@/components/pages/PageAnalytics";
+import StartChatButton from "@/components/messages/StartChatButton";
 import { motion } from "framer-motion";
 import { format, formatDistanceToNow, isPast } from "date-fns";
 
@@ -338,14 +339,17 @@ const PageDetailPage = () => {
                 </div>
               </div>
               {!isOwner && (
-                <Button
-                  onClick={handleFollow}
-                  variant={isFollowing ? "outline" : "default"}
-                  size="sm"
-                  className={`rounded-full font-display gap-1.5 ${!isFollowing ? "gradient-kenya text-primary-foreground" : ""}`}
-                >
-                  {isFollowing ? <><UserMinus className="h-3.5 w-3.5" /> Unfollow</> : <><UserPlus className="h-3.5 w-3.5" /> Konect</>}
-                </Button>
+                <div className="flex items-center gap-2">
+                  <StartChatButton targetUserId={page.owner_id} />
+                  <Button
+                    onClick={handleFollow}
+                    variant={isFollowing ? "outline" : "default"}
+                    size="sm"
+                    className={`rounded-full font-display gap-1.5 ${!isFollowing ? "gradient-kenya text-primary-foreground" : ""}`}
+                  >
+                    {isFollowing ? <><UserMinus className="h-3.5 w-3.5" /> Unfollow</> : <><UserPlus className="h-3.5 w-3.5" /> Konect</>}
+                  </Button>
+                </div>
               )}
             </div>
 

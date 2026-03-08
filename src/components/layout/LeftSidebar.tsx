@@ -1,4 +1,4 @@
-import { Home, Users, Compass, TrendingUp, Shield, UserCircle, Flame, MapPin, Building2, Eye } from "lucide-react";
+import { Home, Users, Compass, TrendingUp, Shield, UserCircle, Flame, MapPin, Building2, Eye, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -42,6 +42,7 @@ const LeftSidebar = () => {
         <SidebarItem icon={<TrendingUp className="h-5 w-5" />} label="Trending" badge="Hot" active={location.pathname === "/trending"} onClick={() => navigate("/trending")} />
         <SidebarItem icon={<Users className="h-5 w-5" />} label="Groups" active={location.pathname === "/groups"} onClick={() => navigate("/groups")} />
         <SidebarItem icon={<UserCircle className="h-5 w-5" />} label="Pages" active={location.pathname === "/pages" || location.pathname.startsWith("/pages/")} onClick={() => navigate("/pages")} />
+        <SidebarItem icon={<MessageSquare className="h-5 w-5" />} label="Messages" active={location.pathname === "/messages"} onClick={() => navigate("/messages")} />
       </nav>
 
       <div className="mt-6 mb-2 px-3">

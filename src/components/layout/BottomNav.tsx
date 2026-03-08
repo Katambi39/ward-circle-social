@@ -1,12 +1,12 @@
-import { Home, Users, Eye, UserCircle, Compass } from "lucide-react";
+import { Home, Users, Eye, UserCircle, Compass, MessageSquare } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: Compass, label: "Discover", path: "/discover" },
+  { icon: MessageSquare, label: "Messages", path: "/messages" },
   { icon: Eye, label: "Siri", path: "/toboa-siri" },
-  { icon: Users, label: "Groups", path: "/groups" },
   { icon: UserCircle, label: "Profile", path: "/profile" },
 ];
 
