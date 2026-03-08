@@ -276,6 +276,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         group_id: selectedGroup !== "none" ? selectedGroup : null,
         moderation_status: modResult.is_flagged ? "flagged" : "approved",
         moderation_reason: modResult.is_flagged ? modResult.reason : null,
+        feeling: selectedFeeling ? `${selectedFeeling.emoji} ${selectedFeeling.label}` : null,
       } as any).select("id").single();
 
       if (error) throw error;
