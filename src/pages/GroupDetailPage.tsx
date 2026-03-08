@@ -24,8 +24,6 @@ const GroupDetailPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [postDialogOpen, setPostDialogOpen] = useState(false);
-  const [postIntent, setPostIntent] = useState<any>(null);
 
   // Fetch group
   const { data: group, isLoading: groupLoading } = useQuery({
