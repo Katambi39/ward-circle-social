@@ -39,10 +39,10 @@ const TopBar = () => {
     <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-md">
       <div className="flex h-14 items-center gap-2 sm:gap-3 px-3 sm:px-4">
         {/* Logo */}
-        <div className="flex items-center gap-2 shrink-0">
+        <button onClick={() => navigate("/")} className="flex items-center gap-2 shrink-0">
           <img src={conectLogo} alt="Conect" className="h-7 w-7 sm:h-8 sm:w-8" />
           <span className="font-display text-lg sm:text-xl font-bold text-primary">Conect</span>
-        </div>
+        </button>
 
         {/* Search - hidden on small mobile, shown on larger screens */}
         <div className="flex-1 max-w-xl mx-auto hidden sm:block">
