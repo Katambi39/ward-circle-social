@@ -65,6 +65,7 @@ const PageDetailPage = () => {
   const [events, setEvents] = useState<PageEvent[]>([]);
   const [polls, setPolls] = useState<Poll[]>([]);
   const [rsvpedEvents, setRsvpedEvents] = useState<Set<string>>(new Set());
+  const [isAdmin, setIsAdmin] = useState(false);
   const isOwner = user && page && user.id === page.owner_id;
 
   // Review form
