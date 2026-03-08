@@ -35,7 +35,9 @@ const TYPE_CONFIG: Record<string, { label: string; icon: React.ReactNode; color:
 };
 
 const WalletPage = () => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  const isVerified = profile?.verification_status === "verified";
+
   const { toast } = useToast();
   const [balance, setBalance] = useState(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
