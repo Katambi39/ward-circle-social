@@ -888,7 +888,7 @@ const PageDetailPage = () => {
 };
 
 // Content showcase tab - shows page posts with media upload and comments
-const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) => {
+const ContentTab = ({ pageId, isOwner, isAdmin }: { pageId: string; isOwner: boolean; isAdmin: boolean }) => {
   const { user } = useAuth();
   const { toast: showToast } = useToast();
   const [posts, setPosts] = useState<any[]>([]);
