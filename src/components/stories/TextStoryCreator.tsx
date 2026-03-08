@@ -10,6 +10,7 @@ import StoryFontPicker from "./StoryFontPicker";
 import StoryBackgroundPicker from "./StoryBackgroundPicker";
 import StoryVisibilityToggle from "./StoryVisibilityToggle";
 import MusicPicker from "./MusicPicker";
+import MusicStartTimePicker from "./MusicStartTimePicker";
 import EmojiPicker from "../feed/EmojiPicker";
 import { STORY_FONTS, STORY_BACKGROUNDS, type StoryFont, type StoryBackground } from "./storyConstants";
 
@@ -27,6 +28,7 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
   const [visibility, setVisibility] = useState<"public" | "friends_only">("public");
   const [showMusic, setShowMusic] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
+  const [musicStartTime, setMusicStartTime] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
   const textColor = background.id.includes("white") || background.id.includes("warm") ? "#000000" : "#ffffff";
@@ -116,7 +118,7 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
         media_type: "image",
         caption: null,
         music_track_id: selectedTrack?.id || null,
-        music_start_time: 0,
+        music_start_time: selectedTrack ? musicStartTime : 0,
         visibility,
       } as any);
 
@@ -199,6 +201,16 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
           <Music className="h-3.5 w-3.5 text-primary" />
           <span className="text-xs font-display truncate">{selectedTrack.title} – {selectedTrack.artist}</span>
         </div>
+      )}
+
+      {/* Music start time picker */}
+      {selectedTrack && (
+        <MusicStartTimePicker
+          audioUrl={selectedTrack.audio_url}
+          durationSeconds={selectedTrack.duration_seconds || 30}
+          startTime={musicStartTime}
+          onStartTimeChange={setMusicStartTime}
+        />
       )}
 
       {/* Visibility */}

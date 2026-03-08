@@ -43,7 +43,8 @@ interface StoryViewerProps {
   onDeleted?: () => void;
 }
 
-const STORY_DURATION = 5000; // 5 seconds per story
+const STORY_DURATION_DEFAULT = 5000; // 5 seconds per story
+const STORY_DURATION_MUSIC = 30000; // 30 seconds for music stories
 
 const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryViewerProps) => {
   const { user } = useAuth();
@@ -198,17 +199,20 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
     }
   }, [storyIndex, groupIndex, groups]);
 
+  // Determine duration based on whether story has music
+  const storyDuration = currentStory?.music_track_id ? STORY_DURATION_MUSIC : STORY_DURATION_DEFAULT;
+
   // Auto-advance timer
   useEffect(() => {
     if (paused) return;
 
     startTimeRef.current = Date.now();
-    const remaining = STORY_DURATION - elapsedRef.current;
+    const remaining = storyDuration - elapsedRef.current;
 
     const animate = () => {
       const now = Date.now();
       const total = elapsedRef.current + (now - startTimeRef.current);
-      const pct = Math.min((total / STORY_DURATION) * 100, 100);
+      const pct = Math.min((total / storyDuration) * 100, 100);
       setProgress(pct);
 
       if (pct >= 100) {
@@ -227,7 +231,7 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
       clearTimeout(timeout);
       elapsedRef.current += Date.now() - startTimeRef.current;
     };
-  }, [groupIndex, storyIndex, paused, goNext]);
+  }, [groupIndex, storyIndex, paused, goNext, storyDuration]);
 
   // Keyboard navigation
   useEffect(() => {

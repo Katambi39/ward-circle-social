@@ -9,6 +9,7 @@ import { isExplicitLink } from "@/components/feed/LinkSafety";
 import StoryFontPicker from "./StoryFontPicker";
 import StoryVisibilityToggle from "./StoryVisibilityToggle";
 import MusicPicker from "./MusicPicker";
+import MusicStartTimePicker from "./MusicStartTimePicker";
 import EmojiPicker from "../feed/EmojiPicker";
 import { STORY_FONTS, type StoryFont } from "./storyConstants";
 
@@ -29,6 +30,7 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
   const [showFonts, setShowFonts] = useState(false);
   const [showMusic, setShowMusic] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<any>(null);
+  const [musicStartTime, setMusicStartTime] = useState(0);
   const [visibility, setVisibility] = useState<"public" | "friends_only">("public");
   const [submitting, setSubmitting] = useState(false);
 
@@ -84,7 +86,7 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
         media_type: mediaType,
         caption: caption.trim() || null,
         music_track_id: selectedTrack?.id || null,
-        music_start_time: 0,
+        music_start_time: selectedTrack ? musicStartTime : 0,
         visibility,
       } as any);
 
@@ -183,6 +185,16 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
               <Music className="h-3.5 w-3.5 text-primary" />
               <span className="text-xs font-display truncate">{selectedTrack.title} – {selectedTrack.artist}</span>
             </div>
+          )}
+
+          {/* Music start time picker */}
+          {selectedTrack && (
+            <MusicStartTimePicker
+              audioUrl={selectedTrack.audio_url}
+              durationSeconds={selectedTrack.duration_seconds || 30}
+              startTime={musicStartTime}
+              onStartTimeChange={setMusicStartTime}
+            />
           )}
 
           {/* Visibility */}
