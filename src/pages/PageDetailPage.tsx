@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,8 +15,9 @@ import { Progress } from "@/components/ui/progress";
 import {
   Store, CheckCircle2, MapPin, Users, Shield, UserPlus, UserMinus,
   Star, Calendar, MessageSquare, BarChart3, Plus, Send, Clock,
-  Globe, Phone, Image, ArrowLeft,
+  Globe, Phone, Image, ArrowLeft, TrendingUp,
 } from "lucide-react";
+import PageAnalytics from "@/components/pages/PageAnalytics";
 import { motion } from "framer-motion";
 import { format, formatDistanceToNow, isPast } from "date-fns";
 
