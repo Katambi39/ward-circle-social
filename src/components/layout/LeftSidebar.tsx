@@ -38,7 +38,7 @@ const LeftSidebar = () => {
   const isUnverified = !profile?.verification_status || profile.verification_status === "unverified";
 
   return (
-    <aside className="w-60 shrink-0 border-r border-border bg-card h-[calc(100vh-3.5rem)] sticky top-14 overflow-y-auto p-3">
+    <aside className="w-60 shrink-0 border-r border-border bg-card h-full overflow-y-auto p-3">
       {isUnverified && (
         <button
           onClick={() => navigate("/verify-identity")}
