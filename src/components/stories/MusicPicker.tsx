@@ -453,7 +453,7 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
           </div>
 
           <p className="text-[9px] text-muted-foreground/50 text-center font-display">
-            30-second previews powered by Deezer
+            30-second previews via Deezer 🎵 &amp; iTunes 🍎
           </p>
         </>
       )}
