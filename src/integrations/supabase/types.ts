@@ -65,6 +65,27 @@ export type Database = {
           },
         ]
       }
+      connections: {
+        Row: {
+          created_at: string
+          follower_id: string
+          following_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          follower_id: string
+          following_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          follower_id?: string
+          following_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
       group_members: {
         Row: {
           group_id: string
@@ -254,6 +275,7 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           county: string | null
+          cover_url: string | null
           created_at: string
           display_name: string
           id: string
@@ -271,6 +293,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           county?: string | null
+          cover_url?: string | null
           created_at?: string
           display_name: string
           id?: string
@@ -288,6 +311,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           county?: string | null
+          cover_url?: string | null
           created_at?: string
           display_name?: string
           id?: string
