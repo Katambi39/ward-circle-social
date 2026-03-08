@@ -72,7 +72,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
-  const [groups, setGroups] = useState<GroupOption[]>([]);
+  const [groups, setGroups] = useState<GroupOption[]>(groupId && groupName ? [{ id: groupId, name: groupName }] : []);
   const [loadingGroups, setLoadingGroups] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [selectedFeeling, setSelectedFeeling] = useState<{ emoji: string; label: string } | null>(null);
