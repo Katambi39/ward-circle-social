@@ -75,13 +75,14 @@ const PostCard = ({ post: legacyPost, dbPost, index, isBookmarked = false, onTog
   return <PostCardInner post={post} postId={dbPost?.id || post.id} authorUserId={dbPost?.user_id} authorUsername={dbPost?.author_username} repostOf={dbPost?.repost_of || null} repostComment={dbPost?.repost_comment || null} index={index} isBookmarked={isBookmarked} onToggleBookmark={onToggleBookmark} />;
 };
 
-const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBookmarked, onToggleBookmark }: { post: PostData; postId: string; authorUserId?: string; authorUsername?: string; index: number; isBookmarked: boolean; onToggleBookmark?: (id: string) => void }) => {
+const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, repostComment, index, isBookmarked, onToggleBookmark }: { post: PostData; postId: string; authorUserId?: string; authorUsername?: string; repostOf?: string | null; repostComment?: string | null; index: number; isBookmarked: boolean; onToggleBookmark?: (id: string) => void }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [votes, setVotes] = useState(post.upvotes);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
   const [deleted, setDeleted] = useState(false);
   const [shareCount, setShareCount] = useState(post.shares);
+  const [repostOpen, setRepostOpen] = useState(false);
 
   const isOwnPost = !!(user && authorUserId && user.id === authorUserId);
 
