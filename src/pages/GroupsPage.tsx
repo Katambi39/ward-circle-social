@@ -74,7 +74,7 @@ const GroupsPage = () => {
               <Building2 className="h-3.5 w-3.5" /> County
             </TabsTrigger>
             <TabsTrigger value="location" className="rounded-full text-xs font-display gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-              <MapPin className="h-3.5 w-3.5" /> Location
+              <MapPin className="h-3.5 w-3.5" /> Constituency
             </TabsTrigger>
             <TabsTrigger value="community" className="rounded-full text-xs font-display gap-1.5 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Users className="h-3.5 w-3.5" /> Community
