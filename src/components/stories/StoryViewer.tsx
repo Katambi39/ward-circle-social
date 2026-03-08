@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X, ChevronLeft, ChevronRight, Eye, Pause, Play, Music } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Eye, Pause, Play, Music, Trash2 } from "lucide-react";
+import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDistanceToNow } from "date-fns";
@@ -37,11 +38,12 @@ interface StoryViewerProps {
   groups: StoryGroup[];
   initialGroupIndex: number;
   onClose: () => void;
+  onDeleted?: () => void;
 }
 
 const STORY_DURATION = 5000; // 5 seconds per story
 
-const StoryViewer = ({ groups, initialGroupIndex, onClose }: StoryViewerProps) => {
+const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryViewerProps) => {
   const { user } = useAuth();
   const [groupIndex, setGroupIndex] = useState(initialGroupIndex);
   const [storyIndex, setStoryIndex] = useState(0);
@@ -186,6 +188,42 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose }: StoryViewerProps) =
     return () => window.removeEventListener("keydown", handler);
   }, [goNext, goPrev, onClose]);
 
+  const handleDelete = async () => {
+    if (!currentStory || !user) return;
+    const confirmed = window.confirm("Delete this story?");
+    if (!confirmed) return;
+    
+    setPaused(true);
+    const { error } = await supabase.from("stories").delete().eq("id", currentStory.id);
+    if (error) {
+      toast.error("Failed to delete story");
+      setPaused(false);
+      return;
+    }
+    toast.success("Story deleted");
+    onDeleted?.();
+    
+    // Navigate away from deleted story
+    if (currentGroup.stories.length <= 1) {
+      // Last story in group
+      if (groups.length <= 1) {
+        onClose();
+      } else if (groupIndex < groups.length - 1) {
+        setGroupIndex(groupIndex);
+        setStoryIndex(0);
+        setProgress(0);
+        elapsedRef.current = 0;
+      } else {
+        setGroupIndex(groupIndex - 1);
+        setStoryIndex(0);
+        setProgress(0);
+        elapsedRef.current = 0;
+      }
+    } else {
+      goNext();
+    }
+  };
+
   if (!currentGroup || !currentStory) return null;
 
   return (
@@ -242,12 +280,22 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose }: StoryViewerProps) =
               {formatDistanceToNow(new Date(currentStory.created_at), { addSuffix: true })}
             </p>
           </div>
-          <button
-            onClick={() => setPaused((p) => !p)}
-            className="text-white/70 hover:text-white"
-          >
-            {paused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
-          </button>
+          <div className="flex items-center gap-1">
+            {user && currentGroup.user_id === user.id && (
+              <button
+                onClick={handleDelete}
+                className="text-white/70 hover:text-red-400 transition-colors"
+              >
+                <Trash2 className="h-5 w-5" />
+              </button>
+            )}
+            <button
+              onClick={() => setPaused((p) => !p)}
+              className="text-white/70 hover:text-white"
+            >
+              {paused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
 
         {/* Media */}

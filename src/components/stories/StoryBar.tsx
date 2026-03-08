@@ -216,6 +216,7 @@ const StoryBar = () => {
           groups={allViewerGroups}
           initialGroupIndex={activeGroupIndex}
           onClose={() => setViewerOpen(false)}
+          onDeleted={() => { fetchStories(); }}
         />
       )}
     </>
