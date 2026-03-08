@@ -39,7 +39,7 @@ const LeftSidebar = () => {
       <nav className="space-y-1">
         <SidebarItem icon={<Home className="h-5 w-5" />} label="Home" active={location.pathname === "/"} onClick={() => navigate("/")} />
         <SidebarItem icon={<Compass className="h-5 w-5" />} label="Discover" active={location.pathname === "/discover"} onClick={() => navigate("/discover")} />
-        <SidebarItem icon={<TrendingUp className="h-5 w-5" />} label="Trending" badge="Hot" />
+        <SidebarItem icon={<TrendingUp className="h-5 w-5" />} label="Trending" badge="Hot" active={location.pathname === "/trending"} onClick={() => navigate("/trending")} />
         <SidebarItem icon={<Users className="h-5 w-5" />} label="Groups" active={location.pathname === "/groups"} onClick={() => navigate("/groups")} />
         <SidebarItem icon={<UserCircle className="h-5 w-5" />} label="Pages" />
       </nav>
