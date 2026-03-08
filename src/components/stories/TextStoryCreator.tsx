@@ -33,6 +33,11 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
   
   const [submitting, setSubmitting] = useState(false);
 
+  const handleTrackSelect = (track: any | null) => {
+    setSelectedTrack(track);
+    if (track) setShowMusic(false);
+  };
+
   const textColor = background.id.includes("white") || background.id.includes("warm") ? "#000000" : "#ffffff";
 
   const handleSubmit = async () => {
