@@ -330,6 +330,45 @@ export type Database = {
         }
         Relationships: []
       }
+      kyc_submissions: {
+        Row: {
+          id: string
+          id_photo_path: string
+          national_id_hash: string
+          reviewed_at: string | null
+          reviewer_id: string | null
+          reviewer_notes: string | null
+          selfie_path: string
+          status: string
+          submitted_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          id_photo_path: string
+          national_id_hash: string
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
+          selfie_path: string
+          status?: string
+          submitted_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          id_photo_path?: string
+          national_id_hash?: string
+          reviewed_at?: string | null
+          reviewer_id?: string | null
+          reviewer_notes?: string | null
+          selfie_path?: string
+          status?: string
+          submitted_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       listing_favorites: {
         Row: {
           created_at: string
