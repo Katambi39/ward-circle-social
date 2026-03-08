@@ -55,6 +55,7 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
   const musicAudioRef = useRef<HTMLAudioElement | null>(null);
   const [musicTrack, setMusicTrack] = useState<MusicTrackData | null>(null);
   const [musicTime, setMusicTime] = useState(0);
+  const [viewCount, setViewCount] = useState(0);
 
   const currentGroup = groups[groupIndex];
   const currentStory = currentGroup?.stories[storyIndex];
