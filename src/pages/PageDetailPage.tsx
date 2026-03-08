@@ -897,8 +897,10 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
                 <video src={post.video_url} controls className="w-full max-h-72" />
               </div>
             )}
-            <div className="flex items-center justify-between mt-2">
-              <p className="text-xs text-muted-foreground font-display">
+            <div className="flex items-center gap-1 mt-2">
+              <ReactionBar postId={post.id} />
+              <div className="flex-1" />
+              <p className="text-xs text-muted-foreground font-display mr-1">
                 {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
               </p>
               <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground gap-1 text-xs" onClick={() => toggleComments(post.id)}>
