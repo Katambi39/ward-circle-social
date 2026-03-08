@@ -309,7 +309,13 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
 
       <RepostDialog
         open={repostOpen}
-        onOpenChange={setRepostOpen}
+        onOpenChange={(open) => {
+          setRepostOpen(open);
+          if (!open) {
+            // Refresh count after dialog closes (user may have reposted)
+            supabase.from("posts").select("id", { count: "exact", head: true }).eq("repost_of", postId).then(({ count }) => setRepostCount(count || 0));
+          }
+        }}
         originalPost={{
           id: postId,
           title: post.title,
