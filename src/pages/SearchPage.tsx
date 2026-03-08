@@ -137,8 +137,8 @@ const SearchPage = () => {
                 ) : posts.map((p, i) => (
                   <ResultCard key={p.id} index={i} onClick={() => navigate("/")}>
                     <div className="flex-1 min-w-0">
-                      <p className="font-display font-bold text-sm text-foreground truncate">{p.title}</p>
-                      {p.content && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{p.content}</p>}
+                      <p className="font-display font-bold text-sm text-foreground truncate"><Highlight text={p.title} query={debouncedQuery} /></p>
+                      {p.content && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5"><Highlight text={p.content} query={debouncedQuery} /></p>}
                       <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground">
                         <span>▲ {p.upvotes}</span>
                         <span>💬 {p.comment_count}</span>
