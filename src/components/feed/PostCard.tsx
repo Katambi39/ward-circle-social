@@ -75,8 +75,12 @@ const PostCard = ({ post: legacyPost, dbPost, index, isBookmarked = false, onTog
 
 const PostCardInner = ({ post, postId, authorUsername, index, isBookmarked, onToggleBookmark }: { post: PostData; postId: string; authorUsername?: string; index: number; isBookmarked: boolean; onToggleBookmark?: (id: string) => void }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [votes, setVotes] = useState(post.upvotes);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
+  const [deleted, setDeleted] = useState(false);
+
+  const isOwnPost = user && authorUsername && user.user_metadata?.username === authorUsername;
 
   const handleVote = (direction: "up" | "down") => {
     if (voted === direction) {
@@ -87,6 +91,36 @@ const PostCardInner = ({ post, postId, authorUsername, index, isBookmarked, onTo
       setVoted(direction);
     }
   };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/post/${postId}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: post.title, url });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Delete this post?")) return;
+    const { error } = await supabase.from("posts").delete().eq("id", postId);
+    if (error) {
+      toast.error("Failed to delete post");
+    } else {
+      toast.success("Post deleted");
+      setDeleted(true);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    await navigator.clipboard.writeText(`${window.location.origin}/post/${postId}`);
+    toast.success("Link copied");
+  };
+
+  if (deleted) return null;
 
   // Strip poll text from content for display (shown as PostPollDisplay instead)
   const displayContent = post.content?.replace(/📊 Poll:\n[\s\S]*$/, "").trim();
