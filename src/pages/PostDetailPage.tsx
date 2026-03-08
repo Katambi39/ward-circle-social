@@ -214,7 +214,7 @@ const PostDetailPage = () => {
         {/* Comments list */}
         <div className="space-y-2">
           {comments.map((comment, i) => (
-            <CommentItem key={comment.id} comment={comment} index={i} onReply={setReplyTo} />
+            <CommentItem key={comment.id} comment={comment} index={i} onReply={setReplyTo} onDelete={() => fetchComments()} />
           ))}
           {comments.length === 0 && (
             <p className="text-center text-sm text-muted-foreground py-6 font-display">No comments yet — be the first!</p>
