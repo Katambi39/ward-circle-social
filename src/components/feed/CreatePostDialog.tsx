@@ -67,6 +67,8 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
   const [selectedGroup, setSelectedGroup] = useState<string>("none");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [groups, setGroups] = useState<GroupOption[]>([]);
   const [loadingGroups, setLoadingGroups] = useState(false);
   const [submitting, setSubmitting] = useState(false);
