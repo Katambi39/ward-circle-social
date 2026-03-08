@@ -131,9 +131,6 @@ const PostCardInner = ({ post, postId, authorUsername, index, isBookmarked, onTo
 
         {/* Content - clickable to go to post detail */}
         <div className="cursor-pointer" onClick={() => navigate(`/post/${postId}`)}>
-          <h3 className="font-display font-bold text-foreground mb-2 leading-snug">
-            {post.title}
-          </h3>
           {displayContent && (
             <p className="text-sm text-muted-foreground leading-relaxed mb-3">
               {displayContent}
