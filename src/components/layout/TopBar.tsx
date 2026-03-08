@@ -15,6 +15,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const ThemeDropdownItem = () => {
+  const { theme, setTheme } = useTheme();
+  return (
+    <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="gap-2 cursor-pointer">
+      <Sun className="h-4 w-4 dark:hidden" />
+      <Moon className="h-4 w-4 hidden dark:block" />
+      {theme === "dark" ? "Light Mode" : "Dark Mode"}
+    </DropdownMenuItem>
+  );
+};
+
 const TopBar = () => {
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
