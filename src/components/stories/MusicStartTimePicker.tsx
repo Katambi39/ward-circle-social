@@ -50,8 +50,23 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
   }, [audioUrl]);
 
   useEffect(() => {
-    return () => { audioRef.current?.pause(); };
+    return () => {
+      audioRef.current?.pause();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
+
+  const startTrackingPlayback = (audio: HTMLAudioElement) => {
+    const tick = () => {
+      if (audio.paused || audio.ended) {
+        setPlaybackPos(null);
+        return;
+      }
+      setPlaybackPos(audio.currentTime);
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  };
 
   const togglePreview = () => {
     if (playing) {
