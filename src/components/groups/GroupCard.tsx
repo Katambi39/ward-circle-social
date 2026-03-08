@@ -85,7 +85,17 @@ const GroupCard = ({ group, onJoined }: GroupCardProps) => {
         group_id: group.id,
         user_id: user.id,
       });
-      if (error) throw error;
+      if (error) {
+        if (error.code === "42501" || error.message?.includes("policy")) {
+          toast({
+            title: "Verification required",
+            description: "You must verify your identity before joining groups.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
       toast({ title: "Joined!", description: `You joined ${group.name}` });
       refetchMembership();
       onJoined?.();
