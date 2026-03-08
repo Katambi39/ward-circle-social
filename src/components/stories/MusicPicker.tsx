@@ -186,7 +186,7 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
   });
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 overflow-x-hidden">
       <div className="flex items-center gap-2">
         <Music className="h-4 w-4 text-primary" />
         <span className="text-sm font-display font-semibold">Add Music</span>
@@ -277,7 +277,7 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
           </div>
 
           {/* Track list */}
-          <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
+          <div className="max-h-48 overflow-y-auto overflow-x-hidden space-y-1 pr-1">
             {loading ? (
               <p className="text-xs text-muted-foreground text-center py-4">Loading tracks...</p>
             ) : filtered.length === 0 ? (
@@ -310,11 +310,11 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
                         <Play className="h-3.5 w-3.5 text-primary ml-0.5" />
                       )}
                     </button>
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 overflow-hidden">
                       <p className="text-xs font-display font-medium truncate">{track.title}</p>
                       <p className="text-[10px] text-muted-foreground truncate">{track.artist}</p>
                     </div>
-                    <span className="text-[10px] text-muted-foreground font-display">
+                    <span className="text-[10px] text-muted-foreground font-display shrink-0 hidden sm:inline">
                       {GENRE_LABELS[track.genre] || track.genre}
                     </span>
                     {isSelected && <Check className="h-4 w-4 text-primary shrink-0" />}
@@ -357,7 +357,7 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
           </form>
 
           {/* Web results */}
-          <div className="max-h-48 overflow-y-auto space-y-1 pr-1">
+          <div className="max-h-48 overflow-y-auto overflow-x-hidden space-y-1 pr-1">
             {webSearching ? (
               <div className="flex items-center justify-center gap-2 py-6">
                 <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -409,7 +409,7 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
                       </div>
                     </button>
 
-                    <div className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0 overflow-hidden">
                       <p className="text-xs font-display font-medium truncate">{wt.title}</p>
                       <p className="text-[10px] text-muted-foreground truncate">{wt.artist}</p>
                     </div>
