@@ -19,7 +19,9 @@ const formatTime = (s: number) => {
 const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTimeChange }: MusicStartTimePickerProps) => {
   const [playing, setPlaying] = useState(false);
   const [actualDuration, setActualDuration] = useState<number | null>(null);
+  const [playbackPos, setPlaybackPos] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   // Detect actual audio file duration (preview may be ~30s, not full track)
   useEffect(() => {
