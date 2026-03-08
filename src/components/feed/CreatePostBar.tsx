@@ -50,6 +50,10 @@ const CreatePostBar = () => {
             <Image className="h-4 w-4 text-primary" />
             <span className="text-xs font-display">Photo</span>
           </Button>
+          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full" onClick={() => openWith("video")}>
+            <Video className="h-4 w-4 text-secondary" />
+            <span className="text-xs font-display">Video</span>
+          </Button>
           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full" onClick={() => openWith("link")}>
             <Link2 className="h-4 w-4 text-secondary" />
             <span className="text-xs font-display">Link</span>
