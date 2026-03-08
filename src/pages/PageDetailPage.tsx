@@ -114,21 +114,52 @@ const PageDetailPage = () => {
     setEditWebsite(page.website || "");
     setEditCounty(page.county || "");
     setEditConstituency(page.constituency || "");
+    setEditAvatarFile(null);
+    setEditAvatarPreview(page.avatar_url || null);
+    setEditCoverFile(null);
+    setEditCoverPreview(page.cover_url || null);
     setEditDialogOpen(true);
   };
 
   const handleSaveEdit = async () => {
     if (!page || !editName.trim()) return;
     setSavingEdit(true);
-    const { error } = await supabase.from("pages").update({
-      name: editName.trim(),
-      description: editDescription.trim() || null,
-      category: editCategory,
-      phone: editPhone.trim() || null,
-      website: editWebsite.trim() || null,
-      county: editCounty.trim() || null,
-      constituency: editConstituency.trim() || null,
-    }).eq("id", page.id);
+
+    let avatarUrl = page.avatar_url;
+    let coverUrl = page.cover_url;
+
+    try {
+      // Upload avatar if changed
+      if (editAvatarFile) {
+        const ext = editAvatarFile.name.split(".").pop();
+        const path = `${page.id}/avatar_${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("avatars").upload(path, editAvatarFile);
+        if (upErr) throw upErr;
+        const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+        avatarUrl = urlData.publicUrl;
+      }
+
+      // Upload cover if changed
+      if (editCoverFile) {
+        const ext = editCoverFile.name.split(".").pop();
+        const path = `${page.id}/cover_${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("avatars").upload(path, editCoverFile);
+        if (upErr) throw upErr;
+        const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+        coverUrl = urlData.publicUrl;
+      }
+
+      const { error } = await supabase.from("pages").update({
+        name: editName.trim(),
+        description: editDescription.trim() || null,
+        category: editCategory,
+        phone: editPhone.trim() || null,
+        website: editWebsite.trim() || null,
+        county: editCounty.trim() || null,
+        constituency: editConstituency.trim() || null,
+        avatar_url: avatarUrl,
+        cover_url: coverUrl,
+      }).eq("id", page.id);
     setSavingEdit(false);
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
