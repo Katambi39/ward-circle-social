@@ -60,7 +60,6 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
   const musicAudioRef = useRef<HTMLAudioElement | null>(null);
   const [musicTrack, setMusicTrack] = useState<MusicTrackData | null>(null);
   const [musicTime, setMusicTime] = useState(0);
-  const [previewOffset, setPreviewOffset] = useState(0);
   const [viewCount, setViewCount] = useState(0);
   const [viewers, setViewers] = useState<Array<{ viewer_id: string; viewed_at: string; display_name: string; avatar_url: string | null; username: string }>>([]);
   const [showViewers, setShowViewers] = useState(false);
