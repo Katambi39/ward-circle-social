@@ -720,6 +720,7 @@ export type Database = {
           updated_at: string
           upvotes: number
           user_id: string
+          video_url: string | null
         }
         Insert: {
           comment_count?: number
@@ -736,6 +737,7 @@ export type Database = {
           updated_at?: string
           upvotes?: number
           user_id: string
+          video_url?: string | null
         }
         Update: {
           comment_count?: number
@@ -752,6 +754,7 @@ export type Database = {
           updated_at?: string
           upvotes?: number
           user_id?: string
+          video_url?: string | null
         }
         Relationships: [
           {
