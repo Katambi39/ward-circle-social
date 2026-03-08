@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Search, Bell, MessageCircle, Plus, LogOut, UserCircle, CheckCircle2, Moon, Sun, Settings } from "lucide-react";
 import IdentityToggle from "@/components/feed/IdentityToggle";
 import NotificationsDropdown from "@/components/notifications/NotificationsDropdown";
@@ -29,6 +30,12 @@ const ThemeDropdownItem = () => {
 const TopBar = () => {
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -48,16 +55,21 @@ const TopBar = () => {
         </button>
 
         {/* Search - hidden on small mobile, shown on larger screens */}
-        <div className="flex-1 max-w-xl mx-auto hidden sm:block">
+        <form onSubmit={handleSearch} className="flex-1 max-w-xl mx-auto hidden sm:block">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search Conect..." className="pl-9 bg-muted border-none h-9 rounded-full" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search Conect..."
+              className="pl-9 bg-muted border-none h-9 rounded-full"
+            />
           </div>
-        </div>
+        </form>
 
         {/* Mobile search icon */}
         <div className="flex-1 sm:hidden" />
-        <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground sm:hidden h-8 w-8">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/search")} className="rounded-full text-muted-foreground sm:hidden h-8 w-8">
           <Search className="h-5 w-5" />
         </Button>
 
