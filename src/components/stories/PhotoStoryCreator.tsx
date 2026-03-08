@@ -8,6 +8,7 @@ import { toast } from "@/components/ui/sonner";
 import StoryFontPicker from "./StoryFontPicker";
 import StoryVisibilityToggle from "./StoryVisibilityToggle";
 import MusicPicker from "./MusicPicker";
+import EmojiPicker from "../feed/EmojiPicker";
 import { STORY_FONTS, type StoryFont } from "./storyConstants";
 
 interface PhotoStoryCreatorProps {
