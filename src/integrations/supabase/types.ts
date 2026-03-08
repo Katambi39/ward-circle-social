@@ -984,6 +984,7 @@ export type Database = {
           id: string
           image_url: string | null
           is_anonymous: boolean
+          is_pinned: boolean
           link_url: string | null
           moderation_reason: string | null
           moderation_status: string
@@ -1006,6 +1007,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_anonymous?: boolean
+          is_pinned?: boolean
           link_url?: string | null
           moderation_reason?: string | null
           moderation_status?: string
@@ -1028,6 +1030,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_anonymous?: boolean
+          is_pinned?: boolean
           link_url?: string | null
           moderation_reason?: string | null
           moderation_status?: string
