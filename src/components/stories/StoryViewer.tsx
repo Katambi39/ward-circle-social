@@ -128,13 +128,26 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
     const trackId = currentStory?.music_track_id;
     if (!trackId) {
       setMusicTrack(null);
+      setPreviewOffset(0);
       musicAudioRef.current?.pause();
       musicAudioRef.current = null;
       return;
     }
     supabase.from("music_tracks").select("*").eq("id", trackId).single()
       .then(({ data }) => {
-        if (data) setMusicTrack(data as any);
+        if (data) {
+          setMusicTrack(data as any);
+          // Estimate preview offset: Deezer 30s previews typically start ~30s into the song
+          // If the full track duration is much longer than 30s, assume preview starts at ~30s
+          const fullDuration = (data as any).duration_seconds || 30;
+          if (fullDuration > 60) {
+            setPreviewOffset(30); // Common Deezer preview start point
+          } else if (fullDuration > 35) {
+            setPreviewOffset(Math.floor(fullDuration * 0.3));
+          } else {
+            setPreviewOffset(0);
+          }
+        }
       });
   }, [currentStory?.music_track_id]);
 
