@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface LyricLine {
@@ -10,15 +9,21 @@ interface SyncedLyricsProps {
   lyrics: LyricLine[];
   currentTime: number;
   isPlaying: boolean;
+  /** Offset in seconds added to currentTime to align with lyrics timestamps (e.g., Deezer previews start ~30s into the song) */
+  timeOffset?: number;
 }
 
-const SyncedLyrics = ({ lyrics, currentTime, isPlaying }: SyncedLyricsProps) => {
+const SyncedLyrics = ({ lyrics, currentTime, isPlaying, timeOffset = 0 }: SyncedLyricsProps) => {
   if (!lyrics || lyrics.length === 0 || !isPlaying) return null;
 
-  // Find the current lyric line based on time
+  // Apply offset: the audio currentTime is relative to the preview,
+  // but lyrics timestamps are relative to the full song
+  const adjustedTime = currentTime + timeOffset;
+
+  // Find the current lyric line based on adjusted time
   let activeIndex = -1;
   for (let i = lyrics.length - 1; i >= 0; i--) {
-    if (currentTime >= lyrics[i].time) {
+    if (adjustedTime >= lyrics[i].time) {
       activeIndex = i;
       break;
     }
@@ -54,18 +59,24 @@ const SyncedLyrics = ({ lyrics, currentTime, isPlaying }: SyncedLyricsProps) => 
 
         {/* Progress dots */}
         <div className="flex justify-center gap-1 mt-3">
-          {lyrics.map((_, i) => (
-            <div
-              key={i}
-              className={`h-1 rounded-full transition-all duration-300 ${
-                i === activeIndex
-                  ? "w-4 bg-white"
-                  : i < activeIndex
-                  ? "w-1.5 bg-white/40"
-                  : "w-1.5 bg-white/20"
-              }`}
-            />
-          ))}
+          {lyrics.slice(
+            Math.max(0, activeIndex - 5),
+            Math.min(lyrics.length, activeIndex + 6)
+          ).map((_, i) => {
+            const realIndex = Math.max(0, activeIndex - 5) + i;
+            return (
+              <div
+                key={realIndex}
+                className={`h-1 rounded-full transition-all duration-300 ${
+                  realIndex === activeIndex
+                    ? "w-4 bg-white"
+                    : realIndex < activeIndex
+                    ? "w-1.5 bg-white/40"
+                    : "w-1.5 bg-white/20"
+                }`}
+              />
+            );
+          })}
         </div>
       </div>
     </div>

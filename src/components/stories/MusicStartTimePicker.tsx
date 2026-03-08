@@ -18,7 +18,33 @@ const formatTime = (s: number) => {
 
 const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTimeChange }: MusicStartTimePickerProps) => {
   const [playing, setPlaying] = useState(false);
+  const [actualDuration, setActualDuration] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Detect actual audio file duration (preview may be ~30s, not full track)
+  useEffect(() => {
+    const audio = new Audio(audioUrl);
+    const onLoaded = () => {
+      if (audio.duration && isFinite(audio.duration)) {
+        setActualDuration(audio.duration);
+        // Clamp startTime if it exceeds actual duration
+        if (startTime > Math.max(0, audio.duration - 5)) {
+          onStartTimeChange(0);
+        }
+      }
+    };
+    audio.addEventListener("loadedmetadata", onLoaded);
+    // Also try canplaythrough for reliability
+    audio.addEventListener("canplaythrough", onLoaded);
+    audio.preload = "metadata";
+    audio.load();
+
+    return () => {
+      audio.removeEventListener("loadedmetadata", onLoaded);
+      audio.removeEventListener("canplaythrough", onLoaded);
+      audio.src = "";
+    };
+  }, [audioUrl]);
 
   useEffect(() => {
     return () => { audioRef.current?.pause(); };
@@ -40,7 +66,15 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
     setPlaying(true);
   };
 
-  const maxStart = Math.max(0, durationSeconds - 30);
+  // Use actual audio duration if detected, otherwise fall back to metadata
+  const effectiveDuration = actualDuration ?? durationSeconds;
+  const clipLength = Math.min(30, effectiveDuration);
+  const maxStart = Math.max(0, effectiveDuration - clipLength);
+
+  // If the audio is ≤30s (e.g., Deezer preview), don't show the picker
+  if (effectiveDuration <= 31) {
+    return null;
+  }
 
   return (
     <div className="bg-muted/50 rounded-xl p-3 space-y-2">
@@ -49,7 +83,7 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
           Song start point
         </p>
         <span className="text-[10px] font-display text-muted-foreground">
-          {formatTime(startTime)} – {formatTime(Math.min(startTime + 30, durationSeconds))}
+          {formatTime(startTime)} – {formatTime(Math.min(startTime + clipLength, effectiveDuration))}
         </span>
       </div>
       <div className="flex items-center gap-2">
@@ -76,7 +110,7 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
         />
       </div>
       <p className="text-[9px] text-muted-foreground/60 text-center font-display">
-        Story will play 30s starting from this point
+        Story will play {Math.round(clipLength)}s starting from this point
       </p>
     </div>
   );
