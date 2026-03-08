@@ -25,6 +25,7 @@ import { toast } from "@/components/ui/sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import type { PostDialogIntent } from "./CreatePostBar";
 import { moderateContent } from "@/lib/moderation";
+import EmojiPicker from "./EmojiPicker";
 
 const FEELING_OPTIONS = [
   { emoji: "😊", label: "Happy" },
@@ -61,6 +62,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const linkInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [anonTitle, setAnonTitle] = useState("");
   const [content, setContent] = useState("");
@@ -201,6 +203,23 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
     const updated = [...pollOptions];
     updated[index] = value;
     setPollOptions(updated);
+  };
+
+  const handleEmojiInsert = (emoji: string) => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      const start = textarea.selectionStart ?? content.length;
+      const end = textarea.selectionEnd ?? content.length;
+      const newContent = content.slice(0, start) + emoji + content.slice(end);
+      setContent(newContent);
+      // Restore cursor after emoji
+      requestAnimationFrame(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start + emoji.length, start + emoji.length);
+      });
+    } else {
+      setContent(content + emoji);
+    }
   };
 
   const handleSubmit = async () => {
@@ -367,6 +386,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
 
         {/* Content */}
         <Textarea
+          ref={textareaRef}
           placeholder="What's on your mind? Share with your community..."
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -540,6 +560,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
               <Video className="h-4 w-4 text-secondary" />
               <span className="text-xs font-display hidden sm:inline">Video</span>
             </Button>
+            <EmojiPicker onEmojiSelect={handleEmojiInsert} />
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full" onClick={() => setShowLinkInput(true)}>
               <Link2 className="h-4 w-4 text-secondary" />
               <span className="text-xs font-display hidden sm:inline">Link</span>
