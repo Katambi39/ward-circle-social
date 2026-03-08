@@ -138,16 +138,19 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
 
             {/* Caption overlay */}
             {showCaption && (
-              <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent">
-                <Input
-                  placeholder="Add a caption..."
-                  value={caption}
-                  onChange={(e) => setCaption(e.target.value)}
-                  maxLength={200}
-                  className="bg-white/20 border-white/30 text-white placeholder:text-white/60 backdrop-blur-sm"
-                  style={{ fontFamily: captionFont.family, fontWeight: captionFont.weight }}
-                  autoFocus
-                />
+              <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/70 to-transparent space-y-1">
+                <div className="flex items-center gap-1">
+                  <Input
+                    placeholder="Add a caption..."
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                    maxLength={200}
+                    className="bg-white/20 border-white/30 text-white placeholder:text-white/60 backdrop-blur-sm flex-1"
+                    style={{ fontFamily: captionFont.family, fontWeight: captionFont.weight }}
+                    autoFocus
+                  />
+                  <EmojiPicker onEmojiSelect={(emoji) => setCaption((prev) => (prev + emoji).slice(0, 200))} />
+                </div>
               </div>
             )}
           </div>

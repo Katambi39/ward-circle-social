@@ -164,7 +164,10 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
         className="rounded-xl resize-none font-display text-sm"
         autoFocus
       />
-      <p className="text-[10px] text-muted-foreground text-right">{text.length}/300</p>
+      <div className="flex items-center justify-between">
+        <EmojiPicker onEmojiSelect={(emoji) => setText((prev) => (prev + emoji).slice(0, 300))} />
+        <p className="text-[10px] text-muted-foreground">{text.length}/300</p>
+      </div>
 
       {/* Font picker */}
       <div>
