@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, Users, UserCircle, Compass, MessageSquare, ShoppingBag, TrendingUp, MapPin, Building2, Flame, Eye, Shield, Menu, X, FileText, BadgeCheck } from "lucide-react";
+import { Home, Users, Compass, TrendingUp, MessageSquare, ShoppingBag, MapPin, Building2, Flame, Eye, Shield, Menu, FileText, BadgeCheck } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,22 +8,25 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 const navItems = [
   { icon: Home, label: "Home", path: "/" },
   { icon: Compass, label: "Discover", path: "/discover" },
-  { icon: ShoppingBag, label: "Market", path: "/marketplace" },
-  { icon: MessageSquare, label: "Chat", path: "/messages" },
+  { icon: TrendingUp, label: "Trending", path: "/trending" },
+  { icon: Users, label: "Groups", path: "/groups" },
 ];
 
 const moreItems = [
-  { icon: TrendingUp, label: "Trending", path: "/trending", badge: "Hot" },
-  { icon: Users, label: "Groups", path: "/groups" },
   { icon: FileText, label: "Pages", path: "/pages" },
-  { icon: Eye, label: "Toboa Siri", path: "/toboa-siri", badge: "Anon" },
-  { icon: Shield, label: "Verified Only", path: "/?filter=verified", badge: "✓" },
+  { icon: MessageSquare, label: "Messages", path: "/messages" },
+  { icon: ShoppingBag, label: "Marketplace", path: "/marketplace" },
 ];
 
 const localityItems = [
   { icon: MapPin, label: "My Ward", path: "/?filter=locality" },
   { icon: Building2, label: "My County", path: "/?filter=locality" },
   { icon: Flame, label: "Nationwide", path: "/trending" },
+];
+
+const specialItems = [
+  { icon: Eye, label: "Toboa Siri", path: "/toboa-siri", badge: "Anon" },
+  { icon: Shield, label: "Verified Only", path: "/?filter=verified", badge: "✓" },
 ];
 
 const BottomNav = () => {
@@ -59,7 +62,6 @@ const BottomNav = () => {
           );
         })}
 
-        {/* More menu */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild>
             <button className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-lg transition-colors min-w-[3.5rem] text-muted-foreground">
@@ -91,6 +93,38 @@ const BottomNav = () => {
                 <button
                   key={item.label}
                   onClick={() => handleNav(item.path)}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                >
+                  <item.icon className="h-5 w-5 text-foreground" />
+                  <span className="text-[11px] font-display font-medium text-foreground">{item.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="mb-2 px-1">
+              <h3 className="text-xs font-display font-semibold text-muted-foreground uppercase tracking-wider">Locality Groups</h3>
+            </div>
+            <div className="grid grid-cols-3 gap-2 mb-5">
+              {localityItems.map((item) => (
+                <button
+                  key={item.label}
+                  onClick={() => handleNav(item.path)}
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                >
+                  <item.icon className="h-5 w-5 text-foreground" />
+                  <span className="text-[11px] font-display font-medium text-foreground">{item.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="mb-2 px-1">
+              <h3 className="text-xs font-display font-semibold text-muted-foreground uppercase tracking-wider">Special</h3>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {specialItems.map((item) => (
+                <button
+                  key={item.label}
+                  onClick={() => handleNav(item.path)}
                   className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors relative"
                 >
                   <item.icon className="h-5 w-5 text-foreground" />
@@ -100,22 +134,6 @@ const BottomNav = () => {
                       {item.badge}
                     </span>
                   )}
-                </button>
-              ))}
-            </div>
-
-            <div className="mb-2 px-1">
-              <h3 className="text-xs font-display font-semibold text-muted-foreground uppercase tracking-wider">Locality Groups</h3>
-            </div>
-            <div className="grid grid-cols-3 gap-2">
-              {localityItems.map((item) => (
-                <button
-                  key={item.label}
-                  onClick={() => handleNav(item.path)}
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-                >
-                  <item.icon className="h-5 w-5 text-foreground" />
-                  <span className="text-[11px] font-display font-medium text-foreground">{item.label}</span>
                 </button>
               ))}
             </div>
