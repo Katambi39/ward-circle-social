@@ -560,6 +560,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
               <Video className="h-4 w-4 text-secondary" />
               <span className="text-xs font-display hidden sm:inline">Video</span>
             </Button>
+            <EmojiPicker onEmojiSelect={handleEmojiInsert} />
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full" onClick={() => setShowLinkInput(true)}>
               <Link2 className="h-4 w-4 text-secondary" />
               <span className="text-xs font-display hidden sm:inline">Link</span>
