@@ -46,6 +46,7 @@ interface CreatePostDialogProps {
   onOpenChange: (open: boolean) => void;
   intent?: PostDialogIntent;
   groupId?: string;
+  groupName?: string;
 }
 
 interface GroupOption {
@@ -53,7 +54,7 @@ interface GroupOption {
   name: string;
 }
 
-const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId }: CreatePostDialogProps) => {
+const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, groupName }: CreatePostDialogProps) => {
   const { user, profile } = useAuth();
   const { isAnonymous: globalAnon, anonAlias } = useAnonymous();
   const queryClient = useQueryClient();
@@ -71,7 +72,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId }: C
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string | null>(null);
-  const [groups, setGroups] = useState<GroupOption[]>([]);
+  const [groups, setGroups] = useState<GroupOption[]>(groupId && groupName ? [{ id: groupId, name: groupName }] : []);
   const [loadingGroups, setLoadingGroups] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [selectedFeeling, setSelectedFeeling] = useState<{ emoji: string; label: string } | null>(null);
@@ -118,6 +119,10 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId }: C
         .map((gm: any) => gm.groups)
         .filter(Boolean)
         .map((g: any) => ({ id: g.id, name: g.name }));
+      // If groupId is provided but not in fetched list, add it
+      if (groupId && groupName && !mapped.find((g: GroupOption) => g.id === groupId)) {
+        mapped.unshift({ id: groupId, name: groupName });
+      }
       setGroups(mapped);
     }
     setLoadingGroups(false);
