@@ -44,7 +44,6 @@ export function usePosts() {
       .from("posts")
       .select(`
         *,
-        profiles!posts_user_id_fkey (display_name, username, avatar_url, verification_status),
         groups (name, location)
       `)
       .order("created_at", { ascending: false })
