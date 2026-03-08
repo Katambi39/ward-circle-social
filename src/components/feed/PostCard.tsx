@@ -93,21 +93,14 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBo
     }
   };
 
-  const handleShare = async () => {
+  const handleShare = () => {
     const url = `${window.location.origin}/post/${postId}`;
     if (navigator.share) {
-      try {
-        await navigator.share({ title: post.title, url });
-      } catch {}
+      navigator.share({ title: post.title, url }).catch(() => {});
     } else {
-      try {
-        await navigator.clipboard.writeText(url);
-      } catch {
-        // Fallback for environments where clipboard API is unavailable
-      }
-      toast.success("Link copied to clipboard");
+      navigator.clipboard.writeText(url).catch(() => {});
     }
-    // Always increment share count
+    toast.success("Link copied to clipboard");
     setShareCount((c) => c + 1);
     supabase.from("posts").update({ share_count: post.shares + 1 }).eq("id", postId).then();
   };
