@@ -4,6 +4,7 @@ interface WaveformDisplayProps {
   audioUrl: string;
   duration: number;
   startTime: number;
+  playbackPosition?: number | null; // real-time position during preview
   onSeek: (time: number) => void;
   className?: string;
 }
