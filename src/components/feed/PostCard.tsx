@@ -259,7 +259,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBo
             <span className="text-xs font-display">{post.comments}</span>
           </Button>
 
-          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2" onClick={handleShare}>
+          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2" onClick={(e) => { e.stopPropagation(); handleShare(); }}>
             <Share2 className="h-4 w-4" />
             <span className="text-xs font-display">{post.shares}</span>
           </Button>
