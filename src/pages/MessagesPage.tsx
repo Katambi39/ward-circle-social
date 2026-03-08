@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   MessageSquare, Send, ArrowLeft, CheckCircle2, Shield, Search,
-  Circle, ShieldAlert,
+  Circle, ShieldAlert, Trash2,
 } from "lucide-react";
 import { isExplicitLink } from "@/components/feed/LinkSafety";
 import DmLinkWarning from "@/components/messages/DmLinkWarning";
