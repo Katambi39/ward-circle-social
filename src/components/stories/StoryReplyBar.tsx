@@ -22,6 +22,12 @@ const StoryReplyBar = ({ storyId, senderId, onSent, onFocus, onBlur }: StoryRepl
 
   const sendReply = async (content: string, type: "message" | "reaction") => {
     if (sending) return;
+    // Block explicit links
+    const urls = content.match(/https?:\/\/[^\s)]+/gi) || [];
+    if (urls.some(u => isExplicitLink(u))) {
+      toast.error("Explicit or adult content links are not allowed.");
+      return;
+    }
     setSending(true);
     const { error } = await supabase.from("story_replies" as any).insert({
       story_id: storyId,
