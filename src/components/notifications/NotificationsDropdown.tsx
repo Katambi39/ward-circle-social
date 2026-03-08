@@ -182,7 +182,7 @@ const NotificationsDropdown = () => {
                     {n.title}
                   </p>
                   {n.body && (
-                    <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{n.body}</p>
+                   <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{n.body}</p>
                   )}
                   <p className="text-[10px] text-muted-foreground mt-1 font-display">
                     {getTimeAgo(n.created_at)}
@@ -194,6 +194,21 @@ const NotificationsDropdown = () => {
               </button>
             ))
           )}
+        </div>
+
+        {/* View all link */}
+        <div className="border-t border-border px-4 py-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full text-xs text-primary font-display rounded-full"
+            onClick={() => {
+              setOpen(false);
+              navigate("/notifications");
+            }}
+          >
+            View all notifications
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
