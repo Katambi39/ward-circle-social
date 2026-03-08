@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Camera, Type, X, Loader2, Music } from "lucide-react";
+import { Camera, Type, X, Loader2, Music, Globe, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
