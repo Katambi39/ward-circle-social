@@ -62,6 +62,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const linkInputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const [anonTitle, setAnonTitle] = useState("");
   const [content, setContent] = useState("");
