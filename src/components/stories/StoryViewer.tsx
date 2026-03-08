@@ -64,6 +64,8 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
   const [viewers, setViewers] = useState<Array<{ viewer_id: string; viewed_at: string; display_name: string; avatar_url: string | null; username: string }>>([]);
   const [showViewers, setShowViewers] = useState(false);
   const [showReplies, setShowReplies] = useState(false);
+  const [lyricsOffset, setLyricsOffset] = useState(30);
+  const [savingLyricsOffset, setSavingLyricsOffset] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
   const currentGroup = groups[groupIndex];
