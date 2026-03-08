@@ -280,20 +280,7 @@ const GroupDetailPage = () => {
 
           <TabsContent value="posts" className="mt-4 space-y-3">
             {membership && (
-              <>
-                <CreatePostBar
-                  onOpenDialog={(intent) => {
-                    setPostIntent(intent);
-                    setPostDialogOpen(true);
-                  }}
-                />
-                <CreatePostDialog
-                  open={postDialogOpen}
-                  onOpenChange={setPostDialogOpen}
-                  intent={postIntent}
-                  groupId={group.id}
-                />
-              </>
+              <CreatePostBar />
             )}
 
             {postsLoading ? (
