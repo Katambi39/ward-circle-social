@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Image, Link2, BarChart3, Smile } from "lucide-react";
+import { Image, Link2, BarChart3, Smile, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAnonymous } from "@/contexts/AnonymousContext";
 import CreatePostDialog from "./CreatePostDialog";
 
-export type PostDialogIntent = "default" | "photo" | "link" | "poll" | "feeling";
+export type PostDialogIntent = "default" | "photo" | "video" | "link" | "poll" | "feeling";
 
 const CreatePostBar = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -49,6 +49,10 @@ const CreatePostBar = () => {
           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary gap-1.5 rounded-full" onClick={() => openWith("photo")}>
             <Image className="h-4 w-4 text-primary" />
             <span className="text-xs font-display">Photo</span>
+          </Button>
+          <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full" onClick={() => openWith("video")}>
+            <Video className="h-4 w-4 text-secondary" />
+            <span className="text-xs font-display">Video</span>
           </Button>
           <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full" onClick={() => openWith("link")}>
             <Link2 className="h-4 w-4 text-secondary" />

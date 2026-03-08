@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Image, Link2, X, Eye, EyeOff, Users, Loader2, BarChart3, Smile, Plus, Trash2 } from "lucide-react";
+import { Image, Link2, X, Eye, EyeOff, Users, Loader2, BarChart3, Smile, Plus, Trash2, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -56,6 +56,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
   const { isAnonymous: globalAnon, anonAlias } = useAnonymous();
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
   const linkInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
@@ -66,6 +67,8 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
   const [selectedGroup, setSelectedGroup] = useState<string>("none");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string | null>(null);
   const [groups, setGroups] = useState<GroupOption[]>([]);
   const [loadingGroups, setLoadingGroups] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -79,6 +82,8 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
     if (!open) return;
     if (intent === "photo") {
       setTimeout(() => fileInputRef.current?.click(), 300);
+    } else if (intent === "video") {
+      setTimeout(() => videoInputRef.current?.click(), 300);
     } else if (intent === "link") {
       setShowLinkInput(true);
       setTimeout(() => linkInputRef.current?.focus(), 300);
@@ -125,6 +130,8 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
     setShowLinkInput(false);
     setImageFile(null);
     setImagePreview(null);
+    setVideoFile(null);
+    setVideoPreview(null);
     setSelectedGroup("none");
     setSubmitting(false);
     setSelectedFeeling(null);
@@ -148,6 +155,23 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
     setImageFile(null);
     setImagePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleVideoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error("Video must be under 50MB");
+      return;
+    }
+    setVideoFile(file);
+    setVideoPreview(URL.createObjectURL(file));
+  };
+
+  const removeVideo = () => {
+    setVideoFile(null);
+    setVideoPreview(null);
+    if (videoInputRef.current) videoInputRef.current.value = "";
   };
 
   const addPollOption = () => {
@@ -183,6 +207,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
 
     try {
       let imageUrl: string | null = null;
+      let videoUrl: string | null = null;
 
       if (imageFile) {
         const ext = imageFile.name.split(".").pop();
@@ -190,13 +215,24 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         const { error: uploadError } = await supabase.storage
           .from("post-images")
           .upload(path, imageFile);
-
         if (uploadError) throw uploadError;
-
         const { data: urlData } = supabase.storage
           .from("post-images")
           .getPublicUrl(path);
         imageUrl = urlData.publicUrl;
+      }
+
+      if (videoFile) {
+        const ext = videoFile.name.split(".").pop();
+        const path = `${user.id}/${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("post-videos")
+          .upload(path, videoFile);
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage
+          .from("post-videos")
+          .getPublicUrl(path);
+        videoUrl = urlData.publicUrl;
       }
 
       // Build content with feeling and poll info
@@ -214,10 +250,11 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         title: title.trim(),
         content: finalContent || null,
         image_url: imageUrl,
+        video_url: videoUrl,
         link_url: linkUrl.trim() || null,
         is_anonymous: isAnonymous,
         group_id: selectedGroup !== "none" ? selectedGroup : null,
-      });
+      } as any);
 
       if (error) throw error;
 
@@ -289,6 +326,21 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
               size="icon"
               className="absolute top-2 right-2 h-7 w-7 rounded-full"
               onClick={removeImage}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
+        {/* Video preview */}
+        {videoPreview && (
+          <div className="relative rounded-lg overflow-hidden border border-border">
+            <video src={videoPreview} controls className="w-full max-h-60" />
+            <Button
+              variant="destructive"
+              size="icon"
+              className="absolute top-2 right-2 h-7 w-7 rounded-full"
+              onClick={removeVideo}
             >
               <X className="h-4 w-4" />
             </Button>
@@ -416,9 +468,20 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
               className="hidden"
               onChange={handleImageSelect}
             />
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={handleVideoSelect}
+            />
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary gap-1.5 rounded-full" onClick={() => fileInputRef.current?.click()}>
               <Image className="h-4 w-4 text-primary" />
               <span className="text-xs font-display hidden sm:inline">Photo</span>
+            </Button>
+            <Button variant="ghost" size="sm" className={`text-muted-foreground hover:text-secondary gap-1.5 rounded-full ${videoFile ? "bg-secondary/10 text-secondary" : ""}`} onClick={() => videoInputRef.current?.click()}>
+              <Video className="h-4 w-4 text-secondary" />
+              <span className="text-xs font-display hidden sm:inline">Video</span>
             </Button>
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full" onClick={() => setShowLinkInput(true)}>
               <Link2 className="h-4 w-4 text-secondary" />

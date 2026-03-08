@@ -7,6 +7,7 @@ export interface DbPost {
   title: string;
   content: string | null;
   image_url: string | null;
+  video_url: string | null;
   link_url: string | null;
   is_anonymous: boolean;
   upvotes: number;
@@ -74,6 +75,7 @@ export function usePosts() {
         title: p.title,
         content: p.content,
         image_url: p.image_url,
+        video_url: p.video_url || null,
         link_url: p.link_url,
         is_anonymous: p.is_anonymous,
         upvotes: p.upvotes,
@@ -141,6 +143,7 @@ export function usePosts() {
               title: p.title,
               content: p.content,
               image_url: p.image_url,
+              video_url: p.video_url || null,
               link_url: p.link_url,
               is_anonymous: p.is_anonymous,
               upvotes: p.upvotes,

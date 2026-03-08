@@ -18,6 +18,7 @@ export interface PostData {
   title: string;
   content: string;
   image?: string;
+  video?: string;
   upvotes: number;
   comments: number;
   shares: number;
@@ -42,6 +43,7 @@ function dbPostToDisplay(p: DbPost): PostData {
     title: p.title,
     content: p.content || "",
     image: p.image_url || undefined,
+    video: p.video_url || undefined,
     upvotes: p.upvotes - p.downvotes,
     comments: p.comment_count,
     shares: p.share_count,
@@ -134,6 +136,11 @@ const PostCardInner = ({ post, postId, authorUsername, index }: { post: PostData
           {post.image && (
             <div className="rounded-lg overflow-hidden mb-3 border border-border">
               <img src={post.image} alt="" className="w-full h-48 object-cover" />
+            </div>
+          )}
+          {post.video && (
+            <div className="rounded-lg overflow-hidden mb-3 border border-border">
+              <video src={post.video} controls className="w-full max-h-72" />
             </div>
           )}
         </div>
