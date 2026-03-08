@@ -226,6 +226,8 @@ const PostDetailPage = () => {
 };
 
 const CommentItem = ({ comment, index, onReply, depth = 0 }: { comment: Comment; index: number; onReply: (id: string) => void; depth?: number }) => {
+  const { user } = useAuth();
+  const [reportOpen, setReportOpen] = useState(false);
   const isAnon = comment.is_anonymous;
   const name = isAnon ? "Anonymous" : (comment.profile?.display_name || "User");
   const avatar = isAnon ? null : comment.profile?.avatar_url;
