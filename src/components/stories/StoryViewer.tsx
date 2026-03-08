@@ -283,22 +283,6 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
     }
   };
 
-  const saveLyricsOffset = async () => {
-    if (!currentStory || !user || currentGroup.user_id !== user.id) return;
-    setSavingLyricsOffset(true);
-    const { error } = await supabase
-      .from("stories")
-      .update({ lyrics_offset: lyricsOffset } as any)
-      .eq("id", currentStory.id)
-      .eq("user_id", user.id);
-
-    setSavingLyricsOffset(false);
-    if (error) {
-      toast.error("Failed to save lyrics sync");
-      return;
-    }
-    toast.success("Lyrics sync saved");
-  };
 
   if (!currentGroup || !currentStory) return null;
 
