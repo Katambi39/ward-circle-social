@@ -330,7 +330,7 @@ const GroupDetailPage = () => {
               </div>
             ) : (
               posts.map((post, idx) => {
-                const canPin = membership?.role === "admin" || membership?.role === "moderator";
+                const canPin = membership?.role === "moderator";
                 return (
                   <div key={post.id} className="relative">
                     {(post as any).is_pinned && (
