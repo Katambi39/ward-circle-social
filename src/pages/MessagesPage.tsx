@@ -522,8 +522,43 @@ const MessagesPage = () => {
               </ScrollArea>
 
               {/* Message Input */}
-              <div className="p-4 border-t border-border bg-card">
-                <div className="flex items-center gap-2">
+              <div className="border-t border-border bg-card">
+                {/* Media preview */}
+                {mediaPreview && (
+                  <div className="px-4 pt-3 pb-1">
+                    <div className="relative inline-block">
+                      {mediaFile?.type.startsWith("video/") ? (
+                        <video src={mediaPreview} className="h-20 rounded-lg border border-border" />
+                      ) : (
+                        <img src={mediaPreview} alt="" className="h-20 rounded-lg border border-border object-cover" />
+                      )}
+                      <button onClick={clearMedia} className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-destructive text-destructive-foreground flex items-center justify-center shadow-sm">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+                {mediaFile && !mediaPreview && (
+                  <div className="px-4 pt-3 pb-1">
+                    <div className="relative inline-flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
+                      <span className="text-xs text-foreground truncate max-w-[200px]">{mediaFile.name}</span>
+                      <button onClick={clearMedia} className="text-muted-foreground hover:text-destructive">
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                )}
+                <div className="p-4 flex items-center gap-2">
+                  <input ref={fileInputRef} type="file" accept="image/*,video/*" className="hidden" onChange={handleFileSelect} />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-10 w-10 rounded-full shrink-0 text-muted-foreground hover:text-primary"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={sending}
+                  >
+                    <ImagePlus className="h-5 w-5" />
+                  </Button>
                   <Input
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
@@ -534,11 +569,11 @@ const MessagesPage = () => {
                   />
                   <Button
                     onClick={handleSend}
-                    disabled={sending || !newMessage.trim()}
+                    disabled={sending || (!newMessage.trim() && !mediaFile)}
                     size="sm"
                     className="rounded-xl gradient-kenya text-primary-foreground h-10 w-10 p-0"
                   >
-                    <Send className="h-4 w-4" />
+                    {uploadingMedia ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   </Button>
                 </div>
               </div>
