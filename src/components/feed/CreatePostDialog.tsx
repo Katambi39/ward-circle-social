@@ -82,6 +82,8 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
     if (!open) return;
     if (intent === "photo") {
       setTimeout(() => fileInputRef.current?.click(), 300);
+    } else if (intent === "video") {
+      setTimeout(() => videoInputRef.current?.click(), 300);
     } else if (intent === "link") {
       setShowLinkInput(true);
       setTimeout(() => linkInputRef.current?.focus(), 300);
