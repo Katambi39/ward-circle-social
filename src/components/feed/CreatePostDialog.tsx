@@ -205,7 +205,24 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
     setPollOptions(updated);
   };
 
-  const handleSubmit = async () => {
+  const handleEmojiInsert = (emoji: string) => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      const start = textarea.selectionStart ?? content.length;
+      const end = textarea.selectionEnd ?? content.length;
+      const newContent = content.slice(0, start) + emoji + content.slice(end);
+      setContent(newContent);
+      // Restore cursor after emoji
+      requestAnimationFrame(() => {
+        textarea.focus();
+        textarea.setSelectionRange(start + emoji.length, start + emoji.length);
+      });
+    } else {
+      setContent(content + emoji);
+    }
+  };
+
+
     if (!user) return;
     if (!content.trim() && !imageFile && !videoFile && !showPoll) {
       toast.error("Please add some content");
