@@ -152,17 +152,41 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
               )}
             </div>
 
+            {/* Music picker */}
+            {showMusic && (
+              <MusicPicker selectedTrack={selectedTrack} onSelect={setSelectedTrack} />
+            )}
+
+            {/* Selected track badge */}
+            {selectedTrack && !showMusic && (
+              <div className="flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5">
+                <Music className="h-3.5 w-3.5 text-primary" />
+                <span className="text-xs font-display truncate">{selectedTrack.title} – {selectedTrack.artist}</span>
+              </div>
+            )}
+
             {/* Actions */}
             <div className="flex items-center justify-between">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-1.5 rounded-full"
-                onClick={() => setShowCaption(!showCaption)}
-              >
-                <Type className="h-4 w-4" />
-                <span className="text-xs font-display">{showCaption ? "Hide Caption" : "Add Caption"}</span>
-              </Button>
+              <div className="flex gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5 rounded-full"
+                  onClick={() => setShowCaption(!showCaption)}
+                >
+                  <Type className="h-4 w-4" />
+                  <span className="text-xs font-display">Caption</span>
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-1.5 rounded-full"
+                  onClick={() => setShowMusic(!showMusic)}
+                >
+                  <Music className="h-4 w-4 text-secondary" />
+                  <span className="text-xs font-display">Music</span>
+                </Button>
+              </div>
               <Button
                 onClick={handleSubmit}
                 disabled={submitting}
