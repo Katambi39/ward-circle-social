@@ -442,6 +442,31 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
           </div>
         )}
 
+        {user && currentGroup.user_id === user.id && musicTrack?.lyrics?.length ? (
+          <div className="absolute top-24 right-2 z-40 flex items-center gap-1.5 bg-black/45 backdrop-blur-sm rounded-full px-2 py-1 border border-white/10">
+            <button
+              onClick={() => setLyricsOffset((prev) => Math.max(-120, prev - 2))}
+              className="text-[10px] text-white/80 px-1.5 py-0.5 rounded hover:bg-white/10 font-display"
+            >
+              -2s
+            </button>
+            <span className="text-[10px] text-white/70 font-display min-w-[38px] text-center">{lyricsOffset}s</span>
+            <button
+              onClick={() => setLyricsOffset((prev) => Math.min(120, prev + 2))}
+              className="text-[10px] text-white/80 px-1.5 py-0.5 rounded hover:bg-white/10 font-display"
+            >
+              +2s
+            </button>
+            <button
+              onClick={saveLyricsOffset}
+              disabled={savingLyricsOffset}
+              className="text-[10px] text-white px-2 py-0.5 rounded bg-white/15 hover:bg-white/25 disabled:opacity-60 font-display"
+            >
+              {savingLyricsOffset ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save"}
+            </button>
+          </div>
+        ) : null}
+
         {/* Caption */}
         {currentStory.caption && !musicTrack?.lyrics?.length && (
           <div className={`absolute left-0 right-0 z-40 px-4 ${user && currentGroup.user_id !== user.id ? 'bottom-28' : 'bottom-4'}`}>
