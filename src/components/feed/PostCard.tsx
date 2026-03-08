@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -54,10 +55,11 @@ const PostCard = ({ post: legacyPost, dbPost, index }: PostCardProps) => {
   
   if (!post) return null;
 
-  return <PostCardInner post={post} index={index} />;
+  return <PostCardInner post={post} postId={dbPost?.id || post.id} authorUsername={dbPost?.author_username} index={index} />;
 };
 
-const PostCardInner = ({ post, index }: { post: PostData; index: number }) => {
+const PostCardInner = ({ post, postId, authorUsername, index }: { post: PostData; postId: string; authorUsername?: string; index: number }) => {
+  const navigate = useNavigate();
   const [votes, setVotes] = useState(post.upvotes);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
   const [saved, setSaved] = useState(false);
@@ -91,7 +93,10 @@ const PostCardInner = ({ post, index }: { post: PostData; index: number }) => {
           )}
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="font-display font-semibold text-sm text-foreground">
+              <span
+                className="font-display font-semibold text-sm text-foreground cursor-pointer hover:underline"
+                onClick={(e) => { e.stopPropagation(); if (!post.isAnonymous && authorUsername) navigate(`/user/${authorUsername}`); }}
+              >
                 {post.isAnonymous ? "Anonymous" : post.author}
               </span>
               {post.isVerified && !post.isAnonymous && (
@@ -116,21 +121,22 @@ const PostCardInner = ({ post, index }: { post: PostData; index: number }) => {
           </Button>
         </div>
 
-        {/* Content */}
-        <h3 className="font-display font-bold text-foreground mb-2 leading-snug">
-          {post.title}
-        </h3>
-        {post.content && (
-          <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-            {post.content}
-          </p>
-        )}
-
-        {post.image && (
-          <div className="rounded-lg overflow-hidden mb-3 border border-border">
-            <img src={post.image} alt="" className="w-full h-48 object-cover" />
-          </div>
-        )}
+        {/* Content - clickable to go to post detail */}
+        <div className="cursor-pointer" onClick={() => navigate(`/post/${postId}`)}>
+          <h3 className="font-display font-bold text-foreground mb-2 leading-snug">
+            {post.title}
+          </h3>
+          {post.content && (
+            <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+              {post.content}
+            </p>
+          )}
+          {post.image && (
+            <div className="rounded-lg overflow-hidden mb-3 border border-border">
+              <img src={post.image} alt="" className="w-full h-48 object-cover" />
+            </div>
+          )}
+        </div>
 
         {/* Actions */}
         <div className="flex items-center gap-1">
