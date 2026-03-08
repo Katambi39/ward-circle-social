@@ -137,8 +137,8 @@ const SearchPage = () => {
                 ) : posts.map((p, i) => (
                   <ResultCard key={p.id} index={i} onClick={() => navigate("/")}>
                     <div className="flex-1 min-w-0">
-                      <p className="font-display font-bold text-sm text-foreground truncate">{p.title}</p>
-                      {p.content && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5">{p.content}</p>}
+                      <p className="font-display font-bold text-sm text-foreground truncate"><Highlight text={p.title} query={debouncedQuery} /></p>
+                      {p.content && <p className="text-xs text-muted-foreground line-clamp-2 mt-0.5"><Highlight text={p.content} query={debouncedQuery} /></p>}
                       <div className="flex items-center gap-3 mt-1 text-[10px] text-muted-foreground">
                         <span>▲ {p.upvotes}</span>
                         <span>💬 {p.comment_count}</span>
@@ -167,10 +167,10 @@ const SearchPage = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-display font-bold text-sm text-foreground flex items-center gap-1">
-                        {p.display_name}
+                        <Highlight text={p.display_name} query={debouncedQuery} />
                         {p.verification_status === "verified" && <CheckCircle2 className="h-3.5 w-3.5 text-primary" />}
                       </p>
-                      <p className="text-xs text-muted-foreground">@{p.username}</p>
+                      <p className="text-xs text-muted-foreground">@<Highlight text={p.username} query={debouncedQuery} /></p>
                       {p.county && <p className="text-[10px] text-muted-foreground flex items-center gap-0.5 mt-0.5"><MapPin className="h-3 w-3" /> {p.county}</p>}
                     </div>
                   </ResultCard>
@@ -194,7 +194,7 @@ const SearchPage = () => {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-display font-bold text-sm text-foreground flex items-center gap-1">
-                        {p.name}
+                        <Highlight text={p.name} query={debouncedQuery} />
                         {p.is_verified && <CheckCircle2 className="h-3.5 w-3.5 text-primary" />}
                       </p>
                       <p className="text-xs text-muted-foreground">{p.category} • {p.follower_count} followers</p>
@@ -218,7 +218,7 @@ const SearchPage = () => {
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-display font-bold text-sm text-foreground truncate">{l.title}</p>
+                      <p className="font-display font-bold text-sm text-foreground truncate"><Highlight text={l.title} query={debouncedQuery} /></p>
                       <p className="font-display text-sm font-bold text-primary">{formatPrice(l.price)}</p>
                       <div className="flex items-center gap-3 mt-0.5 text-[10px] text-muted-foreground">
                         <span className="flex items-center gap-0.5"><Eye className="h-3 w-3" /> {l.view_count}</span>
@@ -233,6 +233,23 @@ const SearchPage = () => {
         </Tabs>
       </div>
     </AppLayout>
+  );
+};
+
+const Highlight = ({ text, query }: { text: string; query: string }) => {
+  if (!query.trim() || !text) return <>{text}</>;
+  const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
+  const parts = text.split(regex);
+  return (
+    <>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <mark key={i} className="bg-primary/20 text-foreground rounded-sm px-0.5">{part}</mark>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </>
   );
 };
 
