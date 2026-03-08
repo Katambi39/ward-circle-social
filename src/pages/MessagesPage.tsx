@@ -485,11 +485,24 @@ const MessagesPage = () => {
                                   (() => {
                                     const url = (msg as any).media_url as string;
                                     const isVideo = /\.(mp4|webm|mov)(\?|$)/i.test(url);
-                                    return isVideo ? (
-                                      <video src={url} controls className="rounded-lg max-w-full max-h-48 mt-1" />
-                                    ) : (
-                                      <img src={url} alt="" className="rounded-lg max-w-full max-h-48 mt-1 cursor-pointer" onClick={() => window.open(url, "_blank")} />
-                                    );
+                                    const isImage = /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?|$)/i.test(url);
+                                    const isDoc = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar)(\?|$)/i.test(url);
+                                    const fileName = decodeURIComponent(url.split("/").pop()?.split("?")[0] || "file").replace(/^\d+_[a-z0-9]+\./, "");
+                                    if (isVideo) {
+                                      return <video src={url} controls className="rounded-lg max-w-full max-h-48 mt-1" />;
+                                    } else if (isImage) {
+                                      return <img src={url} alt="" className="rounded-lg max-w-full max-h-48 mt-1 cursor-pointer" onClick={() => window.open(url, "_blank")} />;
+                                    } else {
+                                      return (
+                                        <a href={url} target="_blank" rel="noopener noreferrer"
+                                          className={`flex items-center gap-2 mt-1 rounded-lg px-3 py-2 ${isMe ? "bg-white/15" : "bg-muted"}`}
+                                        >
+                                          <FileText className="h-5 w-5 shrink-0" />
+                                          <span className="text-xs font-display truncate flex-1">{isDoc ? fileName : "Attachment"}</span>
+                                          <Download className="h-4 w-4 shrink-0 opacity-60" />
+                                        </a>
+                                      );
+                                    }
                                   })()
                                 )}
                                 {msg.content && msg.content !== "📎 Media" && (
