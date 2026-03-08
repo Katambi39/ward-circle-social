@@ -130,7 +130,8 @@ Deno.serve(async (req) => {
           {
             role: 'system',
             content: `You are a URL safety analyzer. Analyze the given URL and determine if it's safe, suspicious, or dangerous.
-Consider: domain reputation, URL structure, potential phishing indicators, known scam patterns, URL shorteners, and social engineering tricks.
+Consider: domain reputation, URL structure, potential phishing indicators, known scam patterns, URL shorteners, social engineering tricks, and explicit/adult/pornographic content.
+URLs pointing to adult content, pornography, escort services, or explicit material should ALWAYS be marked as "danger".
 You must respond using the provided tool.`
           },
           {
