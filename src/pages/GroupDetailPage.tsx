@@ -54,19 +54,33 @@ const GroupDetailPage = () => {
     },
   });
 
-  // Fetch members with profiles
+  // Fetch members with profiles (separate queries since no FK)
   const { data: members = [] } = useQuery({
     queryKey: ["group-members", group?.id],
     enabled: !!group,
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: memberRows, error } = await supabase
         .from("group_members")
-        .select("*, profiles:user_id(display_name, username, avatar_url, verification_status)")
+        .select("*")
         .eq("group_id", group!.id)
         .order("joined_at", { ascending: true })
         .limit(50);
       if (error) throw error;
-      return data as any[];
+      if (!memberRows || memberRows.length === 0) return [];
+
+      const userIds = memberRows.map((m: any) => m.user_id);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, username, avatar_url, verification_status")
+        .in("user_id", userIds);
+
+      const profilesMap: Record<string, any> = {};
+      (profiles || []).forEach((p: any) => { profilesMap[p.user_id] = p; });
+
+      return memberRows.map((m: any) => ({
+        ...m,
+        profiles: profilesMap[m.user_id] || null,
+      }));
     },
   });
 
