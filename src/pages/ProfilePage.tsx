@@ -78,6 +78,10 @@ const ProfilePage = () => {
             <ProfilePostsTab onPostCountChange={setPostCount} />
           </TabsContent>
 
+          <TabsContent value="listings" className="mt-4">
+            <ProfileListingsTab />
+          </TabsContent>
+
           <TabsContent value="connections" className="mt-4">
             <ProfileConnectionsTab
               onCountsChange={(f, fg) => { setFollowerCount(f); setFollowingCount(fg); }}
