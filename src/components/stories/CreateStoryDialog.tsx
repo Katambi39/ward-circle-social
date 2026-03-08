@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Camera, Type, X, Loader2 } from "lucide-react";
+import { Camera, Type, X, Loader2, Music } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,6 +11,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
+import MusicPicker from "./MusicPicker";
 
 interface CreateStoryDialogProps {
   open: boolean;
