@@ -45,6 +45,21 @@ const GroupCard = ({ group, onJoined }: GroupCardProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [joining, setJoining] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const { data: isAdmin } = useQuery({
+    queryKey: ["is-admin", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("user_roles")
+        .select("id")
+        .eq("user_id", user!.id)
+        .eq("role", "admin")
+        .maybeSingle();
+      return !!data;
+    },
+  });
 
   const { data: membership, refetch: refetchMembership } = useQuery({
     queryKey: ["group-membership", group.id, user?.id],
