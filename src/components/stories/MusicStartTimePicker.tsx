@@ -19,7 +19,9 @@ const formatTime = (s: number) => {
 const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTimeChange }: MusicStartTimePickerProps) => {
   const [playing, setPlaying] = useState(false);
   const [actualDuration, setActualDuration] = useState<number | null>(null);
+  const [playbackPos, setPlaybackPos] = useState<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const rafRef = useRef<number | null>(null);
 
   // Detect actual audio file duration (preview may be ~30s, not full track)
   useEffect(() => {
@@ -48,13 +50,30 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
   }, [audioUrl]);
 
   useEffect(() => {
-    return () => { audioRef.current?.pause(); };
+    return () => {
+      audioRef.current?.pause();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
+
+  const startTrackingPlayback = (audio: HTMLAudioElement) => {
+    const tick = () => {
+      if (audio.paused || audio.ended) {
+        setPlaybackPos(null);
+        return;
+      }
+      setPlaybackPos(audio.currentTime);
+      rafRef.current = requestAnimationFrame(tick);
+    };
+    rafRef.current = requestAnimationFrame(tick);
+  };
 
   const togglePreview = () => {
     if (playing) {
       audioRef.current?.pause();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       setPlaying(false);
+      setPlaybackPos(null);
       return;
     }
     audioRef.current?.pause();
@@ -62,9 +81,10 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
     audio.currentTime = startTime;
     audio.volume = 0.5;
     audio.play().catch(() => {});
-    audio.onended = () => setPlaying(false);
+    audio.onended = () => { setPlaying(false); setPlaybackPos(null); };
     audioRef.current = audio;
     setPlaying(true);
+    startTrackingPlayback(audio);
   };
 
   // Use actual audio duration if detected, otherwise fall back to metadata
@@ -109,6 +129,7 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
           audioUrl={audioUrl}
           duration={effectiveDuration}
           startTime={startTime}
+          playbackPosition={playbackPos}
           onSeek={(t) => {
             const clamped = Math.min(t, maxStart);
             onStartTimeChange(clamped);
