@@ -126,13 +126,13 @@ const CreatePostDialog = ({ open, onOpenChange }: CreatePostDialogProps) => {
         const ext = imageFile.name.split(".").pop();
         const path = `${user.id}/${Date.now()}.${ext}`;
         const { error: uploadError } = await supabase.storage
-          .from("avatars")
+          .from("post-images")
           .upload(path, imageFile);
 
         if (uploadError) throw uploadError;
 
         const { data: urlData } = supabase.storage
-          .from("avatars")
+          .from("post-images")
           .getPublicUrl(path);
         imageUrl = urlData.publicUrl;
       }
