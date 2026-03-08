@@ -567,6 +567,72 @@ const MarketplacePage = () => {
             )}
           </div>
         )}
+
+        {/* Favorites Tab */}
+        {mainTab === "favorites" && (
+          <div>
+            {favListings.length === 0 ? (
+              <div className="bg-card border border-border rounded-xl p-12 text-center shadow-card">
+                <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-display font-bold text-foreground text-lg mb-2">No saved listings</h3>
+                <p className="text-sm text-muted-foreground mb-4">Tap the heart icon on any listing to save it here.</p>
+                <Button onClick={() => setMainTab("browse")} className="rounded-full gradient-kenya text-primary-foreground font-display gap-1.5">
+                  <ShoppingBag className="h-4 w-4" /> Browse Marketplace
+                </Button>
+              </div>
+            ) : (
+              <div className="grid gap-4 grid-cols-2 sm:grid-cols-3">
+                {favListings.map((listing, i) => (
+                  <motion.div
+                    key={listing.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.04 }}
+                    className="bg-card border border-border rounded-xl overflow-hidden shadow-card hover:shadow-elevated transition-all cursor-pointer group"
+                    onClick={() => navigate(`/marketplace/${listing.id}`)}
+                  >
+                    <div className="h-36 relative bg-muted">
+                      {listing.images && listing.images.length > 0 ? (
+                        <img src={listing.images[0]} alt="" className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                      ) : (
+                        <div className="h-full w-full flex items-center justify-center">
+                          <ShoppingBag className="h-10 w-10 text-muted-foreground/30" />
+                        </div>
+                      )}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); toggleFavorite(listing.id); }}
+                        className="absolute top-2 right-2 h-8 w-8 rounded-full bg-card/80 backdrop-blur flex items-center justify-center border border-border"
+                      >
+                        <Heart className={`h-4 w-4 ${favorites.has(listing.id) ? "text-accent fill-accent" : "text-muted-foreground"}`} />
+                      </button>
+                      {listing.status === "sold" && (
+                        <Badge className="absolute bottom-2 left-2 bg-accent/90 text-accent-foreground text-[10px] rounded-full">Sold</Badge>
+                      )}
+                    </div>
+                    <div className="p-3">
+                      <h3 className="font-display font-bold text-foreground text-sm truncate group-hover:text-primary transition-colors">
+                        {listing.title}
+                      </h3>
+                      <p className="font-display font-bold text-primary text-lg mt-0.5">
+                        {formatPrice(listing.price)}
+                      </p>
+                      <div className="flex items-center justify-between mt-2 text-[10px] text-muted-foreground">
+                        {listing.county && (
+                          <span className="flex items-center gap-0.5">
+                            <MapPin className="h-3 w-3" /> {listing.county}
+                          </span>
+                        )}
+                        <span className="flex items-center gap-0.5">
+                          <Eye className="h-3 w-3" /> {listing.view_count}
+                        </span>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </AppLayout>
   );
