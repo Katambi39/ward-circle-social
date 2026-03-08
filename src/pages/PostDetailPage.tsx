@@ -102,17 +102,30 @@ const PostDetailPage = () => {
   const handleSubmitComment = async () => {
     if (!user || !newComment.trim()) return;
     setSubmitting(true);
-    const { error } = await supabase.from("comments").insert({
+
+    // Moderate comment content
+    const modResult = await moderateContent(newComment.trim(), "comment");
+    if (modResult.should_block) {
+      const { toast } = await import("@/components/ui/sonner");
+      toast.error("Comment blocked: " + modResult.reason);
+      setSubmitting(false);
+      return;
+    }
+
+    const { data: commentData, error } = await supabase.from("comments").insert({
       post_id: id!,
       user_id: user.id,
       content: newComment.trim(),
       parent_id: replyTo,
-    });
+    }).select("id").single();
     if (!error) {
+      // Log flagged comments asynchronously
+      if (modResult.is_flagged && commentData) {
+        moderateContent(newComment.trim(), "comment", commentData.id, user.id).catch(() => {});
+      }
       setNewComment("");
       setReplyTo(null);
       await fetchComments();
-      // Update comment count
       await supabase.from("posts").update({ comment_count: comments.length + 1 } as any).eq("id", id!);
     }
     setSubmitting(false);
