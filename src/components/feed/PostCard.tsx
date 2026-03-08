@@ -126,21 +126,17 @@ const PostCardInner = ({ post, postId, authorUsername, index }: { post: PostData
           <h3 className="font-display font-bold text-foreground mb-2 leading-snug">
             {post.title}
           </h3>
-        </h3>
-        {post.content && (
-          <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-            {post.content}
-          </p>
-        )}
-
+          {post.content && (
+            <p className="text-sm text-muted-foreground leading-relaxed mb-3">
+              {post.content}
+            </p>
+          )}
           {post.image && (
             <div className="rounded-lg overflow-hidden mb-3 border border-border">
               <img src={post.image} alt="" className="w-full h-48 object-cover" />
             </div>
           )}
         </div>
-          </div>
-        )}
 
         {/* Actions */}
         <div className="flex items-center gap-1">
