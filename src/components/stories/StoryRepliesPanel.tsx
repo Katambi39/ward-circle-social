@@ -36,7 +36,7 @@ const StoryRepliesPanel = ({ storyId, onClose }: StoryRepliesPanelProps) => {
       return;
     }
 
-    const senderIds = [...new Set(data.map((r: any) => r.sender_id))];
+    const senderIds = [...new Set(data.map((r: any) => r.sender_id))] as string[];
     const { data: profiles } = await supabase
       .from("profiles")
       .select("user_id, display_name, avatar_url, username")
