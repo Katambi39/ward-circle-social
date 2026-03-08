@@ -17,6 +17,8 @@ interface StoryGroup {
     caption: string | null;
     created_at: string;
     expires_at: string;
+    music_track_id?: string | null;
+    music_start_time?: number;
   }>;
   hasUnviewed: boolean;
 }
