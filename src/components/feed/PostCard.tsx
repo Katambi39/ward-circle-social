@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ExternalLink } from "lucide-react";
+import SafeLink from "./SafeLink";
 import { useNavigate } from "react-router-dom";
 import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy, Repeat2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
