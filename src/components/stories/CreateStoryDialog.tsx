@@ -26,6 +26,8 @@ const CreateStoryDialog = ({ open, onOpenChange, onCreated }: CreateStoryDialogP
   const [preview, setPreview] = useState<string | null>(null);
   const [caption, setCaption] = useState("");
   const [showCaption, setShowCaption] = useState(false);
+  const [showMusic, setShowMusic] = useState(false);
+  const [selectedTrack, setSelectedTrack] = useState<any>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
