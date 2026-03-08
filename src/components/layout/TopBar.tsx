@@ -67,10 +67,13 @@ const TopBar = () => {
           </div>
         </form>
 
-        {/* Mobile search icon */}
+        {/* Mobile search & chat icons */}
         <div className="flex-1 sm:hidden" />
         <Button variant="ghost" size="icon" onClick={() => navigate("/search")} className="rounded-full text-muted-foreground sm:hidden h-8 w-8">
           <Search className="h-5 w-5" />
+        </Button>
+        <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="rounded-full text-muted-foreground sm:hidden h-8 w-8">
+          <MessageCircle className="h-5 w-5" />
         </Button>
 
         {/* Right actions */}
