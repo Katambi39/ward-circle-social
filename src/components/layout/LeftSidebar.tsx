@@ -36,8 +36,20 @@ const SidebarItem = ({ icon, label, active, badge, onClick }: SidebarItemProps) 
 const LeftSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const isUnverified = !profile?.verification_status || profile.verification_status === "unverified";
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("role", "admin")
+      .maybeSingle()
+      .then(({ data }) => setIsAdmin(!!data));
+  }, [user]);
 
   return (
     <aside className="w-60 shrink-0 border-r border-border bg-card h-full overflow-y-auto p-3">
