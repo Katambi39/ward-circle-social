@@ -57,8 +57,19 @@ function getDomain(url: string): string {
   }
 }
 
-function quickCheck(url: string): { level: 'safe' | 'warning' | 'danger'; reason: string } | null {
+function quickCheck(url: string): { level: 'safe' | 'warning' | 'danger'; reason: string; blocked?: boolean } | null {
   const domain = getDomain(url);
+  
+  // Block explicit/adult content
+  if (EXPLICIT_DOMAINS.has(domain)) {
+    return { level: 'danger', reason: 'Explicit/adult content is not allowed on this platform', blocked: true };
+  }
+  
+  for (const pattern of EXPLICIT_PATTERNS) {
+    if (pattern.test(url) || pattern.test(domain)) {
+      return { level: 'danger', reason: 'Link appears to contain explicit/adult content', blocked: true };
+    }
+  }
   
   if (TRUSTED_DOMAINS.has(domain)) {
     return { level: 'safe', reason: 'Well-known trusted website' };
