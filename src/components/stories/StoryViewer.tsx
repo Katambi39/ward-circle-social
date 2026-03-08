@@ -1,0 +1,233 @@
+import { useState, useEffect, useCallback, useRef } from "react";
+import { X, ChevronLeft, ChevronRight, Eye, Pause, Play } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { formatDistanceToNow } from "date-fns";
+
+interface StoryItem {
+  id: string;
+  media_url: string;
+  media_type: string;
+  caption: string | null;
+  created_at: string;
+  expires_at: string;
+}
+
+interface StoryGroup {
+  user_id: string;
+  display_name: string;
+  avatar_url: string | null;
+  username: string;
+  stories: StoryItem[];
+  hasUnviewed: boolean;
+}
+
+interface StoryViewerProps {
+  groups: StoryGroup[];
+  initialGroupIndex: number;
+  onClose: () => void;
+}
+
+const STORY_DURATION = 5000; // 5 seconds per story
+
+const StoryViewer = ({ groups, initialGroupIndex, onClose }: StoryViewerProps) => {
+  const { user } = useAuth();
+  const [groupIndex, setGroupIndex] = useState(initialGroupIndex);
+  const [storyIndex, setStoryIndex] = useState(0);
+  const [progress, setProgress] = useState(0);
+  const [paused, setPaused] = useState(false);
+  const timerRef = useRef<number | null>(null);
+  const startTimeRef = useRef(0);
+  const elapsedRef = useRef(0);
+
+  const currentGroup = groups[groupIndex];
+  const currentStory = currentGroup?.stories[storyIndex];
+
+  // Record view
+  useEffect(() => {
+    if (!currentStory || !user || currentGroup.user_id === user.id) return;
+    supabase
+      .from("story_views")
+      .upsert({ story_id: currentStory.id, viewer_id: user.id }, { onConflict: "story_id,viewer_id" })
+      .then(() => {});
+  }, [currentStory?.id]);
+
+  const goNext = useCallback(() => {
+    if (storyIndex < currentGroup.stories.length - 1) {
+      setStoryIndex((i) => i + 1);
+      setProgress(0);
+      elapsedRef.current = 0;
+    } else if (groupIndex < groups.length - 1) {
+      setGroupIndex((i) => i + 1);
+      setStoryIndex(0);
+      setProgress(0);
+      elapsedRef.current = 0;
+    } else {
+      onClose();
+    }
+  }, [storyIndex, groupIndex, currentGroup, groups.length, onClose]);
+
+  const goPrev = useCallback(() => {
+    if (storyIndex > 0) {
+      setStoryIndex((i) => i - 1);
+      setProgress(0);
+      elapsedRef.current = 0;
+    } else if (groupIndex > 0) {
+      setGroupIndex((i) => i - 1);
+      const prevGroup = groups[groupIndex - 1];
+      setStoryIndex(prevGroup.stories.length - 1);
+      setProgress(0);
+      elapsedRef.current = 0;
+    }
+  }, [storyIndex, groupIndex, groups]);
+
+  // Auto-advance timer
+  useEffect(() => {
+    if (paused) return;
+
+    startTimeRef.current = Date.now();
+    const remaining = STORY_DURATION - elapsedRef.current;
+
+    const animate = () => {
+      const now = Date.now();
+      const total = elapsedRef.current + (now - startTimeRef.current);
+      const pct = Math.min((total / STORY_DURATION) * 100, 100);
+      setProgress(pct);
+
+      if (pct >= 100) {
+        goNext();
+      } else {
+        timerRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    timerRef.current = requestAnimationFrame(animate);
+
+    const timeout = setTimeout(goNext, remaining);
+
+    return () => {
+      if (timerRef.current) cancelAnimationFrame(timerRef.current);
+      clearTimeout(timeout);
+      elapsedRef.current += Date.now() - startTimeRef.current;
+    };
+  }, [groupIndex, storyIndex, paused, goNext]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") goNext();
+      else if (e.key === "ArrowLeft") goPrev();
+      else if (e.key === "Escape") onClose();
+      else if (e.key === " ") { e.preventDefault(); setPaused((p) => !p); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [goNext, goPrev, onClose]);
+
+  if (!currentGroup || !currentStory) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+      {/* Close */}
+      <button onClick={onClose} className="absolute top-4 right-4 z-50 text-white/80 hover:text-white">
+        <X className="h-7 w-7" />
+      </button>
+
+      {/* Navigation arrows */}
+      {(groupIndex > 0 || storyIndex > 0) && (
+        <button onClick={goPrev} className="absolute left-2 md:left-6 z-50 text-white/60 hover:text-white">
+          <ChevronLeft className="h-8 w-8" />
+        </button>
+      )}
+      {(groupIndex < groups.length - 1 || storyIndex < currentGroup.stories.length - 1) && (
+        <button onClick={goNext} className="absolute right-2 md:right-6 z-50 text-white/60 hover:text-white">
+          <ChevronRight className="h-8 w-8" />
+        </button>
+      )}
+
+      {/* Story container */}
+      <div className="relative w-full max-w-sm h-full max-h-[90vh] mx-auto">
+        {/* Progress bars */}
+        <div className="absolute top-2 left-2 right-2 z-40 flex gap-1">
+          {currentGroup.stories.map((_, i) => (
+            <div key={i} className="flex-1 h-0.5 bg-white/30 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-white rounded-full transition-none"
+                style={{
+                  width: i < storyIndex ? "100%" : i === storyIndex ? `${progress}%` : "0%",
+                }}
+              />
+            </div>
+          ))}
+        </div>
+
+        {/* Header */}
+        <div className="absolute top-5 left-2 right-12 z-40 flex items-center gap-2.5 px-1">
+          <div className="h-9 w-9 rounded-full overflow-hidden border border-white/30 shrink-0">
+            {currentGroup.avatar_url ? (
+              <img src={currentGroup.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <div className="h-full w-full bg-white/20 flex items-center justify-center text-white font-display font-bold text-sm">
+                {currentGroup.display_name[0]?.toUpperCase()}
+              </div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-white text-sm font-display font-semibold truncate">
+              {currentGroup.display_name}
+            </p>
+            <p className="text-white/60 text-[10px]">
+              {formatDistanceToNow(new Date(currentStory.created_at), { addSuffix: true })}
+            </p>
+          </div>
+          <button
+            onClick={() => setPaused((p) => !p)}
+            className="text-white/70 hover:text-white"
+          >
+            {paused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
+          </button>
+        </div>
+
+        {/* Media */}
+        <div
+          className="w-full h-full rounded-xl overflow-hidden flex items-center justify-center bg-black"
+          onClick={(e) => {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            if (x < rect.width / 3) goPrev();
+            else goNext();
+          }}
+        >
+          {currentStory.media_type === "video" ? (
+            <video
+              key={currentStory.id}
+              src={currentStory.media_url}
+              className="w-full h-full object-contain"
+              autoPlay
+              muted
+              playsInline
+            />
+          ) : (
+            <img
+              key={currentStory.id}
+              src={currentStory.media_url}
+              alt=""
+              className="w-full h-full object-contain"
+            />
+          )}
+        </div>
+
+        {/* Caption */}
+        {currentStory.caption && (
+          <div className="absolute bottom-4 left-0 right-0 z-40 px-4">
+            <div className="bg-black/50 backdrop-blur-sm rounded-xl px-4 py-2.5">
+              <p className="text-white text-sm font-display text-center">{currentStory.caption}</p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default StoryViewer;
