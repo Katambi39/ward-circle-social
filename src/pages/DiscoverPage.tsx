@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import CategoryCard from "@/components/discover/CategoryCard";
+import AppLayout from "@/components/layout/AppLayout";
 import PollCard from "@/components/discover/PollCard";
 import NearYouCard from "@/components/discover/NearYouCard";
 import CreationPromptCard from "@/components/discover/CreationPromptCard";
