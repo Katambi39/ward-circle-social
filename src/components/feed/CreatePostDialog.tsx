@@ -468,9 +468,20 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
               className="hidden"
               onChange={handleImageSelect}
             />
+            <input
+              ref={videoInputRef}
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={handleVideoSelect}
+            />
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-primary gap-1.5 rounded-full" onClick={() => fileInputRef.current?.click()}>
               <Image className="h-4 w-4 text-primary" />
               <span className="text-xs font-display hidden sm:inline">Photo</span>
+            </Button>
+            <Button variant="ghost" size="sm" className={`text-muted-foreground hover:text-secondary gap-1.5 rounded-full ${videoFile ? "bg-secondary/10 text-secondary" : ""}`} onClick={() => videoInputRef.current?.click()}>
+              <Video className="h-4 w-4 text-secondary" />
+              <span className="text-xs font-display hidden sm:inline">Video</span>
             </Button>
             <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-secondary gap-1.5 rounded-full" onClick={() => setShowLinkInput(true)}>
               <Link2 className="h-4 w-4 text-secondary" />
