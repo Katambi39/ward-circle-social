@@ -15,6 +15,7 @@ interface Profile {
   county: string | null;
   ward: string | null;
   location: string | null;
+  cover_url: string | null;
   is_anonymous_account: boolean;
 }
 
