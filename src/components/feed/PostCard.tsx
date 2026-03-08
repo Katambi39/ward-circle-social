@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield } from "lucide-react";
+import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -8,6 +8,15 @@ import { DbPost } from "@/hooks/usePosts";
 import { formatDistanceToNow } from "date-fns";
 import ReactionBar from "./ReactionBar";
 import PostPollDisplay from "./PostPollDisplay";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Keep legacy interface for backward compat
 export interface PostData {
@@ -66,8 +75,12 @@ const PostCard = ({ post: legacyPost, dbPost, index, isBookmarked = false, onTog
 
 const PostCardInner = ({ post, postId, authorUsername, index, isBookmarked, onToggleBookmark }: { post: PostData; postId: string; authorUsername?: string; index: number; isBookmarked: boolean; onToggleBookmark?: (id: string) => void }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [votes, setVotes] = useState(post.upvotes);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
+  const [deleted, setDeleted] = useState(false);
+
+  const isOwnPost = user && authorUsername && user.user_metadata?.username === authorUsername;
 
   const handleVote = (direction: "up" | "down") => {
     if (voted === direction) {
@@ -78,6 +91,36 @@ const PostCardInner = ({ post, postId, authorUsername, index, isBookmarked, onTo
       setVoted(direction);
     }
   };
+
+  const handleShare = async () => {
+    const url = `${window.location.origin}/post/${postId}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: post.title, url });
+      } catch {}
+    } else {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied to clipboard");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Delete this post?")) return;
+    const { error } = await supabase.from("posts").delete().eq("id", postId);
+    if (error) {
+      toast.error("Failed to delete post");
+    } else {
+      toast.success("Post deleted");
+      setDeleted(true);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    await navigator.clipboard.writeText(`${window.location.origin}/post/${postId}`);
+    toast.success("Link copied");
+  };
+
+  if (deleted) return null;
 
   // Strip poll text from content for display (shown as PostPollDisplay instead)
   const displayContent = post.content?.replace(/📊 Poll:\n[\s\S]*$/, "").trim();
@@ -124,9 +167,31 @@ const PostCardInner = ({ post, postId, authorUsername, index, isBookmarked, onTo
               )}
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem onClick={handleCopyLink}>
+                <Copy className="h-4 w-4 mr-2" />
+                Copy link
+              </DropdownMenuItem>
+              {isOwnPost && (
+                <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete post
+                </DropdownMenuItem>
+              )}
+              {!isOwnPost && (
+                <DropdownMenuItem onClick={() => toast.info("Report submitted")}>
+                  <Flag className="h-4 w-4 mr-2" />
+                  Report
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Content - clickable to go to post detail */}
@@ -189,12 +254,12 @@ const PostCardInner = ({ post, postId, authorUsername, index, isBookmarked, onTo
           {/* Emoji Reactions */}
           <ReactionBar postId={postId} />
 
-          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2">
+          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2" onClick={() => navigate(`/post/${postId}`)}>
             <MessageCircle className="h-4 w-4" />
             <span className="text-xs font-display">{post.comments}</span>
           </Button>
 
-          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2">
+          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2" onClick={handleShare}>
             <Share2 className="h-4 w-4" />
             <span className="text-xs font-display">{post.shares}</span>
           </Button>
