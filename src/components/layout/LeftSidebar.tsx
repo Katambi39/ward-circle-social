@@ -1,7 +1,9 @@
-import { Home, Users, Compass, TrendingUp, Shield, UserCircle, Flame, MapPin, Building2, Eye, MessageSquare, ShoppingBag, BadgeCheck } from "lucide-react";
+import { Home, Users, Compass, TrendingUp, Shield, UserCircle, Flame, MapPin, Building2, Eye, MessageSquare, ShoppingBag, BadgeCheck, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SidebarItemProps {
   icon: React.ReactNode;
