@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Image, Link2, BarChart3, Smile } from "lucide-react";
+import { Image, Link2, BarChart3, Smile, Video } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAnonymous } from "@/contexts/AnonymousContext";
 import CreatePostDialog from "./CreatePostDialog";
 
-export type PostDialogIntent = "default" | "photo" | "link" | "poll" | "feeling";
+export type PostDialogIntent = "default" | "photo" | "video" | "link" | "poll" | "feeling";
 
 const CreatePostBar = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
