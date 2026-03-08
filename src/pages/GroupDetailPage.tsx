@@ -12,8 +12,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  ArrowLeft, Shield, Users, MapPin, Crown, MessageSquare, FileText, Settings, Pin,
+  ArrowLeft, Shield, Users, MapPin, Crown, MessageSquare, FileText, Settings, Pin, ShieldCheck, ShieldOff,
 } from "lucide-react";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import type { DbPost } from "@/hooks/usePosts";
@@ -372,6 +375,9 @@ const GroupDetailPage = () => {
               ) : (
                 members.map((member: any) => {
                   const profile = member.profiles;
+                  const isCurrentUserAdmin = membership?.role === "admin";
+                  const canManage = isCurrentUserAdmin && member.user_id !== user?.id && member.role !== "admin";
+
                   return (
                     <div
                       key={member.id}
@@ -407,6 +413,36 @@ const GroupDetailPage = () => {
                           <Badge variant="secondary" className="text-[10px] rounded-full px-2 py-0 font-display gap-1">
                             <Shield className="h-3 w-3" /> Mod
                           </Badge>
+                        )}
+                        {canManage && (
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full">
+                                <Settings className="h-3.5 w-3.5" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-44">
+                              {member.role === "member" ? (
+                                <DropdownMenuItem onClick={async (e) => {
+                                  e.stopPropagation();
+                                  await supabase.from("group_members").update({ role: "moderator" }).eq("id", member.id);
+                                  queryClient.invalidateQueries({ queryKey: ["group-members", group!.id] });
+                                  toast({ title: "Promoted", description: `${profile?.display_name || "Member"} is now a moderator` });
+                                }}>
+                                  <ShieldCheck className="h-4 w-4 mr-2" /> Make Moderator
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem onClick={async (e) => {
+                                  e.stopPropagation();
+                                  await supabase.from("group_members").update({ role: "member" }).eq("id", member.id);
+                                  queryClient.invalidateQueries({ queryKey: ["group-members", group!.id] });
+                                  toast({ title: "Demoted", description: `${profile?.display_name || "Member"} is now a regular member` });
+                                }}>
+                                  <ShieldOff className="h-4 w-4 mr-2" /> Remove Moderator
+                                </DropdownMenuItem>
+                              )}
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         )}
                         <span className="text-[10px] text-muted-foreground">
                           {formatDistanceToNow(new Date(member.joined_at), { addSuffix: true })}
