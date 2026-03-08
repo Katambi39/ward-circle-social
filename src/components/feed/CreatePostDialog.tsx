@@ -528,7 +528,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
           </div>
           <Button
             onClick={handleSubmit}
-            disabled={submitting || !title.trim()}
+            disabled={submitting || (!content.trim() && !imageFile && !videoFile && !showPoll)}
             className="rounded-full gradient-kenya text-primary-foreground font-display gap-1.5"
           >
             {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
