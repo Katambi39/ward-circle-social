@@ -12,7 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { DbPost } from "@/hooks/usePosts";
 import {
-  ArrowLeft, ArrowBigUp, ArrowBigDown, MessageCircle, Shield, MapPin, CheckCircle2, Send, Loader2, Clock,
+  ArrowLeft, ArrowBigUp, ArrowBigDown, MessageCircle, Shield, MapPin, CheckCircle2, Send, Loader2, Clock, Trash2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
@@ -214,7 +214,7 @@ const PostDetailPage = () => {
         {/* Comments list */}
         <div className="space-y-2">
           {comments.map((comment, i) => (
-            <CommentItem key={comment.id} comment={comment} index={i} onReply={setReplyTo} />
+            <CommentItem key={comment.id} comment={comment} index={i} onReply={setReplyTo} onDelete={() => fetchComments()} />
           ))}
           {comments.length === 0 && (
             <p className="text-center text-sm text-muted-foreground py-6 font-display">No comments yet — be the first!</p>
@@ -225,7 +225,7 @@ const PostDetailPage = () => {
   );
 };
 
-const CommentItem = ({ comment, index, onReply, depth = 0 }: { comment: Comment; index: number; onReply: (id: string) => void; depth?: number }) => {
+const CommentItem = ({ comment, index, onReply, onDelete, depth = 0 }: { comment: Comment; index: number; onReply: (id: string) => void; onDelete?: (id: string) => void; depth?: number }) => {
   const { user } = useAuth();
   const [reportOpen, setReportOpen] = useState(false);
   const isAnon = comment.is_anonymous;
@@ -264,6 +264,15 @@ const CommentItem = ({ comment, index, onReply, depth = 0 }: { comment: Comment;
         <button className="text-[10px] text-muted-foreground font-display hover:text-primary" onClick={() => onReply(comment.id)}>
           Reply
         </button>
+        {user && user.id === comment.user_id && (
+          <button className="text-[10px] text-muted-foreground font-display hover:text-destructive flex items-center gap-0.5" onClick={async () => {
+            if (!window.confirm("Delete this comment?")) return;
+            const { error } = await supabase.from("comments").delete().eq("id", comment.id);
+            if (!error) onDelete?.(comment.id);
+          }}>
+            <Trash2 className="h-3 w-3" /> Delete
+          </button>
+        )}
         {user && user.id !== comment.user_id && (
           <button className="text-[10px] text-muted-foreground font-display hover:text-destructive" onClick={() => setReportOpen(true)}>
             Report
@@ -280,7 +289,7 @@ const CommentItem = ({ comment, index, onReply, depth = 0 }: { comment: Comment;
       {comment.replies && comment.replies.length > 0 && (
         <div className="mt-2 space-y-2">
           {comment.replies.map((reply, ri) => (
-            <CommentItem key={reply.id} comment={reply} index={ri} onReply={onReply} depth={depth + 1} />
+            <CommentItem key={reply.id} comment={reply} index={ri} onReply={onReply} onDelete={onDelete} depth={depth + 1} />
           ))}
         </div>
       )}
