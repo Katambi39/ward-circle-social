@@ -410,11 +410,23 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
 
         {/* Music indicator */}
         {musicTrack && (
-          <div className="absolute top-14 right-2 z-40 flex items-center gap-1.5 bg-black/40 backdrop-blur-sm rounded-full px-2.5 py-1">
-            <Music className="h-3 w-3 text-white animate-pulse" />
-            <span className="text-[10px] text-white/80 font-display truncate max-w-[100px]">
-              {musicTrack.title}
-            </span>
+          <div className="absolute top-14 right-2 z-40 flex items-center gap-2 bg-black/50 backdrop-blur-md rounded-full pl-2 pr-3 py-1.5 shadow-lg border border-white/10">
+            {musicTrack.cover_url ? (
+              <img src={musicTrack.cover_url} alt="" className="h-7 w-7 rounded-full object-cover ring-1 ring-white/20" />
+            ) : (
+              <div className="h-7 w-7 rounded-full bg-white/10 flex items-center justify-center ring-1 ring-white/20">
+                <Music className="h-3.5 w-3.5 text-white/80" />
+              </div>
+            )}
+            <div className="min-w-0 max-w-[120px]">
+              <p className="text-[10px] text-white font-display font-semibold truncate leading-tight">
+                {musicTrack.title}
+              </p>
+              <p className="text-[9px] text-white/50 font-display truncate leading-tight">
+                {musicTrack.artist}
+              </p>
+            </div>
+            <Music className="h-3 w-3 text-white/60 animate-pulse shrink-0" />
           </div>
         )}
 
