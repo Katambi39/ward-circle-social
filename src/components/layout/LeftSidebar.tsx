@@ -27,7 +27,12 @@ const SidebarItem = ({ icon, label, active, badge, onClick }: SidebarItemProps) 
     {icon}
     <span className="flex-1 text-left">{label}</span>
     {badge && (
-      <span className="text-xs bg-accent text-accent-foreground px-2 py-0.5 rounded-full font-display">
+      <span className={cn(
+        "text-xs px-2 py-0.5 rounded-full font-display font-bold",
+        /^\d+$/.test(badge)
+          ? "bg-destructive text-destructive-foreground min-w-[1.25rem] text-center"
+          : "bg-accent text-accent-foreground"
+      )}>
         {badge}
       </span>
     )}
