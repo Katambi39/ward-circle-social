@@ -79,6 +79,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBo
   const [votes, setVotes] = useState(post.upvotes);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
   const [deleted, setDeleted] = useState(false);
+  const [shareCount, setShareCount] = useState(post.shares);
 
   const isOwnPost = !!(user && authorUserId && user.id === authorUserId);
 
