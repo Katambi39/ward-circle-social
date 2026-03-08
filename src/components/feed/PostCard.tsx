@@ -58,7 +58,8 @@ const PostCard = ({ post: legacyPost, dbPost, index }: PostCardProps) => {
   return <PostCardInner post={post} postId={dbPost?.id || post.id} authorUsername={dbPost?.author_username} index={index} />;
 };
 
-const PostCardInner = ({ post, index }: { post: PostData; index: number }) => {
+const PostCardInner = ({ post, postId, authorUsername, index }: { post: PostData; postId: string; authorUsername?: string; index: number }) => {
+  const navigate = useNavigate();
   const [votes, setVotes] = useState(post.upvotes);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
   const [saved, setSaved] = useState(false);
