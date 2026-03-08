@@ -114,8 +114,6 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
       navigator.clipboard.writeText(url).catch(() => {});
     }
     toast.success("Link copied to clipboard");
-    setShareCount((c) => c + 1);
-    supabase.from("posts").update({ share_count: post.shares + 1 }).eq("id", postId).then();
   };
 
   const handleDelete = async () => {
