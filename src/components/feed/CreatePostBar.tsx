@@ -7,7 +7,7 @@ import CreatePostDialog from "./CreatePostDialog";
 
 export type PostDialogIntent = "default" | "photo" | "video" | "link" | "poll" | "feeling";
 
-const CreatePostBar = () => {
+const CreatePostBar = ({ groupId }: { groupId?: string }) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [intent, setIntent] = useState<PostDialogIntent>("default");
   const { profile } = useAuth();
@@ -68,7 +68,7 @@ const CreatePostBar = () => {
           </Button>
         </div>
       </div>
-      <CreatePostDialog open={dialogOpen} onOpenChange={handleOpenChange} intent={intent} />
+      <CreatePostDialog open={dialogOpen} onOpenChange={handleOpenChange} intent={intent} groupId={groupId} />
     </>
   );
 };

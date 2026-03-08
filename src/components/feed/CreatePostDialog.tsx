@@ -45,6 +45,7 @@ interface CreatePostDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   intent?: PostDialogIntent;
+  groupId?: string;
 }
 
 interface GroupOption {
@@ -52,7 +53,7 @@ interface GroupOption {
   name: string;
 }
 
-const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePostDialogProps) => {
+const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId }: CreatePostDialogProps) => {
   const { user, profile } = useAuth();
   const { isAnonymous: globalAnon, anonAlias } = useAnonymous();
   const queryClient = useQueryClient();
@@ -65,7 +66,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(globalAnon);
-  const [selectedGroup, setSelectedGroup] = useState<string>("none");
+  const [selectedGroup, setSelectedGroup] = useState<string>(groupId || "none");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
@@ -78,10 +79,13 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
   const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
   const [showPoll, setShowPoll] = useState(false);
 
-  // Sync anonymous state when dialog opens
+  // Sync anonymous state and group when dialog opens
   useEffect(() => {
-    if (open) setIsAnonymous(globalAnon);
-  }, [open, globalAnon]);
+    if (open) {
+      setIsAnonymous(globalAnon);
+      if (groupId) setSelectedGroup(groupId);
+    }
+  }, [open, globalAnon, groupId]);
 
   // Handle intents when dialog opens
   useEffect(() => {
@@ -138,7 +142,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
     setImagePreview(null);
     setVideoFile(null);
     setVideoPreview(null);
-    setSelectedGroup("none");
+    setSelectedGroup(groupId || "none");
     setSubmitting(false);
     setSelectedFeeling(null);
     setShowFeelingPicker(false);
@@ -301,6 +305,9 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
         toast.success("Post created!");
       }
       queryClient.invalidateQueries({ queryKey: ["posts"] });
+      if (selectedGroup !== "none") {
+        queryClient.invalidateQueries({ queryKey: ["group-posts", selectedGroup] });
+      }
       handleOpenChange(false);
     } catch (err: any) {
       toast.error(err.message || "Failed to create post");
