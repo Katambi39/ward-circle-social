@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { Music, Play, Pause, Check, X, Search, Globe, Library, Loader2 } from "lucide-react";
+import { Music, Play, Pause, Check, X, Search, Globe, Library, Loader2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { toast } from "@/components/ui/sonner";
 
 interface MusicTrack {
   id: string;
@@ -37,6 +38,7 @@ const GENRE_LABELS: Record<string, string> = {
   gospel: "🙏 Gospel",
   chill: "🌙 Chill",
   gengetone: "🔥 Gengetone",
+  saved: "💾 Saved",
 };
 
 const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
@@ -53,6 +55,8 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
   const [webResults, setWebResults] = useState<WebTrack[]>([]);
   const [webSearching, setWebSearching] = useState(false);
   const [webSearched, setWebSearched] = useState(false);
+  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
+  const [savingId, setSavingId] = useState<string | null>(null);
 
   useEffect(() => {
     supabase
@@ -105,7 +109,6 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
   };
 
   const selectWebTrack = (wt: WebTrack) => {
-    // Convert web track to MusicTrack format for compatibility
     const asTrack: MusicTrack = {
       id: wt.id,
       title: wt.title,
@@ -117,6 +120,30 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
       lyrics: [],
     };
     onSelect(selectedTrack?.id === wt.id ? null : asTrack);
+  };
+
+  const saveToLibrary = async (wt: WebTrack, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (savedIds.has(wt.id) || savingId === wt.id) return;
+    setSavingId(wt.id);
+    const { error } = await supabase.from("music_tracks").insert({
+      title: wt.title,
+      artist: wt.artist,
+      audio_url: wt.preview_url,
+      cover_url: wt.cover_url,
+      duration_seconds: wt.duration_seconds,
+      genre: "saved",
+    });
+    setSavingId(null);
+    if (error) {
+      toast.error("Failed to save track");
+      return;
+    }
+    setSavedIds((prev) => new Set(prev).add(wt.id));
+    // Refresh library
+    const { data } = await supabase.from("music_tracks").select("*").order("title");
+    setTracks((data as any as MusicTrack[]) || []);
+    toast.success(`"${wt.title}" saved to library!`);
   };
 
   const genres = [...new Set(tracks.map((t) => t.genre))];
@@ -362,6 +389,25 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
                     {!wt.preview_url && (
                       <span className="text-[9px] text-muted-foreground/60 font-display">No preview</span>
                     )}
+
+                    {/* Save to library button */}
+                    <button
+                      onClick={(e) => saveToLibrary(wt, e)}
+                      disabled={savedIds.has(wt.id) || savingId === wt.id}
+                      className={cn(
+                        "h-7 w-7 rounded-full flex items-center justify-center shrink-0 transition-colors",
+                        savedIds.has(wt.id)
+                          ? "bg-primary/10 text-primary"
+                          : "bg-muted hover:bg-primary/10 text-muted-foreground hover:text-primary"
+                      )}
+                      title={savedIds.has(wt.id) ? "Saved to library" : "Save to library"}
+                    >
+                      {savingId === wt.id ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                      ) : (
+                        <Heart className={cn("h-3.5 w-3.5", savedIds.has(wt.id) && "fill-current")} />
+                      )}
+                    </button>
 
                     {isSelected && <Check className="h-4 w-4 text-primary shrink-0" />}
                   </div>
