@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  ArrowLeft, Shield, Users, MapPin, Crown, MessageSquare, FileText, Settings,
+  ArrowLeft, Shield, Users, MapPin, Crown, MessageSquare, FileText, Settings, Pin,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
