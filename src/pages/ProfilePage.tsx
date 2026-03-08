@@ -2,11 +2,12 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { UserCircle, FileText, Users } from "lucide-react";
+import { UserCircle, FileText, Users, ShoppingBag } from "lucide-react";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileAboutTab from "@/components/profile/ProfileAboutTab";
 import ProfilePostsTab from "@/components/profile/ProfilePostsTab";
 import ProfileConnectionsTab from "@/components/profile/ProfileConnectionsTab";
+import ProfileListingsTab from "@/components/profile/ProfileListingsTab";
 
 const ProfilePage = () => {
   const { profile } = useAuth();
@@ -57,6 +58,12 @@ const ProfilePage = () => {
             >
               <Users className="h-4 w-4" /> Connections
             </TabsTrigger>
+            <TabsTrigger
+              value="listings"
+              className="flex-1 rounded-lg font-display text-xs gap-1.5 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground"
+            >
+              <ShoppingBag className="h-4 w-4" /> Listings
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="about" className="mt-4">
@@ -69,6 +76,10 @@ const ProfilePage = () => {
 
           <TabsContent value="posts" className="mt-4">
             <ProfilePostsTab onPostCountChange={setPostCount} />
+          </TabsContent>
+
+          <TabsContent value="listings" className="mt-4">
+            <ProfileListingsTab />
           </TabsContent>
 
           <TabsContent value="connections" className="mt-4">
