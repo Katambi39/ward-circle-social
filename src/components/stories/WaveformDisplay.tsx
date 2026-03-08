@@ -154,6 +154,7 @@ const WaveformDisplay = ({ audioUrl, duration, startTime, playbackPosition, onSe
       style={{
         ["--waveform-active" as any]: "hsl(var(--primary))",
         ["--waveform-inactive" as any]: "hsl(var(--muted-foreground) / 0.25)",
+        ["--waveform-played" as any]: "hsl(var(--primary) / 0.65)",
       }}
       onPointerDown={(e) => { setDragging(true); e.currentTarget.setPointerCapture(e.pointerId); handlePointer(e); }}
       onPointerMove={(e) => { if (dragging) handlePointer(e); }}

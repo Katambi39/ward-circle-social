@@ -129,6 +129,7 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
           audioUrl={audioUrl}
           duration={effectiveDuration}
           startTime={startTime}
+          playbackPosition={playbackPos}
           onSeek={(t) => {
             const clamped = Math.min(t, maxStart);
             onStartTimeChange(clamped);
