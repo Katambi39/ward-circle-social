@@ -7,6 +7,7 @@ export interface DbPost {
   title: string;
   content: string | null;
   image_url: string | null;
+  video_url: string | null;
   link_url: string | null;
   is_anonymous: boolean;
   upvotes: number;
