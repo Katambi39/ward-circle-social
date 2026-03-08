@@ -73,14 +73,14 @@ const PostCard = ({ post: legacyPost, dbPost, index, isBookmarked = false, onTog
   return <PostCardInner post={post} postId={dbPost?.id || post.id} authorUserId={dbPost?.user_id} authorUsername={dbPost?.author_username} index={index} isBookmarked={isBookmarked} onToggleBookmark={onToggleBookmark} />;
 };
 
-const PostCardInner = ({ post, postId, authorUsername, index, isBookmarked, onToggleBookmark }: { post: PostData; postId: string; authorUsername?: string; index: number; isBookmarked: boolean; onToggleBookmark?: (id: string) => void }) => {
+const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBookmarked, onToggleBookmark }: { post: PostData; postId: string; authorUserId?: string; authorUsername?: string; index: number; isBookmarked: boolean; onToggleBookmark?: (id: string) => void }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [votes, setVotes] = useState(post.upvotes);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
   const [deleted, setDeleted] = useState(false);
 
-  const isOwnPost = user && authorUsername && user.user_metadata?.username === authorUsername;
+  const isOwnPost = !!(user && authorUserId && user.id === authorUserId);
 
   const handleVote = (direction: "up" | "down") => {
     if (voted === direction) {
