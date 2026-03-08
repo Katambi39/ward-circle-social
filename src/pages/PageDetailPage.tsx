@@ -683,6 +683,7 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
   const [commentTexts, setCommentTexts] = useState<Record<string, string>>({});
   const [postComments, setPostComments] = useState<Record<string, any[]>>({});
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
+  const [replyingTo, setReplyingTo] = useState<Record<string, string | null>>({}); // postId -> parentCommentId
 
   const fetchPosts = async () => {
     const { data } = await (supabase
