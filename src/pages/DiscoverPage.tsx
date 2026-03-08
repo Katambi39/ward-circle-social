@@ -1,5 +1,5 @@
 import { useState } from "react";
-import AppLayout from "@/components/layout/AppLayout";
+import { useNavigate } from "react-router-dom";
 import CategoryCard from "@/components/discover/CategoryCard";
 import PollCard from "@/components/discover/PollCard";
 import NearYouCard from "@/components/discover/NearYouCard";
