@@ -335,6 +335,17 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
           </div>
         </div>
 
+        {/* Optional title for anonymous posts */}
+        {isAnonymous && (
+          <Input
+            placeholder="Add a title (optional)"
+            value={content}
+            onChange={() => {}}
+            className="font-display font-semibold"
+            maxLength={200}
+            id="anon-title-input"
+          />
+        )}
 
         {/* Content */}
 
