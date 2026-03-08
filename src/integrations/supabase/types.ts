@@ -386,6 +386,38 @@ export type Database = {
           },
         ]
       }
+      page_views: {
+        Row: {
+          id: string
+          page_id: string
+          referrer: string | null
+          viewed_at: string
+          viewer_id: string | null
+        }
+        Insert: {
+          id?: string
+          page_id: string
+          referrer?: string | null
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Update: {
+          id?: string
+          page_id?: string
+          referrer?: string | null
+          viewed_at?: string
+          viewer_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_views_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pages: {
         Row: {
           avatar_url: string | null
