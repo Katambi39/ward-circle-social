@@ -28,6 +28,7 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import VerifyIdentityPage from "./pages/VerifyIdentityPage";
 import AdminKYCPage from "./pages/AdminKYCPage";
+import NotificationsPage from "./pages/NotificationsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
