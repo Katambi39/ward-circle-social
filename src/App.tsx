@@ -14,6 +14,8 @@ import ToboaSiriPage from "./pages/ToboaSiriPage";
 import ProfilePage from "./pages/ProfilePage";
 import DiscoverPage from "./pages/DiscoverPage";
 import TrendingPage from "./pages/TrendingPage";
+import PagesPage from "./pages/PagesPage";
+import PageDetailPage from "./pages/PageDetailPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +37,8 @@ const App = () => (
               <Route path="/trending" element={<ProtectedRoute><TrendingPage /></ProtectedRoute>} />
               <Route path="/toboa-siri" element={<ProtectedRoute><ToboaSiriPage /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+              <Route path="/pages" element={<ProtectedRoute><PagesPage /></ProtectedRoute>} />
+              <Route path="/pages/:slug" element={<ProtectedRoute><PageDetailPage /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
