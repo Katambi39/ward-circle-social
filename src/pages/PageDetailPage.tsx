@@ -925,33 +925,36 @@ const ContentTab = ({ pageId, isOwner }: { pageId: string; isOwner: boolean }) =
             {expandedComments.has(post.id) && (
               <div className="mt-3 border-t border-border pt-3 space-y-3">
                 {(postComments[post.id] || []).map((comment: any) => (
-                  <div key={comment.id} className="flex gap-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage src={comment.profile?.avatar_url} />
-                      <AvatarFallback className="text-[10px] font-display">
-                        {(comment.profile?.display_name || "?")[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <span className="text-xs font-display font-semibold text-foreground">
-                        {comment.profile?.display_name || "User"}
-                      </span>
-                      <p className="text-xs text-muted-foreground">{comment.content}</p>
-                    </div>
-                  </div>
+                  <PageComment
+                    key={comment.id}
+                    comment={comment}
+                    postId={post.id}
+                    depth={0}
+                    onReply={(commentId) => {
+                      setReplyingTo((prev) => ({ ...prev, [post.id]: commentId }));
+                    }}
+                  />
                 ))}
                 {user && (
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Write a comment..."
-                      value={commentTexts[post.id] || ""}
-                      onChange={(e) => setCommentTexts((prev) => ({ ...prev, [post.id]: e.target.value }))}
-                      onKeyDown={(e) => { if (e.key === "Enter") handleComment(post.id); }}
-                      className="h-8 text-xs rounded-full"
-                    />
-                    <Button size="icon" className="h-8 w-8 rounded-full shrink-0" onClick={() => handleComment(post.id)} disabled={!commentTexts[post.id]?.trim()}>
-                      <Send className="h-3 w-3" />
-                    </Button>
+                  <div className="space-y-1.5">
+                    {replyingTo[post.id] && (
+                      <div className="flex items-center gap-1.5 text-xs text-primary font-display">
+                        <span>Replying to a comment</span>
+                        <button onClick={() => setReplyingTo((prev) => ({ ...prev, [post.id]: null }))} className="text-muted-foreground hover:text-destructive">✕</button>
+                      </div>
+                    )}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder={replyingTo[post.id] ? "Write a reply..." : "Write a comment..."}
+                        value={commentTexts[post.id] || ""}
+                        onChange={(e) => setCommentTexts((prev) => ({ ...prev, [post.id]: e.target.value }))}
+                        onKeyDown={(e) => { if (e.key === "Enter") handleComment(post.id); }}
+                        className="h-8 text-xs rounded-full"
+                      />
+                      <Button size="icon" className="h-8 w-8 rounded-full shrink-0" onClick={() => handleComment(post.id)} disabled={!commentTexts[post.id]?.trim()}>
+                        <Send className="h-3 w-3" />
+                      </Button>
+                    </div>
                   </div>
                 )}
               </div>
