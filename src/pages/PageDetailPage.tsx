@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,8 +15,9 @@ import { Progress } from "@/components/ui/progress";
 import {
   Store, CheckCircle2, MapPin, Users, Shield, UserPlus, UserMinus,
   Star, Calendar, MessageSquare, BarChart3, Plus, Send, Clock,
-  Globe, Phone, Image, ArrowLeft,
+  Globe, Phone, Image, ArrowLeft, TrendingUp,
 } from "lucide-react";
+import PageAnalytics from "@/components/pages/PageAnalytics";
 import { motion } from "framer-motion";
 import { format, formatDistanceToNow, isPast } from "date-fns";
 
@@ -82,9 +83,19 @@ const PageDetailPage = () => {
   const [pollOptions, setPollOptions] = useState(["", ""]);
   const [creatingPoll, setCreatingPoll] = useState(false);
 
+  const viewRecorded = useRef(false);
+
   useEffect(() => {
     if (slug) fetchAll();
   }, [slug, user]);
+
+  // Record page view once
+  useEffect(() => {
+    if (page && user && !viewRecorded.current) {
+      viewRecorded.current = true;
+      supabase.from("page_views").insert({ page_id: page.id, viewer_id: user.id } as any).then(() => {});
+    }
+  }, [page, user]);
 
   const fetchAll = async () => {
     // Fetch page
@@ -363,6 +374,11 @@ const PageDetailPage = () => {
             <TabsTrigger value="events" className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground">
               <Calendar className="h-3.5 w-3.5" /> Events
             </TabsTrigger>
+            {isOwner && (
+              <TabsTrigger value="analytics" className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground">
+                <TrendingUp className="h-3.5 w-3.5" /> Analytics
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* CONTENT TAB */}
@@ -632,6 +648,13 @@ const PageDetailPage = () => {
               })
             )}
           </TabsContent>
+
+          {/* ANALYTICS TAB (owner only) */}
+          {isOwner && (
+            <TabsContent value="analytics" className="mt-4">
+              <PageAnalytics pageId={page.id} pageName={page.name} />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </AppLayout>
