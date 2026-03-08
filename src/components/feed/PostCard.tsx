@@ -18,6 +18,7 @@ export interface PostData {
   title: string;
   content: string;
   image?: string;
+  video?: string;
   upvotes: number;
   comments: number;
   shares: number;
