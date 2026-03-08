@@ -55,6 +55,7 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
   const musicAudioRef = useRef<HTMLAudioElement | null>(null);
   const [musicTrack, setMusicTrack] = useState<MusicTrackData | null>(null);
   const [musicTime, setMusicTime] = useState(0);
+  const [viewCount, setViewCount] = useState(0);
 
   const currentGroup = groups[groupIndex];
   const currentStory = currentGroup?.stories[storyIndex];
@@ -66,6 +67,19 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
       .from("story_views")
       .upsert({ story_id: currentStory.id, viewer_id: user.id }, { onConflict: "story_id,viewer_id" })
       .then(() => {});
+  }, [currentStory?.id]);
+
+  // Fetch view count for own stories
+  useEffect(() => {
+    if (!currentStory || !user || currentGroup.user_id !== user.id) {
+      setViewCount(0);
+      return;
+    }
+    supabase
+      .from("story_views")
+      .select("id", { count: "exact", head: true })
+      .eq("story_id", currentStory.id)
+      .then(({ count }) => setViewCount(count || 0));
   }, [currentStory?.id]);
 
   // Load music track
@@ -352,6 +366,14 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
             <div className="bg-black/50 backdrop-blur-sm rounded-xl px-4 py-2.5">
               <p className="text-white text-sm font-display text-center">{currentStory.caption}</p>
             </div>
+          </div>
+        )}
+
+        {/* View count for own stories */}
+        {user && currentGroup.user_id === user.id && (
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5">
+            <Eye className="h-3.5 w-3.5 text-white/80" />
+            <span className="text-xs text-white/80 font-display">{viewCount} {viewCount === 1 ? 'view' : 'views'}</span>
           </div>
         )}
       </div>
