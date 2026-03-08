@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import StartChatButton from "@/components/messages/StartChatButton";
+import ListingReviews from "@/components/marketplace/ListingReviews";
 import {
   ArrowLeft, MapPin, Heart, Eye, Shield, CheckCircle2,
   ShoppingBag, Tag, Clock, ShoppingCart, AlertCircle,
@@ -327,6 +328,9 @@ const ListingDetailPage = () => {
             {!isOwner && <StartChatButton targetUserId={seller.user_id} variant="ghost" size="sm" label="Message" />}
           </motion.div>
         )}
+
+        {/* Reviews */}
+        <ListingReviews listingId={listing.id} sellerId={listing.seller_id} isSold={isSold} />
       </div>
     </AppLayout>
   );

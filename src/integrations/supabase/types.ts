@@ -303,6 +303,44 @@ export type Database = {
           },
         ]
       }
+      listing_reviews: {
+        Row: {
+          buyer_id: string
+          content: string | null
+          created_at: string
+          id: string
+          listing_id: string
+          rating: number
+          seller_id: string
+        }
+        Insert: {
+          buyer_id: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          listing_id: string
+          rating?: number
+          seller_id: string
+        }
+        Update: {
+          buyer_id?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          listing_id?: string
+          rating?: number
+          seller_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       listings: {
         Row: {
           category: Database["public"]["Enums"]["listing_category"]
