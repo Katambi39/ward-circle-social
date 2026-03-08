@@ -43,6 +43,7 @@ function dbPostToDisplay(p: DbPost): PostData {
     title: p.title,
     content: p.content || "",
     image: p.image_url || undefined,
+    video: p.video_url || undefined,
     upvotes: p.upvotes - p.downvotes,
     comments: p.comment_count,
     shares: p.share_count,
