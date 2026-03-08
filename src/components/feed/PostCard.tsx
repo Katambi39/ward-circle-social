@@ -167,9 +167,31 @@ const PostCardInner = ({ post, postId, authorUsername, index, isBookmarked, onTo
               )}
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground">
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem onClick={handleCopyLink}>
+                <Copy className="h-4 w-4 mr-2" />
+                Copy link
+              </DropdownMenuItem>
+              {isOwnPost && (
+                <DropdownMenuItem onClick={handleDelete} className="text-destructive focus:text-destructive">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete post
+                </DropdownMenuItem>
+              )}
+              {!isOwnPost && (
+                <DropdownMenuItem onClick={() => toast.info("Report submitted")}>
+                  <Flag className="h-4 w-4 mr-2" />
+                  Report
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Content - clickable to go to post detail */}
