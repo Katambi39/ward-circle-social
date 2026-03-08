@@ -16,7 +16,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { KENYA_COUNTIES } from "@/data/kenyaLocalities";
 import {
   Plus, Search, ShoppingBag, MapPin, Heart, Eye, Tag,
-  Package, Briefcase, FileText, Home, ImagePlus, X, Wallet,
+  Package, Briefcase, FileText, Home, ImagePlus, X, Wallet, User, Trash2, Pause, Play,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
@@ -55,9 +55,11 @@ const MarketplacePage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [listings, setListings] = useState<Listing[]>([]);
+  const [myListings, setMyListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("all");
+  const [mainTab, setMainTab] = useState("browse");
   const [createOpen, setCreateOpen] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
@@ -103,10 +105,41 @@ const MarketplacePage = () => {
       setFavorites(new Set((favs || []).map((f: any) => f.listing_id)));
     }
 
+    // Fetch user's own listings (all statuses)
+    if (user) {
+      const { data: mine } = await supabase
+        .from("listings")
+        .select("*")
+        .eq("seller_id", user.id)
+        .order("created_at", { ascending: false });
+      setMyListings((mine as Listing[]) || []);
+    }
+
     setLoading(false);
   };
 
   useEffect(() => { fetchListings(); }, [user]);
+
+  const handleDeleteListing = async (listingId: string) => {
+    const { error } = await supabase.from("listings").delete().eq("id", listingId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Listing deleted" });
+      fetchListings();
+    }
+  };
+
+  const handleToggleStatus = async (listingId: string, currentStatus: string) => {
+    const newStatus = currentStatus === "active" ? "paused" : "active";
+    const { error } = await supabase.from("listings").update({ status: newStatus } as any).eq("id", listingId);
+    if (error) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: newStatus === "active" ? "Listing reactivated" : "Listing paused" });
+      fetchListings();
+    }
+  };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -309,6 +342,19 @@ const MarketplacePage = () => {
           </div>
         </div>
 
+        {/* Main Tabs: Browse / My Listings */}
+        <Tabs value={mainTab} onValueChange={setMainTab} className="mb-4">
+          <TabsList className="w-full bg-card border border-border rounded-xl p-1 shadow-card">
+            <TabsTrigger value="browse" className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground">
+              <ShoppingBag className="h-3.5 w-3.5" /> Browse
+            </TabsTrigger>
+            <TabsTrigger value="mine" className="flex-1 rounded-lg font-display text-xs gap-1 data-[state=active]:gradient-kenya data-[state=active]:text-primary-foreground">
+              <User className="h-3.5 w-3.5" /> My Listings {myListings.length > 0 && `(${myListings.length})`}
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+
+        {mainTab === "browse" && (<>
         {/* Category Tabs */}
         <Tabs value={filterCategory} onValueChange={setFilterCategory} className="mb-4">
           <TabsList className="w-full bg-card border border-border rounded-xl p-1 shadow-card">
@@ -400,6 +446,98 @@ const MarketplacePage = () => {
                 </div>
               </motion.div>
             ))}
+          </div>
+        )}
+        </>)}
+
+        {/* My Listings Tab */}
+        {mainTab === "mine" && (
+          <div>
+            {myListings.length === 0 ? (
+              <div className="bg-card border border-border rounded-xl p-12 text-center shadow-card">
+                <ShoppingBag className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-display font-bold text-foreground text-lg mb-2">No listings yet</h3>
+                <p className="text-sm text-muted-foreground mb-4">Start selling by creating your first listing!</p>
+                <Button onClick={() => { setCreateOpen(true); setMainTab("browse"); }} className="rounded-full gradient-kenya text-primary-foreground font-display gap-1.5">
+                  <Plus className="h-4 w-4" /> Post Listing
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {myListings.map((listing, i) => {
+                  const statusColors: Record<string, string> = {
+                    active: "bg-primary/10 text-primary border-primary/20",
+                    paused: "bg-muted text-muted-foreground border-border",
+                    sold: "bg-accent/10 text-accent border-accent/20",
+                    removed: "bg-destructive/10 text-destructive border-destructive/20",
+                  };
+                  return (
+                    <motion.div
+                      key={listing.id}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.03 }}
+                      className="bg-card border border-border rounded-xl shadow-card overflow-hidden flex"
+                    >
+                      <div
+                        className="w-24 h-24 sm:w-28 sm:h-28 bg-muted shrink-0 cursor-pointer"
+                        onClick={() => navigate(`/marketplace/${listing.id}`)}
+                      >
+                        {listing.images && listing.images.length > 0 ? (
+                          <img src={listing.images[0]} alt="" className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="h-full w-full flex items-center justify-center">
+                            <ShoppingBag className="h-8 w-8 text-muted-foreground/30" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 p-3 flex flex-col justify-between min-w-0">
+                        <div>
+                          <div className="flex items-start justify-between gap-2">
+                            <h3
+                              className="font-display font-bold text-foreground text-sm truncate cursor-pointer hover:text-primary transition-colors"
+                              onClick={() => navigate(`/marketplace/${listing.id}`)}
+                            >
+                              {listing.title}
+                            </h3>
+                            <Badge variant="outline" className={`text-[10px] rounded-full shrink-0 ${statusColors[listing.status] || ""}`}>
+                              {listing.status}
+                            </Badge>
+                          </div>
+                          <p className="font-display font-bold text-primary text-sm mt-0.5">{formatPrice(listing.price)}</p>
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-2">
+                          <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                            <Eye className="h-3 w-3" /> {listing.view_count}
+                          </span>
+                          <div className="flex-1" />
+                          {listing.status !== "sold" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 rounded-full text-xs font-display gap-1 text-muted-foreground"
+                              onClick={() => handleToggleStatus(listing.id, listing.status)}
+                            >
+                              {listing.status === "active" ? <><Pause className="h-3 w-3" /> Pause</> : <><Play className="h-3 w-3" /> Activate</>}
+                            </Button>
+                          )}
+                          {listing.status !== "sold" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 rounded-full text-xs font-display gap-1 text-destructive hover:text-destructive hover:bg-destructive/10"
+                              onClick={() => handleDeleteListing(listing.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>
