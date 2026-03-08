@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy } from "lucide-react";
+import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy, Repeat2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -8,6 +8,8 @@ import { DbPost } from "@/hooks/usePosts";
 import { formatDistanceToNow } from "date-fns";
 import ReactionBar from "./ReactionBar";
 import PostPollDisplay from "./PostPollDisplay";
+import RepostDialog from "./RepostDialog";
+import EmbeddedRepost from "./EmbeddedRepost";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
@@ -70,16 +72,17 @@ const PostCard = ({ post: legacyPost, dbPost, index, isBookmarked = false, onTog
   
   if (!post) return null;
 
-  return <PostCardInner post={post} postId={dbPost?.id || post.id} authorUserId={dbPost?.user_id} authorUsername={dbPost?.author_username} index={index} isBookmarked={isBookmarked} onToggleBookmark={onToggleBookmark} />;
+  return <PostCardInner post={post} postId={dbPost?.id || post.id} authorUserId={dbPost?.user_id} authorUsername={dbPost?.author_username} repostOf={dbPost?.repost_of || null} repostComment={dbPost?.repost_comment || null} index={index} isBookmarked={isBookmarked} onToggleBookmark={onToggleBookmark} />;
 };
 
-const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBookmarked, onToggleBookmark }: { post: PostData; postId: string; authorUserId?: string; authorUsername?: string; index: number; isBookmarked: boolean; onToggleBookmark?: (id: string) => void }) => {
+const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, repostComment, index, isBookmarked, onToggleBookmark }: { post: PostData; postId: string; authorUserId?: string; authorUsername?: string; repostOf?: string | null; repostComment?: string | null; index: number; isBookmarked: boolean; onToggleBookmark?: (id: string) => void }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [votes, setVotes] = useState(post.upvotes);
   const [voted, setVoted] = useState<"up" | "down" | null>(null);
   const [deleted, setDeleted] = useState(false);
   const [shareCount, setShareCount] = useState(post.shares);
+  const [repostOpen, setRepostOpen] = useState(false);
 
   const isOwnPost = !!(user && authorUserId && user.id === authorUserId);
 
@@ -220,6 +223,9 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBo
           )}
         </div>
 
+        {/* Embedded Repost */}
+        {repostOf && <EmbeddedRepost originalPostId={repostOf} />}
+
         {/* Poll Display */}
         <PostPollDisplay postId={postId} />
 
@@ -265,6 +271,10 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBo
             <span className="text-xs font-display">{shareCount}</span>
           </Button>
 
+          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2" onClick={(e) => { e.stopPropagation(); setRepostOpen(true); }}>
+            <Repeat2 className="h-4 w-4" />
+          </Button>
+
           <div className="flex-1" />
 
           <button
@@ -278,6 +288,21 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, index, isBo
           </button>
         </div>
       </div>
+
+      <RepostDialog
+        open={repostOpen}
+        onOpenChange={setRepostOpen}
+        originalPost={{
+          id: postId,
+          title: post.title,
+          content: post.content,
+          author: post.author,
+          authorAvatar: post.authorAvatar,
+          isVerified: post.isVerified,
+          group: post.group,
+          groupLocality: post.groupLocality,
+        }}
+      />
     </motion.article>
   );
 };

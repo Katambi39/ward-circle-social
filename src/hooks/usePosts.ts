@@ -16,6 +16,8 @@ export interface DbPost {
   share_count: number;
   group_id: string | null;
   created_at: string;
+  repost_of: string | null;
+  repost_comment: string | null;
   // Joined data
   author_name: string;
   author_username: string;
@@ -90,6 +92,8 @@ export function usePosts() {
         author_verified: profile?.verification_status === "verified",
         group_name: p.groups?.name || null,
         group_location: p.groups?.location || null,
+        repost_of: p.repost_of || null,
+        repost_comment: p.repost_comment || null,
       };
     });
 
@@ -158,6 +162,8 @@ export function usePosts() {
               author_verified: profile?.verification_status === "verified",
               group_name: p.groups?.name || null,
               group_location: p.groups?.location || null,
+              repost_of: p.repost_of || null,
+              repost_comment: p.repost_comment || null,
             };
             setPosts((prev) => [newPost, ...prev]);
           }
