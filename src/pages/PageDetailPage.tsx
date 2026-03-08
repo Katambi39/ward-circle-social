@@ -387,6 +387,11 @@ const PageDetailPage = () => {
                   )}
                 </div>
               </div>
+              {isOwner && (
+                <Button onClick={openEditDialog} variant="outline" size="sm" className="rounded-full font-display gap-1.5">
+                  <Pencil className="h-3.5 w-3.5" /> Edit Page
+                </Button>
+              )}
               {!isOwner && (
                 <div className="flex items-center gap-2">
                   <StartChatButton targetUserId={page.owner_id} />
