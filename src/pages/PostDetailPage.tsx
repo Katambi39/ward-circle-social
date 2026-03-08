@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { moderateContent } from "@/lib/moderation";
+import { isExplicitLink } from "@/components/feed/LinkSafety";
 import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/layout/AppLayout";
 import PostCard from "@/components/feed/PostCard";
@@ -102,6 +103,15 @@ const PostDetailPage = () => {
   const handleSubmitComment = async () => {
     if (!user || !newComment.trim()) return;
     setSubmitting(true);
+
+    // Check for explicit links
+    const urlsInComment = newComment.match(/https?:\/\/[^\s)]+/gi) || [];
+    if (urlsInComment.some(u => isExplicitLink(u))) {
+      const { toast } = await import("@/components/ui/sonner");
+      toast.error("Explicit or adult content links are not allowed.");
+      setSubmitting(false);
+      return;
+    }
 
     // Moderate comment content
     const modResult = await moderateContent(newComment.trim(), "comment");

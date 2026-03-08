@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
+import { isExplicitLink } from "@/components/feed/LinkSafety";
 import StoryFontPicker from "./StoryFontPicker";
 import StoryBackgroundPicker from "./StoryBackgroundPicker";
 import StoryVisibilityToggle from "./StoryVisibilityToggle";
@@ -35,6 +36,14 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
       toast.error("Please enter some text");
       return;
     }
+
+    // Check for explicit links in story text
+    const urlsInText = text.match(/https?:\/\/[^\s)]+/gi) || [];
+    if (urlsInText.some(u => isExplicitLink(u))) {
+      toast.error("Explicit or adult content links are not allowed.");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
