@@ -69,13 +69,10 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
 
   // Use actual audio duration if detected, otherwise fall back to metadata
   // Default to 30s if duration is unknown/zero (common with web previews)
-  const effectiveDuration = actualDuration ?? (durationSeconds > 0 ? durationSeconds : 30);
+  const rawDuration = actualDuration ?? (durationSeconds > 0 ? durationSeconds : 30);
+  // Ensure minimum usable duration so the picker always shows
+  const effectiveDuration = Math.max(rawDuration, 10);
   const maxStart = Math.max(0, effectiveDuration - 5);
-
-  // Don't show if audio is genuinely too short to adjust (only when we have a confirmed duration)
-  if (actualDuration !== null && actualDuration <= 6) {
-    return null;
-  }
 
   const handleDecrement = () => {
     const newVal = Math.max(0, startTime - 5);
