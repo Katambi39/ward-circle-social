@@ -24,6 +24,7 @@ interface WebTrack {
   preview_url: string;
   cover_url: string | null;
   duration_seconds: number;
+  lyrics: { time: number; text: string }[];
 }
 
 interface MusicPickerProps {
