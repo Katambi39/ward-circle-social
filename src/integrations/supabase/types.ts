@@ -502,6 +502,42 @@ export type Database = {
         }
         Relationships: []
       }
+      music_tracks: {
+        Row: {
+          artist: string
+          audio_url: string
+          cover_url: string | null
+          created_at: string
+          duration_seconds: number
+          genre: string
+          id: string
+          lyrics: Json | null
+          title: string
+        }
+        Insert: {
+          artist: string
+          audio_url: string
+          cover_url?: string | null
+          created_at?: string
+          duration_seconds?: number
+          genre?: string
+          id?: string
+          lyrics?: Json | null
+          title: string
+        }
+        Update: {
+          artist?: string
+          audio_url?: string
+          cover_url?: string | null
+          created_at?: string
+          duration_seconds?: number
+          genre?: string
+          id?: string
+          lyrics?: Json | null
+          title?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -1031,6 +1067,8 @@ export type Database = {
           id: string
           media_type: string
           media_url: string
+          music_start_time: number | null
+          music_track_id: string | null
           user_id: string
           view_count: number
         }
@@ -1041,6 +1079,8 @@ export type Database = {
           id?: string
           media_type?: string
           media_url: string
+          music_start_time?: number | null
+          music_track_id?: string | null
           user_id: string
           view_count?: number
         }
@@ -1051,10 +1091,20 @@ export type Database = {
           id?: string
           media_type?: string
           media_url?: string
+          music_start_time?: number | null
+          music_track_id?: string | null
           user_id?: string
           view_count?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "stories_music_track_id_fkey"
+            columns: ["music_track_id"]
+            isOneToOne: false
+            referencedRelation: "music_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       story_views: {
         Row: {
