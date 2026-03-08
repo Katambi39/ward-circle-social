@@ -36,6 +36,11 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
   const [visibility, setVisibility] = useState<"public" | "friends_only">("public");
   const [submitting, setSubmitting] = useState(false);
 
+  const handleTrackSelect = (track: any | null) => {
+    setSelectedTrack(track);
+    if (track) setShowMusic(false);
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
@@ -177,11 +182,6 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
             </div>
           )}
 
-          {/* Music picker */}
-          {showMusic && (
-            <MusicPicker selectedTrack={selectedTrack} onSelect={setSelectedTrack} />
-          )}
-
           {/* Selected track badge */}
           {selectedTrack && !showMusic && (
             <div className="flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5">
@@ -190,7 +190,7 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
             </div>
           )}
 
-          {/* Music start time picker */}
+          {/* Music start time picker (kept above picker so it doesn't get lost off-screen) */}
           {selectedTrack && (
             <MusicStartTimePicker
               audioUrl={selectedTrack.audio_url}
@@ -198,6 +198,11 @@ const PhotoStoryCreator = ({ onBack, onCreated, onClose }: PhotoStoryCreatorProp
               startTime={musicStartTime}
               onStartTimeChange={setMusicStartTime}
             />
+          )}
+
+          {/* Music picker */}
+          {showMusic && (
+            <MusicPicker selectedTrack={selectedTrack} onSelect={handleTrackSelect} />
           )}
 
 

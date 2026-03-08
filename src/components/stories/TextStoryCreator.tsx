@@ -33,6 +33,11 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
   
   const [submitting, setSubmitting] = useState(false);
 
+  const handleTrackSelect = (track: any | null) => {
+    setSelectedTrack(track);
+    if (track) setShowMusic(false);
+  };
+
   const textColor = background.id.includes("white") || background.id.includes("warm") ? "#000000" : "#ffffff";
 
   const handleSubmit = async () => {
@@ -195,10 +200,7 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
         <StoryBackgroundPicker selected={background} onSelect={setBackground} />
       </div>
 
-      {/* Music */}
-      {showMusic && (
-        <MusicPicker selectedTrack={selectedTrack} onSelect={setSelectedTrack} />
-      )}
+      {/* Selected track badge */}
       {selectedTrack && !showMusic && (
         <div className="flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5">
           <Music className="h-3.5 w-3.5 text-primary" />
@@ -206,7 +208,7 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
         </div>
       )}
 
-      {/* Music start time picker */}
+      {/* Music start time picker (kept above picker so it doesn't get lost off-screen) */}
       {selectedTrack && (
         <MusicStartTimePicker
           audioUrl={selectedTrack.audio_url}
@@ -214,6 +216,11 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
           startTime={musicStartTime}
           onStartTimeChange={setMusicStartTime}
         />
+      )}
+
+      {/* Music */}
+      {showMusic && (
+        <MusicPicker selectedTrack={selectedTrack} onSelect={handleTrackSelect} />
       )}
 
 
