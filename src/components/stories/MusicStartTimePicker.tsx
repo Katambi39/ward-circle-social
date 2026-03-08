@@ -24,24 +24,25 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
   // Detect actual audio file duration (preview may be ~30s, not full track)
   useEffect(() => {
     const audio = new Audio(audioUrl);
+    let cancelled = false;
     const onLoaded = () => {
-      if (audio.duration && isFinite(audio.duration)) {
+      if (cancelled) return;
+      if (audio.duration && isFinite(audio.duration) && audio.duration > 0) {
         setActualDuration(audio.duration);
-        // Clamp startTime if it exceeds actual duration
-        if (startTime > Math.max(0, audio.duration - 5)) {
-          onStartTimeChange(0);
-        }
       }
     };
     audio.addEventListener("loadedmetadata", onLoaded);
-    // Also try canplaythrough for reliability
     audio.addEventListener("canplaythrough", onLoaded);
+    // Also handle durationchange for streams that update duration progressively
+    audio.addEventListener("durationchange", onLoaded);
     audio.preload = "metadata";
     audio.load();
 
     return () => {
+      cancelled = true;
       audio.removeEventListener("loadedmetadata", onLoaded);
       audio.removeEventListener("canplaythrough", onLoaded);
+      audio.removeEventListener("durationchange", onLoaded);
       audio.src = "";
     };
   }, [audioUrl]);
@@ -67,11 +68,12 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
   };
 
   // Use actual audio duration if detected, otherwise fall back to metadata
-  const effectiveDuration = actualDuration ?? durationSeconds;
+  // Default to 30s if duration is unknown/zero (common with web previews)
+  const effectiveDuration = actualDuration ?? (durationSeconds > 0 ? durationSeconds : 30);
   const maxStart = Math.max(0, effectiveDuration - 5);
 
-  // Don't show if audio is too short to adjust
-  if (effectiveDuration <= 6) {
+  // Don't show if audio is genuinely too short to adjust (only when we have a confirmed duration)
+  if (actualDuration !== null && actualDuration <= 6) {
     return null;
   }
 
