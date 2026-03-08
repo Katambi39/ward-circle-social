@@ -335,14 +335,8 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
           </div>
         </div>
 
-        {/* Title */}
-        <Input
-          placeholder="Post title *"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="font-display font-semibold"
-          maxLength={200}
-        />
+
+        {/* Content */}
 
         {/* Content */}
         <Textarea
