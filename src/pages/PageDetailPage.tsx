@@ -98,6 +98,12 @@ const PageDetailPage = () => {
   const [editCounty, setEditCounty] = useState("");
   const [editConstituency, setEditConstituency] = useState("");
   const [savingEdit, setSavingEdit] = useState(false);
+  const [editAvatarFile, setEditAvatarFile] = useState<File | null>(null);
+  const [editAvatarPreview, setEditAvatarPreview] = useState<string | null>(null);
+  const [editCoverFile, setEditCoverFile] = useState<File | null>(null);
+  const [editCoverPreview, setEditCoverPreview] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
 
   const openEditDialog = () => {
     if (!page) return;
@@ -108,29 +114,65 @@ const PageDetailPage = () => {
     setEditWebsite(page.website || "");
     setEditCounty(page.county || "");
     setEditConstituency(page.constituency || "");
+    setEditAvatarFile(null);
+    setEditAvatarPreview(page.avatar_url || null);
+    setEditCoverFile(null);
+    setEditCoverPreview(page.cover_url || null);
     setEditDialogOpen(true);
   };
 
   const handleSaveEdit = async () => {
     if (!page || !editName.trim()) return;
     setSavingEdit(true);
-    const { error } = await supabase.from("pages").update({
-      name: editName.trim(),
-      description: editDescription.trim() || null,
-      category: editCategory,
-      phone: editPhone.trim() || null,
-      website: editWebsite.trim() || null,
-      county: editCounty.trim() || null,
-      constituency: editConstituency.trim() || null,
-    }).eq("id", page.id);
-    setSavingEdit(false);
-    if (error) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-      return;
+
+    let avatarUrl = page.avatar_url;
+    let coverUrl = page.cover_url;
+
+    try {
+      // Upload avatar if changed
+      if (editAvatarFile) {
+        const ext = editAvatarFile.name.split(".").pop();
+        const path = `${page.id}/avatar_${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("avatars").upload(path, editAvatarFile);
+        if (upErr) throw upErr;
+        const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+        avatarUrl = urlData.publicUrl;
+      }
+
+      // Upload cover if changed
+      if (editCoverFile) {
+        const ext = editCoverFile.name.split(".").pop();
+        const path = `${page.id}/cover_${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage.from("avatars").upload(path, editCoverFile);
+        if (upErr) throw upErr;
+        const { data: urlData } = supabase.storage.from("avatars").getPublicUrl(path);
+        coverUrl = urlData.publicUrl;
+      }
+
+      const { error } = await supabase.from("pages").update({
+        name: editName.trim(),
+        description: editDescription.trim() || null,
+        category: editCategory,
+        phone: editPhone.trim() || null,
+        website: editWebsite.trim() || null,
+        county: editCounty.trim() || null,
+        constituency: editConstituency.trim() || null,
+        avatar_url: avatarUrl,
+        cover_url: coverUrl,
+      }).eq("id", page.id);
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+        setSavingEdit(false);
+        return;
+      }
+      toast({ title: "Page updated!" });
+      setEditDialogOpen(false);
+      fetchAll();
+    } catch (err: any) {
+      toast({ title: "Upload error", description: err.message, variant: "destructive" });
+    } finally {
+      setSavingEdit(false);
     }
-    toast({ title: "Page updated!" });
-    setEditDialogOpen(false);
-    fetchAll();
   };
 
   const viewRecorded = useRef(false);
@@ -725,6 +767,60 @@ const PageDetailPage = () => {
               <DialogDescription>Update your page details below.</DialogDescription>
             </DialogHeader>
             <div className="space-y-4 py-2">
+              {/* Cover image */}
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Cover Image</Label>
+                <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) { setEditCoverFile(f); setEditCoverPreview(URL.createObjectURL(f)); }
+                }} />
+                <div
+                  onClick={() => coverInputRef.current?.click()}
+                  className="relative h-28 rounded-xl overflow-hidden border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors bg-muted/30 flex items-center justify-center"
+                >
+                  {editCoverPreview ? (
+                    <img src={editCoverPreview} alt="Cover" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-1 text-muted-foreground">
+                      <ImagePlus className="h-6 w-6" />
+                      <span className="text-[10px] font-display">Tap to add cover</span>
+                    </div>
+                  )}
+                  {editCoverPreview && (
+                    <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                      <ImagePlus className="h-6 w-6 text-white" />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Avatar */}
+              <div className="space-y-1.5">
+                <Label className="font-display text-xs">Avatar</Label>
+                <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) { setEditAvatarFile(f); setEditAvatarPreview(URL.createObjectURL(f)); }
+                }} />
+                <div className="flex items-center gap-3">
+                  <div
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="relative h-16 w-16 rounded-full overflow-hidden border-2 border-dashed border-border hover:border-primary cursor-pointer transition-colors bg-muted/30 flex items-center justify-center shrink-0"
+                  >
+                    {editAvatarPreview ? (
+                      <img src={editAvatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      <ImagePlus className="h-5 w-5 text-muted-foreground" />
+                    )}
+                    {editAvatarPreview && (
+                      <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity rounded-full">
+                        <ImagePlus className="h-4 w-4 text-white" />
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[10px] text-muted-foreground font-display">Tap to change avatar</p>
+                </div>
+              </div>
+
               <div className="space-y-1.5">
                 <Label className="font-display text-xs">Page Name *</Label>
                 <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Page name" className="rounded-xl" />
