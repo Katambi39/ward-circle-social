@@ -17,6 +17,7 @@ interface StoryItem {
   expires_at: string;
   music_track_id?: string | null;
   music_start_time?: number;
+  lyrics_offset?: number;
 }
 
 interface MusicTrackData {
