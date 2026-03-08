@@ -45,6 +45,7 @@ const typeLabels: Record<string, string> = {
 const GroupCard = ({ group, onJoined }: GroupCardProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [joining, setJoining] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
