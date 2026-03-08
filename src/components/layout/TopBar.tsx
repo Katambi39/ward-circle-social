@@ -70,11 +70,11 @@ const TopBar = () => {
           <div className="hidden sm:block">
             <ThemeToggle />
           </div>
-          <Button size="sm" className="rounded-full gradient-kenya text-primary-foreground font-display gap-1.5 hidden md:flex">
+          <Button size="sm" onClick={() => navigate("/")} className="rounded-full gradient-kenya text-primary-foreground font-display gap-1.5 hidden md:flex">
             <Plus className="h-4 w-4" />
             Create
           </Button>
-          <Button size="icon" className="rounded-full gradient-kenya text-primary-foreground md:hidden h-8 w-8">
+          <Button size="icon" onClick={() => navigate("/")} className="rounded-full gradient-kenya text-primary-foreground md:hidden h-8 w-8">
             <Plus className="h-4 w-4" />
           </Button>
 
