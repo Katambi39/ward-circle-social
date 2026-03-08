@@ -85,6 +85,15 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
   const [deleted, setDeleted] = useState(false);
   const [shareCount, setShareCount] = useState(post.shares);
   const [repostOpen, setRepostOpen] = useState(false);
+  const [repostCount, setRepostCount] = useState(0);
+
+  useEffect(() => {
+    supabase
+      .from("posts")
+      .select("id", { count: "exact", head: true })
+      .eq("repost_of", postId)
+      .then(({ count }) => setRepostCount(count || 0));
+  }, [postId]);
 
   const isOwnPost = !!(user && authorUserId && user.id === authorUserId);
 
