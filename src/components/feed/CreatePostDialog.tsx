@@ -66,7 +66,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId }: C
   const [linkUrl, setLinkUrl] = useState("");
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(globalAnon);
-  const [selectedGroup, setSelectedGroup] = useState<string>("none");
+  const [selectedGroup, setSelectedGroup] = useState<string>(groupId || "none");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [videoFile, setVideoFile] = useState<File | null>(null);
