@@ -48,6 +48,7 @@ const App = () => (
               <Route path="/marketplace" element={<ProtectedRoute><MarketplacePage /></ProtectedRoute>} />
               <Route path="/marketplace/:id" element={<ProtectedRoute><ListingDetailPage /></ProtectedRoute>} />
               <Route path="/wallet" element={<ProtectedRoute><WalletPage /></ProtectedRoute>} />
+              <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
