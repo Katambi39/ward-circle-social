@@ -186,7 +186,7 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
   });
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 overflow-x-hidden">
       <div className="flex items-center gap-2">
         <Music className="h-4 w-4 text-primary" />
         <span className="text-sm font-display font-semibold">Add Music</span>
