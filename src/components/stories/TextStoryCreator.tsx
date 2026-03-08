@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
+import { isExplicitLink } from "@/components/feed/LinkSafety";
 import StoryFontPicker from "./StoryFontPicker";
 import StoryBackgroundPicker from "./StoryBackgroundPicker";
 import StoryVisibilityToggle from "./StoryVisibilityToggle";
