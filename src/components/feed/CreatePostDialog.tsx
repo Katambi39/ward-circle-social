@@ -119,6 +119,10 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
         .map((gm: any) => gm.groups)
         .filter(Boolean)
         .map((g: any) => ({ id: g.id, name: g.name }));
+      // If groupId is provided but not in fetched list, add it
+      if (groupId && groupName && !mapped.find((g: GroupOption) => g.id === groupId)) {
+        mapped.unshift({ id: groupId, name: groupName });
+      }
       setGroups(mapped);
     }
     setLoadingGroups(false);
