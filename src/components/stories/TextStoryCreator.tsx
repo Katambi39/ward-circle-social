@@ -143,7 +143,7 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
   };
 
   return (
-    <div className="space-y-3">
+    <div className="relative space-y-3 pb-14">
       {/* Back button */}
       <button onClick={onBack} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground font-display">
         <ArrowLeft className="h-3.5 w-3.5" /> Back
@@ -200,29 +200,10 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
         <StoryBackgroundPicker selected={background} onSelect={setBackground} />
       </div>
 
-      {/* Selected track badge */}
-      {selectedTrack && !showMusic && (
-        <div className="flex items-center gap-2 bg-primary/10 rounded-full px-3 py-1.5">
-          <Music className="h-3.5 w-3.5 text-primary" />
-          <span className="text-xs font-display truncate">{selectedTrack.title} – {selectedTrack.artist}</span>
-        </div>
-      )}
-
-      {/* Music start time picker (kept above picker so it doesn't get lost off-screen) */}
-      {selectedTrack && (
-        <MusicStartTimePicker
-          audioUrl={selectedTrack.audio_url}
-          durationSeconds={selectedTrack.duration_seconds || 30}
-          startTime={musicStartTime}
-          onStartTimeChange={setMusicStartTime}
-        />
-      )}
-
-      {/* Music */}
+      {/* Music picker list */}
       {showMusic && (
         <MusicPicker selectedTrack={selectedTrack} onSelect={handleTrackSelect} />
       )}
-
 
       {/* Visibility */}
       <StoryVisibilityToggle visibility={visibility} onChange={setVisibility} />
@@ -247,6 +228,16 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
           Share Story
         </Button>
       </div>
+
+      {/* Mini floating music player */}
+      {selectedTrack && (
+        <MiniMusicPlayer
+          track={selectedTrack}
+          startTime={musicStartTime}
+          onStartTimeChange={setMusicStartTime}
+          onRemoveTrack={() => { setSelectedTrack(null); setMusicStartTime(0); }}
+        />
+      )}
     </div>
   );
 };
