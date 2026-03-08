@@ -554,7 +554,11 @@ const MessagesPage = () => {
                 {mediaFile && !mediaPreview && (
                   <div className="px-4 pt-3 pb-1">
                     <div className="relative inline-flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
+                      <FileText className="h-4 w-4 text-primary shrink-0" />
                       <span className="text-xs text-foreground truncate max-w-[200px]">{mediaFile.name}</span>
+                      <span className="text-[10px] text-muted-foreground shrink-0">
+                        {(mediaFile.size / 1024).toFixed(0)}KB
+                      </span>
                       <button onClick={clearMedia} className="text-muted-foreground hover:text-destructive">
                         <X className="h-3.5 w-3.5" />
                       </button>
