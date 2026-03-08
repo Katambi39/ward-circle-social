@@ -280,12 +280,22 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
               {formatDistanceToNow(new Date(currentStory.created_at), { addSuffix: true })}
             </p>
           </div>
-          <button
-            onClick={() => setPaused((p) => !p)}
-            className="text-white/70 hover:text-white"
-          >
-            {paused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
-          </button>
+          <div className="flex items-center gap-1">
+            {user && currentGroup.user_id === user.id && (
+              <button
+                onClick={handleDelete}
+                className="text-white/70 hover:text-red-400 transition-colors"
+              >
+                <Trash2 className="h-5 w-5" />
+              </button>
+            )}
+            <button
+              onClick={() => setPaused((p) => !p)}
+              className="text-white/70 hover:text-white"
+            >
+              {paused ? <Play className="h-5 w-5" /> : <Pause className="h-5 w-5" />}
+            </button>
+          </div>
         </div>
 
         {/* Media */}
