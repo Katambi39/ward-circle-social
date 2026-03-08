@@ -62,6 +62,7 @@ const MarketplacePage = () => {
   const [mainTab, setMainTab] = useState("browse");
   const [createOpen, setCreateOpen] = useState(false);
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [favListings, setFavListings] = useState<Listing[]>([]);
 
   // Create form
   const [title, setTitle] = useState("");
