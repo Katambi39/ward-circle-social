@@ -36,6 +36,14 @@ const TextStoryCreator = ({ onBack, onCreated, onClose }: TextStoryCreatorProps)
       toast.error("Please enter some text");
       return;
     }
+
+    // Check for explicit links in story text
+    const urlsInText = text.match(/https?:\/\/[^\s)]+/gi) || [];
+    if (urlsInText.some(u => isExplicitLink(u))) {
+      toast.error("Explicit or adult content links are not allowed.");
+      return;
+    }
+
     setSubmitting(true);
 
     try {

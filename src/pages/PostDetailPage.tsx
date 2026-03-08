@@ -104,6 +104,15 @@ const PostDetailPage = () => {
     if (!user || !newComment.trim()) return;
     setSubmitting(true);
 
+    // Check for explicit links
+    const urlsInComment = newComment.match(/https?:\/\/[^\s)]+/gi) || [];
+    if (urlsInComment.some(u => isExplicitLink(u))) {
+      const { toast } = await import("@/components/ui/sonner");
+      toast.error("Explicit or adult content links are not allowed.");
+      setSubmitting(false);
+      return;
+    }
+
     // Moderate comment content
     const modResult = await moderateContent(newComment.trim(), "comment");
     if (modResult.should_block) {
