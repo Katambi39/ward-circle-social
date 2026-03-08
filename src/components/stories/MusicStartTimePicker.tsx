@@ -71,7 +71,9 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
   const togglePreview = () => {
     if (playing) {
       audioRef.current?.pause();
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       setPlaying(false);
+      setPlaybackPos(null);
       return;
     }
     audioRef.current?.pause();
@@ -79,9 +81,10 @@ const MusicStartTimePicker = ({ audioUrl, durationSeconds, startTime, onStartTim
     audio.currentTime = startTime;
     audio.volume = 0.5;
     audio.play().catch(() => {});
-    audio.onended = () => setPlaying(false);
+    audio.onended = () => { setPlaying(false); setPlaybackPos(null); };
     audioRef.current = audio;
     setPlaying(true);
+    startTrackingPlayback(audio);
   };
 
   // Use actual audio duration if detected, otherwise fall back to metadata
