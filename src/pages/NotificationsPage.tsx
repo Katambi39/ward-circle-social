@@ -24,6 +24,8 @@ const typeIcons: Record<string, React.ReactNode> = {
   upvote: <ArrowBigUp className="h-5 w-5 text-secondary" />,
   group_join: <Users className="h-5 w-5 text-primary" />,
   verification: <ShieldCheck className="h-5 w-5 text-emerald-500" />,
+  story_reaction: <Heart className="h-5 w-5 text-rose-500" />,
+  story_reply: <Reply className="h-5 w-5 text-primary" />,
 };
 
 const NotificationsPage = () => {

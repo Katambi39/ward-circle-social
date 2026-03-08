@@ -27,6 +27,8 @@ const typeIcons: Record<string, React.ReactNode> = {
   comment: <MessageCircle className="h-4 w-4 text-primary" />,
   upvote: <ArrowBigUp className="h-4 w-4 text-secondary" />,
   group_join: <Users className="h-4 w-4 text-primary" />,
+  story_reaction: <Heart className="h-4 w-4 text-rose-500" />,
+  story_reply: <Reply className="h-4 w-4 text-primary" />,
 };
 
 const NotificationsDropdown = () => {
