@@ -189,8 +189,8 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default" }: CreatePost
 
   const handleSubmit = async () => {
     if (!user) return;
-    if (!title.trim()) {
-      toast.error("Please add a title");
+    if (!content.trim() && !imageFile && !videoFile && !showPoll) {
+      toast.error("Please add some content");
       return;
     }
 
