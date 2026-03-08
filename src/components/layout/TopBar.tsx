@@ -49,7 +49,7 @@ const TopBar = () => {
         <button onClick={() => navigate("/")} className="flex items-center gap-2 shrink-0">
           <img src={conectLogo} alt="Conect" className="h-7 w-7 sm:h-8 sm:w-8" />
           <span className="font-display text-lg sm:text-xl font-bold">
-            <span className="text-destructive text-2xl sm:text-[1.65rem] font-extrabold italic">C</span>
+            <span className="bg-gradient-to-b from-[hsl(145,100%,20%)] via-[hsl(0,0%,5%)] to-[hsl(0,80%,40%)] bg-clip-text text-transparent text-2xl sm:text-[1.65rem] font-extrabold italic">C</span>
             <span className="text-primary">onect</span>
           </span>
         </button>
