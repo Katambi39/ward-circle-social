@@ -417,6 +417,11 @@ const MusicPicker = ({ selectedTrack, onSelect }: MusicPickerProps) => {
                     {!wt.preview_url && (
                       <span className="text-[9px] text-muted-foreground/60 font-display">No preview</span>
                     )}
+                    {wt.source && (
+                      <span className="text-[9px] bg-muted text-muted-foreground rounded-full px-1.5 py-0.5 font-display shrink-0">
+                        {wt.source === 'itunes' ? '🍎' : '🎵'}
+                      </span>
+                    )}
                     {wt.lyrics && wt.lyrics.length > 0 && (
                       <span className="text-[9px] bg-primary/10 text-primary rounded-full px-1.5 py-0.5 font-display shrink-0">🎤 Lyrics</span>
                     )}
