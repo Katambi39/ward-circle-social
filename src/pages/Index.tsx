@@ -75,6 +75,7 @@ const Index = () => {
           </div>
         )}
 
+        <StoryBar />
         <CreatePostBar />
 
         {loading ? (
