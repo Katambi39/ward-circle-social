@@ -13,7 +13,7 @@ import ListingReviews from "@/components/marketplace/ListingReviews";
 import EditListingDialog from "@/components/marketplace/EditListingDialog";
 import {
   ArrowLeft, MapPin, Heart, Eye, Shield, CheckCircle2,
-  ShoppingBag, Tag, Clock, ShoppingCart, AlertCircle,
+  ShoppingBag, Tag, Clock, ShoppingCart, AlertCircle, Trash2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { format, formatDistanceToNow } from "date-fns";
