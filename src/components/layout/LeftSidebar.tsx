@@ -1,5 +1,6 @@
 import { Home, Users, Compass, TrendingUp, Shield, UserCircle, Flame, MapPin, Building2, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface SidebarItemProps {
   icon: React.ReactNode;
@@ -30,13 +31,16 @@ const SidebarItem = ({ icon, label, active, badge, onClick }: SidebarItemProps) 
 );
 
 const LeftSidebar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   return (
     <aside className="w-60 shrink-0 border-r border-border bg-card h-[calc(100vh-3.5rem)] sticky top-14 overflow-y-auto p-3">
       <nav className="space-y-1">
-        <SidebarItem icon={<Home className="h-5 w-5" />} label="Home" active />
+        <SidebarItem icon={<Home className="h-5 w-5" />} label="Home" active={location.pathname === "/"} onClick={() => navigate("/")} />
         <SidebarItem icon={<Compass className="h-5 w-5" />} label="Discover" />
         <SidebarItem icon={<TrendingUp className="h-5 w-5" />} label="Trending" badge="Hot" />
-        <SidebarItem icon={<Users className="h-5 w-5" />} label="My Groups" />
+        <SidebarItem icon={<Users className="h-5 w-5" />} label="Groups" active={location.pathname === "/groups"} onClick={() => navigate("/groups")} />
         <SidebarItem icon={<UserCircle className="h-5 w-5" />} label="Pages" />
       </nav>
 
