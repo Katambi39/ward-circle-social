@@ -328,6 +328,9 @@ const ListingDetailPage = () => {
             {!isOwner && <StartChatButton targetUserId={seller.user_id} variant="ghost" size="sm" label="Message" />}
           </motion.div>
         )}
+
+        {/* Reviews */}
+        <ListingReviews listingId={listing.id} sellerId={listing.seller_id} isSold={isSold} />
       </div>
     </AppLayout>
   );
