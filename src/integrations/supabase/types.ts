@@ -1387,6 +1387,7 @@ export type Database = {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
+      is_verified: { Args: { _user_id: string }; Returns: boolean }
       process_purchase: {
         Args: {
           _amount: number
