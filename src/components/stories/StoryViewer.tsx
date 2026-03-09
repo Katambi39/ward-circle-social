@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { X, ChevronLeft, ChevronRight, Eye, Pause, Play, Music, Trash2, ChevronUp, Send, Loader2 } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Eye, Pause, Play, Music, Trash2, ChevronUp, Send, Loader2, VolumeX } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -57,6 +57,7 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
   const startTimeRef = useRef(0);
   const elapsedRef = useRef(0);
   const musicAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [musicMuted, setMusicMuted] = useState(false);
   const [musicTrack, setMusicTrack] = useState<MusicTrackData | null>(null);
   const [musicTime, setMusicTime] = useState(0);
   const [viewCount, setViewCount] = useState(0);
@@ -141,13 +142,12 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
 
   // Play/pause music
   useEffect(() => {
-    if (!musicTrack) return;
+    if (!musicTrack) {
+      setMusicMuted(false);
+      return;
+    }
     musicAudioRef.current?.pause();
-    const audio = new Audio();
-    // Unlock audio element immediately for autoplay policy
-    audio.play().catch(() => {});
-    audio.preload = "auto";
-    audio.src = musicTrack.audio_url;
+    const audio = new Audio(musicTrack.audio_url);
     audio.currentTime = currentStory?.music_start_time || 0;
     audio.loop = true;
     audio.volume = 0.6;
@@ -157,16 +157,15 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
     audio.addEventListener("timeupdate", updateTime);
 
     if (!paused) {
-      audio.play().catch(() => {
-        // If autoplay fails, try playing on next user interaction
-        const unlock = () => {
-          audio.play().catch(() => {});
-          document.removeEventListener("click", unlock);
-          document.removeEventListener("touchstart", unlock);
-        };
-        document.addEventListener("click", unlock, { once: true });
-        document.addEventListener("touchstart", unlock, { once: true });
-      });
+      const playPromise = audio.play();
+      if (playPromise) {
+        playPromise.then(() => {
+          setMusicMuted(false);
+        }).catch(() => {
+          // Autoplay blocked - show unmute indicator
+          setMusicMuted(true);
+        });
+      }
     }
 
     return () => {
@@ -377,6 +376,10 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
         <div
           className="w-full h-full rounded-xl overflow-hidden flex items-center justify-center bg-black"
           onClick={(e) => {
+            // If music is muted due to autoplay policy, unmute on first tap
+            if (musicMuted && musicAudioRef.current) {
+              musicAudioRef.current.play().then(() => setMusicMuted(false)).catch(() => {});
+            }
             const rect = e.currentTarget.getBoundingClientRect();
             const x = e.clientX - rect.left;
             if (x < rect.width / 3) goPrev();
@@ -423,6 +426,21 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
             </div>
             <Music className="h-3 w-3 text-white/60 animate-pulse shrink-0" />
           </div>
+        )}
+
+        {/* Tap to unmute overlay */}
+        {musicTrack && musicMuted && (
+          <button
+            onClick={() => {
+              if (musicAudioRef.current) {
+                musicAudioRef.current.play().then(() => setMusicMuted(false)).catch(() => {});
+              }
+            }}
+            className="absolute bottom-32 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 bg-black/60 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 animate-pulse"
+          >
+            <VolumeX className="h-4 w-4 text-white" />
+            <span className="text-xs text-white font-display font-medium">Tap to play music</span>
+          </button>
         )}
 
 
