@@ -263,8 +263,22 @@ const AiChatBox = () => {
 
   const currentSuggestions = mode === "verify" ? VERIFY_SUGGESTIONS : SUGGESTIONS;
 
+  const closeChat = () => {
+    setOpen(false);
+    setMinimized(false);
+  };
+
   return (
     <>
+      {/* Backdrop - click to close */}
+      {open && !minimized && (
+        <div
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px] md:bg-transparent md:backdrop-blur-none"
+          onClick={closeChat}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Floating trigger */}
       {!open && (
         <button
