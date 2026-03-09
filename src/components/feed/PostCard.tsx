@@ -81,6 +81,16 @@ const PostCard = ({ post: legacyPost, dbPost, index, isBookmarked = false, onTog
   return <PostCardInner post={post} postId={dbPost?.id || post.id} authorUserId={dbPost?.user_id} authorUsername={dbPost?.author_username} repostOf={dbPost?.repost_of || null} repostComment={dbPost?.repost_comment || null} index={index} isBookmarked={isBookmarked} onToggleBookmark={onToggleBookmark} />;
 };
 
+type Verdict = "verified" | "misleading" | "false" | "unverified";
+type VerifyResult = { verdict: Verdict; confidence: number; summary: string; details: string; sources_note: string };
+
+const verdictStyles: Record<Verdict, { icon: typeof ShieldCheck; label: string; color: string; bg: string }> = {
+  verified: { icon: ShieldCheck, label: "Verified", color: "text-green-600 dark:text-green-400", bg: "bg-green-500/10 border-green-500/20" },
+  misleading: { icon: ShieldAlert, label: "Misleading", color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/20" },
+  false: { icon: ShieldX, label: "False", color: "text-red-600 dark:text-red-400", bg: "bg-red-500/10 border-red-500/20" },
+  unverified: { icon: ShieldQuestion, label: "Unverified", color: "text-muted-foreground", bg: "bg-muted border-border" },
+};
+
 const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, repostComment, index, isBookmarked, onToggleBookmark }: { post: PostData; postId: string; authorUserId?: string; authorUsername?: string; repostOf?: string | null; repostComment?: string | null; index: number; isBookmarked: boolean; onToggleBookmark?: (id: string) => void }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -90,6 +100,9 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
   const [repostOpen, setRepostOpen] = useState(false);
   const [repostCount, setRepostCount] = useState(0);
   const [reportOpen, setReportOpen] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [verifyResult, setVerifyResult] = useState<VerifyResult | null>(null);
+  const [verifyExpanded, setVerifyExpanded] = useState(false);
 
   useEffect(() => {
     supabase
