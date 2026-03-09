@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SEO from "@/components/SEO";
 import AppLayout from "@/components/layout/AppLayout";
 import { cn } from "@/lib/utils";
 import {
