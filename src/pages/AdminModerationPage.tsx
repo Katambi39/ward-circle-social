@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Flag, CheckCircle2, XCircle, Clock, ArrowLeft, Loader2,
-  AlertTriangle, Trash2, Eye, ShieldAlert, MessageSquare,
+  AlertTriangle, Trash2, Eye, ShieldAlert, MessageSquare, ExternalLink,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
