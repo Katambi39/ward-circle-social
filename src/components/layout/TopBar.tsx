@@ -74,8 +74,13 @@ const TopBar = () => {
         <Button variant="ghost" size="icon" onClick={() => navigate("/search")} className="rounded-full text-muted-foreground sm:hidden h-8 w-8">
           <Search className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="rounded-full text-muted-foreground sm:hidden h-8 w-8">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="rounded-full text-muted-foreground sm:hidden h-8 w-8 relative">
           <MessageCircle className="h-5 w-5" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
         </Button>
 
         {/* Right actions */}
