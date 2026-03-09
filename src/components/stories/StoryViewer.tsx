@@ -142,13 +142,12 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
 
   // Play/pause music
   useEffect(() => {
-    if (!musicTrack) return;
+    if (!musicTrack) {
+      setMusicMuted(false);
+      return;
+    }
     musicAudioRef.current?.pause();
-    const audio = new Audio();
-    // Unlock audio element immediately for autoplay policy
-    audio.play().catch(() => {});
-    audio.preload = "auto";
-    audio.src = musicTrack.audio_url;
+    const audio = new Audio(musicTrack.audio_url);
     audio.currentTime = currentStory?.music_start_time || 0;
     audio.loop = true;
     audio.volume = 0.6;
@@ -158,16 +157,15 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
     audio.addEventListener("timeupdate", updateTime);
 
     if (!paused) {
-      audio.play().catch(() => {
-        // If autoplay fails, try playing on next user interaction
-        const unlock = () => {
-          audio.play().catch(() => {});
-          document.removeEventListener("click", unlock);
-          document.removeEventListener("touchstart", unlock);
-        };
-        document.addEventListener("click", unlock, { once: true });
-        document.addEventListener("touchstart", unlock, { once: true });
-      });
+      const playPromise = audio.play();
+      if (playPromise) {
+        playPromise.then(() => {
+          setMusicMuted(false);
+        }).catch(() => {
+          // Autoplay blocked - show unmute indicator
+          setMusicMuted(true);
+        });
+      }
     }
 
     return () => {
