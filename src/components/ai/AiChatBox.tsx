@@ -164,10 +164,39 @@ const AiChatBox = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [swipeY, setSwipeY] = useState(0);
+  const [swiping, setSwiping] = useState(false);
+  const swipeStartRef = useRef<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const target = e.target as HTMLElement;
+    // Only start swipe from the header area
+    if (target.closest('[data-swipe-handle]')) {
+      swipeStartRef.current = e.touches[0].clientY;
+      setSwiping(true);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (swipeStartRef.current === null) return;
+    const delta = e.touches[0].clientY - swipeStartRef.current;
+    if (delta > 0) {
+      setSwipeY(delta);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (swipeY > 120) {
+      closeChat();
+    }
+    setSwipeY(0);
+    setSwiping(false);
+    swipeStartRef.current = null;
+  };
 
   useEffect(() => {
     if (open && !minimized) {
@@ -294,15 +323,25 @@ const AiChatBox = () => {
       {/* Chat panel */}
       {open && (
         <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
           className={cn(
-            "fixed right-4 z-50 flex flex-col bg-card border border-border rounded-2xl shadow-2xl transition-all duration-200",
+            "fixed right-4 z-50 flex flex-col bg-card border border-border rounded-2xl shadow-2xl",
+            swiping ? "" : "transition-all duration-200",
             minimized
               ? "bottom-20 md:bottom-6 w-72 h-14"
               : "bottom-20 md:bottom-6 w-[340px] sm:w-[380px] h-[560px]"
           )}
+          style={{
+            transform: swipeY > 0 ? `translateY(${swipeY}px)` : undefined,
+            opacity: swipeY > 0 ? Math.max(0, 1 - swipeY / 200) : 1,
+          }}
         >
-          {/* Header */}
-          <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border rounded-t-2xl bg-muted/50 shrink-0">
+          {/* Header - swipe handle */}
+          <div data-swipe-handle className="flex items-center gap-2.5 px-4 py-3 border-b border-border rounded-t-2xl bg-muted/50 shrink-0 cursor-grab active:cursor-grabbing">
+            {/* Swipe indicator for mobile */}
+            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-border md:hidden" />
             <div className="h-7 w-7 rounded-full gradient-kenya flex items-center justify-center shrink-0">
               <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
