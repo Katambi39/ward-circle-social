@@ -190,12 +190,15 @@ const AdminKYCPage = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="w-full grid grid-cols-4 rounded-xl">
+          <TabsList className="w-full grid grid-cols-5 rounded-xl">
             <TabsTrigger value="pending" className="rounded-xl font-display text-xs">
               Pending {counts.pending > 0 && `(${counts.pending})`}
             </TabsTrigger>
             <TabsTrigger value="approved" className="rounded-xl font-display text-xs">Approved</TabsTrigger>
             <TabsTrigger value="rejected" className="rounded-xl font-display text-xs">Rejected</TabsTrigger>
+            <TabsTrigger value="duplicates" className="rounded-xl font-display text-xs">
+              Duplicates {duplicateFlags.filter(f => !f.resolved).length > 0 && `(${duplicateFlags.filter(f => !f.resolved).length})`}
+            </TabsTrigger>
             <TabsTrigger value="all" className="rounded-xl font-display text-xs">All</TabsTrigger>
           </TabsList>
 
