@@ -250,6 +250,9 @@ const SecuritySettings = () => {
             2FA is active. A verification code will be sent to your email each time you sign in.
           </div>
         )}
+        {twoFAEnabled && user && (
+          <RecoveryCodesSection userId={user.id} twoFAEnabled={twoFAEnabled} />
+        )}
       </section>
 
       <Separator />
