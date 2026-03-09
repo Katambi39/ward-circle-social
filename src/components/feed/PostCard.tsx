@@ -152,7 +152,11 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
 
   const handleFactCheck = async () => {
     if (verifying || verifyResult) return;
-    const claim = (post.title + " " + (post.content || "")).trim();
+    // Include link URL in the claim for analysis
+    let claim = (post.title + " " + (post.content || "")).trim();
+    if (post.linkUrl) {
+      claim += `\n\nLink in post: ${post.linkUrl}`;
+    }
     if (!claim) return;
     setVerifying(true);
     try {
