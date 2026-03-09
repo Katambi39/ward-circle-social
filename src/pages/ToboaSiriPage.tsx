@@ -105,7 +105,7 @@ const ToboaSiriPage = () => {
       }
 
       const { error } = await supabase.from("posts").insert({
-        title: title.trim(),
+        title: title.trim() || "Anonymous Post",
         content: content.trim() || null,
         is_anonymous: true,
         user_id: user.id,
