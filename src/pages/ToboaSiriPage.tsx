@@ -271,7 +271,7 @@ const ToboaSiriPage = () => {
                 size="sm"
                 className="rounded-full bg-foreground text-background hover:bg-foreground/90 font-display gap-1.5"
                 onClick={() => createPost.mutate()}
-                disabled={!title.trim() || createPost.isPending || uploading}
+                disabled={(!title.trim() && !content.trim() && files.length === 0) || createPost.isPending || uploading}
               >
                 <Send className="h-3.5 w-3.5" />
                 {uploading ? "Uploading..." : createPost.isPending ? "Posting..." : "Share Anonymously"}
