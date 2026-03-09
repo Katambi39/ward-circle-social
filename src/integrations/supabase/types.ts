@@ -1130,6 +1130,30 @@ export type Database = {
         }
         Relationships: []
       }
+      recovery_codes: {
+        Row: {
+          code: string
+          created_at: string
+          id: string
+          is_used: boolean
+          user_id: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          id?: string
+          is_used?: boolean
+          user_id: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          id?: string
+          is_used?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       stories: {
         Row: {
           caption: string | null

@@ -12,6 +12,7 @@ import {
   Lock, Smartphone, Monitor, Shield, KeyRound, LogOut, AlertCircle,
   Fingerprint, Trash2, Loader2, Plus, CheckCircle,
 } from "lucide-react";
+import RecoveryCodesSection from "./RecoveryCodesSection";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
@@ -248,6 +249,9 @@ const SecuritySettings = () => {
             <CheckCircle className="h-4 w-4 flex-shrink-0" />
             2FA is active. A verification code will be sent to your email each time you sign in.
           </div>
+        )}
+        {twoFAEnabled && user && (
+          <RecoveryCodesSection userId={user.id} twoFAEnabled={twoFAEnabled} />
         )}
       </section>
 
