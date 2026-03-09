@@ -310,9 +310,22 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
                 <span className="text-[10px] text-muted-foreground">{verifyExpanded ? "▲" : "▼"}</span>
               </button>
               {verifyExpanded && (
-                <div className="mt-2 pt-2 border-t border-border/50 text-xs text-foreground/80">
+                <div className="mt-2 pt-2 border-t border-border/50 text-xs text-foreground/80 space-y-2">
                   <p>{verifyResult.details}</p>
-                  <p className="text-[10px] text-muted-foreground mt-1.5 italic">📚 {verifyResult.sources_note}</p>
+                  {verifyResult.link_warnings && verifyResult.link_warnings.length > 0 && (
+                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2">
+                      <p className="font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1.5 mb-1">
+                        <ShieldAlert className="h-3.5 w-3.5" />
+                        Link Warnings
+                      </p>
+                      <ul className="list-disc list-inside text-[11px] space-y-0.5">
+                        {verifyResult.link_warnings.map((w, i) => (
+                          <li key={i}>{w}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-muted-foreground italic">📚 {verifyResult.sources_note}</p>
                 </div>
               )}
             </div>
