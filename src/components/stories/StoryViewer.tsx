@@ -428,6 +428,21 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
           </div>
         )}
 
+        {/* Tap to unmute overlay */}
+        {musicTrack && musicMuted && (
+          <button
+            onClick={() => {
+              if (musicAudioRef.current) {
+                musicAudioRef.current.play().then(() => setMusicMuted(false)).catch(() => {});
+              }
+            }}
+            className="absolute bottom-32 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 bg-black/60 backdrop-blur-md rounded-full px-4 py-2 border border-white/20 animate-pulse"
+          >
+            <VolumeX className="h-4 w-4 text-white" />
+            <span className="text-xs text-white font-display font-medium">Tap to play music</span>
+          </button>
+        )}
+
 
         {/* Caption */}
         {currentStory.caption && (
