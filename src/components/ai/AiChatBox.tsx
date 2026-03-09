@@ -263,8 +263,22 @@ const AiChatBox = () => {
 
   const currentSuggestions = mode === "verify" ? VERIFY_SUGGESTIONS : SUGGESTIONS;
 
+  const closeChat = () => {
+    setOpen(false);
+    setMinimized(false);
+  };
+
   return (
     <>
+      {/* Backdrop - click to close */}
+      {open && !minimized && (
+        <div
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[2px] md:bg-transparent md:backdrop-blur-none"
+          onClick={closeChat}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Floating trigger */}
       {!open && (
         <button
@@ -305,8 +319,14 @@ const AiChatBox = () => {
               <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" onClick={() => setMinimized((v) => !v)}>
                 {minimized ? <Maximize2 className="h-3.5 w-3.5" /> : <Minimize2 className="h-3.5 w-3.5" />}
               </Button>
-              <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" onClick={() => { setOpen(false); setMinimized(false); }}>
-                <X className="h-3.5 w-3.5" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 rounded-full bg-destructive/10 hover:bg-destructive/20 text-destructive"
+                onClick={closeChat}
+                title="Close"
+              >
+                <X className="h-4 w-4" />
               </Button>
             </div>
           </div>
