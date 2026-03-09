@@ -376,6 +376,10 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
         <div
           className="w-full h-full rounded-xl overflow-hidden flex items-center justify-center bg-black"
           onClick={(e) => {
+            // If music is muted due to autoplay policy, unmute on first tap
+            if (musicMuted && musicAudioRef.current) {
+              musicAudioRef.current.play().then(() => setMusicMuted(false)).catch(() => {});
+            }
             const rect = e.currentTarget.getBoundingClientRect();
             const x = e.clientX - rect.left;
             if (x < rect.width / 3) goPrev();
