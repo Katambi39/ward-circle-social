@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import SafeLink from "./SafeLink";
 import { useNavigate } from "react-router-dom";
-import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy, Repeat2 } from "lucide-react";
+import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy, Repeat2, ShieldCheck, ShieldAlert, ShieldX, ShieldQuestion, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -81,6 +81,16 @@ const PostCard = ({ post: legacyPost, dbPost, index, isBookmarked = false, onTog
   return <PostCardInner post={post} postId={dbPost?.id || post.id} authorUserId={dbPost?.user_id} authorUsername={dbPost?.author_username} repostOf={dbPost?.repost_of || null} repostComment={dbPost?.repost_comment || null} index={index} isBookmarked={isBookmarked} onToggleBookmark={onToggleBookmark} />;
 };
 
+type Verdict = "verified" | "misleading" | "false" | "unverified";
+type VerifyResult = { verdict: Verdict; confidence: number; summary: string; details: string; sources_note: string };
+
+const verdictStyles: Record<Verdict, { icon: typeof ShieldCheck; label: string; color: string; bg: string }> = {
+  verified: { icon: ShieldCheck, label: "Verified", color: "text-green-600 dark:text-green-400", bg: "bg-green-500/10 border-green-500/20" },
+  misleading: { icon: ShieldAlert, label: "Misleading", color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-500/10 border-yellow-500/20" },
+  false: { icon: ShieldX, label: "False", color: "text-red-600 dark:text-red-400", bg: "bg-red-500/10 border-red-500/20" },
+  unverified: { icon: ShieldQuestion, label: "Unverified", color: "text-muted-foreground", bg: "bg-muted border-border" },
+};
+
 const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, repostComment, index, isBookmarked, onToggleBookmark }: { post: PostData; postId: string; authorUserId?: string; authorUsername?: string; repostOf?: string | null; repostComment?: string | null; index: number; isBookmarked: boolean; onToggleBookmark?: (id: string) => void }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -90,6 +100,9 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
   const [repostOpen, setRepostOpen] = useState(false);
   const [repostCount, setRepostCount] = useState(0);
   const [reportOpen, setReportOpen] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+  const [verifyResult, setVerifyResult] = useState<VerifyResult | null>(null);
+  const [verifyExpanded, setVerifyExpanded] = useState(false);
 
   useEffect(() => {
     supabase
@@ -135,6 +148,30 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
   const handleCopyLink = async () => {
     await navigator.clipboard.writeText(`${window.location.origin}/post/${postId}`);
     toast.success("Link copied");
+  };
+
+  const handleFactCheck = async () => {
+    if (verifying || verifyResult) return;
+    const claim = (post.title + " " + (post.content || "")).trim();
+    if (!claim) return;
+    setVerifying(true);
+    try {
+      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ mode: "verify", claim }),
+      });
+      if (!resp.ok) throw new Error("Verification failed");
+      const data = await resp.json();
+      setVerifyResult(data.result as VerifyResult);
+    } catch {
+      toast.error("Could not verify this post");
+    } finally {
+      setVerifying(false);
+    }
   };
 
   if (deleted) return null;
@@ -251,6 +288,33 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
         {/* Poll Display */}
         <PostPollDisplay postId={postId} />
 
+        {/* Inline Verification Result */}
+        {verifyResult && (() => {
+          const vc = verdictStyles[verifyResult.verdict];
+          const VIcon = vc.icon;
+          return (
+            <div className={cn("rounded-xl border p-2.5 mt-2", vc.bg)}>
+              <button onClick={() => setVerifyExpanded(v => !v)} className="flex items-center gap-2 w-full text-left">
+                <VIcon className={cn("h-4 w-4 shrink-0", vc.color)} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className={cn("font-display font-semibold text-xs", vc.color)}>{vc.label}</span>
+                    <span className="text-[10px] text-muted-foreground">({verifyResult.confidence}%)</span>
+                  </div>
+                  <p className="text-[11px] text-foreground/80 line-clamp-1">{verifyResult.summary}</p>
+                </div>
+                <span className="text-[10px] text-muted-foreground">{verifyExpanded ? "▲" : "▼"}</span>
+              </button>
+              {verifyExpanded && (
+                <div className="mt-2 pt-2 border-t border-border/50 text-xs text-foreground/80">
+                  <p>{verifyResult.details}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1.5 italic">📚 {verifyResult.sources_note}</p>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
         {/* Actions */}
         <div className="flex items-center gap-1 mt-2">
           <div className="flex items-center bg-muted rounded-full">
@@ -295,6 +359,28 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
           <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground hover:text-foreground gap-1.5 px-2" onClick={(e) => { e.stopPropagation(); setRepostOpen(true); }}>
             <Repeat2 className="h-4 w-4" />
             {repostCount > 0 && <span className="text-xs font-display">{repostCount}</span>}
+          </Button>
+
+          {/* Fact-check button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "rounded-full gap-1 px-2",
+              verifyResult
+                ? verdictStyles[verifyResult.verdict].color
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            onClick={(e) => { e.stopPropagation(); handleFactCheck(); }}
+            disabled={verifying}
+          >
+            {verifying ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : verifyResult ? (
+              (() => { const V = verdictStyles[verifyResult.verdict].icon; return <V className="h-4 w-4" />; })()
+            ) : (
+              <ShieldCheck className="h-4 w-4" />
+            )}
           </Button>
 
           <div className="flex-1" />
