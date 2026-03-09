@@ -437,6 +437,15 @@ const AdminModerationPage = () => {
                     </div>
                   )}
 
+                  <Button
+                    onClick={navigateToContent}
+                    variant="outline"
+                    className="w-full font-display rounded-xl"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    View Reported Content
+                  </Button>
+
                   {selected.status === "pending" && (
                     <DialogFooter className="flex gap-3 pt-2 sm:flex-row">
                       <Button
