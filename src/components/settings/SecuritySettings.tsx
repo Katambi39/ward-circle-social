@@ -12,6 +12,7 @@ import {
   Lock, Smartphone, Monitor, Shield, KeyRound, LogOut, AlertCircle,
   Fingerprint, Trash2, Loader2, Plus, CheckCircle,
 } from "lucide-react";
+import RecoveryCodesSection from "./RecoveryCodesSection";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from "@/components/ui/dialog";
