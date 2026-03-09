@@ -114,6 +114,38 @@ const AdminModerationPage = () => {
     }
   };
 
+  const navigateToContent = async () => {
+    if (!selected) return;
+    
+    try {
+      if (selected.content_type === "post") {
+        navigate(`/post/${selected.content_id}`);
+      } else if (selected.content_type === "comment") {
+        // For comments, get the parent post
+        const { data: comment } = await supabase
+          .from("comments")
+          .select("post_id")
+          .eq("id", selected.content_id)
+          .single();
+        
+        if (comment) {
+          navigate(`/post/${comment.post_id}`);
+        } else {
+          toast({ title: "Content not found", description: "This comment may have been deleted.", variant: "destructive" });
+        }
+      } else if (selected.content_type === "listing") {
+        navigate(`/listing/${selected.content_id}`);
+      } else if (selected.content_type === "story") {
+        // For stories, navigate to the feed where stories are shown
+        navigate("/");
+      } else {
+        toast({ title: "Not supported", description: "Viewing this content type is not yet supported.", variant: "destructive" });
+      }
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    }
+  };
+
   const handleAction = async (action: "dismissed" | "actioned") => {
     if (!selected) return;
     setProcessing(true);
