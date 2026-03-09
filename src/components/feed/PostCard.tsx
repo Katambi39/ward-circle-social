@@ -82,7 +82,7 @@ const PostCard = ({ post: legacyPost, dbPost, index, isBookmarked = false, onTog
 };
 
 type Verdict = "verified" | "misleading" | "false" | "unverified";
-type VerifyResult = { verdict: Verdict; confidence: number; summary: string; details: string; sources_note: string };
+type VerifyResult = { verdict: Verdict; confidence: number; summary: string; details: string; sources_note: string; link_warnings?: string[] };
 
 const verdictStyles: Record<Verdict, { icon: typeof ShieldCheck; label: string; color: string; bg: string }> = {
   verified: { icon: ShieldCheck, label: "Verified", color: "text-green-600 dark:text-green-400", bg: "bg-green-500/10 border-green-500/20" },
