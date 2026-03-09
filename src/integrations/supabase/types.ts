@@ -1291,6 +1291,33 @@ export type Database = {
           },
         ]
       }
+      user_2fa: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean
+          method: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          method?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          method?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_id: string
@@ -1411,6 +1438,39 @@ export type Database = {
           created_at?: string
           id?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      webauthn_credentials: {
+        Row: {
+          counter: number
+          created_at: string
+          credential_id: string
+          device_name: string | null
+          id: string
+          public_key: string
+          transports: string[] | null
+          user_id: string
+        }
+        Insert: {
+          counter?: number
+          created_at?: string
+          credential_id: string
+          device_name?: string | null
+          id?: string
+          public_key: string
+          transports?: string[] | null
+          user_id: string
+        }
+        Update: {
+          counter?: number
+          created_at?: string
+          credential_id?: string
+          device_name?: string | null
+          id?: string
+          public_key?: string
+          transports?: string[] | null
           user_id?: string
         }
         Relationships: []
