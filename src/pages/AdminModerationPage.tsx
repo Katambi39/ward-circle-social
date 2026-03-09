@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Flag, CheckCircle2, XCircle, Clock, ArrowLeft, Loader2,
-  AlertTriangle, Trash2, Eye, ShieldAlert, MessageSquare,
+  AlertTriangle, Trash2, Eye, ShieldAlert, MessageSquare, ExternalLink,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
@@ -111,6 +111,38 @@ const AdminModerationPage = () => {
       toast({ title: "Error loading reports", description: e.message, variant: "destructive" });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const navigateToContent = async () => {
+    if (!selected) return;
+    
+    try {
+      if (selected.content_type === "post") {
+        navigate(`/post/${selected.content_id}`);
+      } else if (selected.content_type === "comment") {
+        // For comments, get the parent post
+        const { data: comment } = await supabase
+          .from("comments")
+          .select("post_id")
+          .eq("id", selected.content_id)
+          .single();
+        
+        if (comment) {
+          navigate(`/post/${comment.post_id}`);
+        } else {
+          toast({ title: "Content not found", description: "This comment may have been deleted.", variant: "destructive" });
+        }
+      } else if (selected.content_type === "listing") {
+        navigate(`/listing/${selected.content_id}`);
+      } else if (selected.content_type === "story") {
+        // For stories, navigate to the feed where stories are shown
+        navigate("/");
+      } else {
+        toast({ title: "Not supported", description: "Viewing this content type is not yet supported.", variant: "destructive" });
+      }
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
     }
   };
 
@@ -404,6 +436,15 @@ const AdminModerationPage = () => {
                       </p>
                     </div>
                   )}
+
+                  <Button
+                    onClick={navigateToContent}
+                    variant="outline"
+                    className="w-full font-display rounded-xl"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    View Reported Content
+                  </Button>
 
                   {selected.status === "pending" && (
                     <DialogFooter className="flex gap-3 pt-2 sm:flex-row">
