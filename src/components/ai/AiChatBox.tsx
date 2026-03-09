@@ -474,7 +474,7 @@ const AiChatBox = () => {
                         msg.verification ? (
                           <VerificationBadge result={msg.verification} />
                         ) : (
-                          <div className="prose prose-sm dark:prose-invert max-w-none text-inherit [&>*]:text-inherit [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                          <div className="prose prose-sm dark:prose-invert max-w-none text-inherit [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_p]:text-inherit [&_p]:text-sm [&_p]:leading-relaxed [&_h1]:text-base [&_h1]:font-bold [&_h1]:mt-2 [&_h1]:mb-1 [&_h2]:text-sm [&_h2]:font-bold [&_h2]:mt-2 [&_h2]:mb-1 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:mt-1.5 [&_h3]:mb-0.5 [&_strong]:font-semibold [&_ul]:my-1 [&_ul]:pl-4 [&_ol]:my-1 [&_ol]:pl-4 [&_li]:text-sm [&_li]:my-0.5 [&_code]:text-xs [&_code]:bg-background/50 [&_code]:px-1 [&_code]:py-0.5 [&_code]:rounded">
                             <ReactMarkdown>{msg.content}</ReactMarkdown>
                           </div>
                         )
