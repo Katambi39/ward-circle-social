@@ -32,6 +32,7 @@ const TopBar = () => {
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const unreadCount = useUnreadMessages();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
