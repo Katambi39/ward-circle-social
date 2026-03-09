@@ -2,16 +2,19 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { lovable } from "@/integrations/lovable/index";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, UserPlus, LogIn, Loader2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
 import conectLogo from "@/assets/conect-logo.png";
+import OtpVerification from "@/components/auth/OtpVerification";
+import PasskeyLogin from "@/components/auth/PasskeyLogin";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -25,12 +28,14 @@ const AuthPage = () => {
   const [signUpPassword, setSignUpPassword] = useState("");
   const [signUpUsername, setSignUpUsername] = useState("");
   const [signUpDisplayName, setSignUpDisplayName] = useState("");
+  const [pending2FA, setPending2FA] = useState(false);
+  const [twoFAEmail, setTwoFAEmail] = useState("");
 
   useEffect(() => {
-    if (!authLoading && user) {
+    if (!authLoading && user && !pending2FA) {
       navigate("/", { replace: true });
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, pending2FA]);
 
   if (authLoading) {
     return (
@@ -43,15 +48,51 @@ const AuthPage = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setPending2FA(true);
     try {
       await signIn(signInEmail, signInPassword);
+
+      // Check if 2FA is enabled
+      const { data: { user: currentUser } } = await supabase.auth.getUser();
+      if (currentUser) {
+        const { data: twoFA } = await supabase
+          .from("user_2fa")
+          .select("is_enabled")
+          .eq("user_id", currentUser.id)
+          .maybeSingle();
+
+        if (twoFA?.is_enabled) {
+          // Sign out and trigger email OTP
+          await supabase.auth.signOut();
+          await supabase.auth.signInWithOtp({ email: signInEmail });
+          setTwoFAEmail(signInEmail);
+          setLoading(false);
+          toast({ title: "2FA Required 🔐", description: "Check your email for a verification code." });
+          return;
+        }
+      }
+
+      // No 2FA needed
+      setPending2FA(false);
       toast({ title: "Karibu! 🇰🇪", description: "Welcome back to Conect." });
       navigate("/");
     } catch (error: any) {
+      setPending2FA(false);
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleOtpVerified = () => {
+    setPending2FA(false);
+    toast({ title: "Karibu! 🇰🇪", description: "Welcome back to Conect." });
+    navigate("/");
+  };
+
+  const handleOtpBack = () => {
+    setPending2FA(false);
+    setTwoFAEmail("");
   };
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -81,6 +122,11 @@ const AuthPage = () => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
       setSocialLoading(null);
     }
+  };
+
+  const handlePasskeySuccess = () => {
+    toast({ title: "Karibu! 🇰🇪", description: "Signed in with passkey." });
+    navigate("/");
   };
 
   const SocialButtons = () => (
@@ -120,8 +166,38 @@ const AuthPage = () => {
         )}
         Continue with Apple
       </Button>
+      <PasskeyLogin onSuccess={handlePasskeySuccess} />
     </div>
   );
+
+  // Show OTP verification screen
+  if (pending2FA && twoFAEmail) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full max-w-md"
+        >
+          <div className="text-center mb-8">
+            <img src={conectLogo} alt="Conect" className="h-16 w-16 mx-auto mb-3" />
+            <h1 className="font-display text-3xl font-bold text-foreground">Conect</h1>
+            <p className="text-muted-foreground mt-1">Kenya's Community Platform</p>
+          </div>
+          <Card className="shadow-elevated border-border">
+            <CardContent className="pt-6">
+              <OtpVerification
+                email={twoFAEmail}
+                onVerified={handleOtpVerified}
+                onBack={handleOtpBack}
+              />
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
