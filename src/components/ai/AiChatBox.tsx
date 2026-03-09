@@ -323,15 +323,25 @@ const AiChatBox = () => {
       {/* Chat panel */}
       {open && (
         <div
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
           className={cn(
-            "fixed right-4 z-50 flex flex-col bg-card border border-border rounded-2xl shadow-2xl transition-all duration-200",
+            "fixed right-4 z-50 flex flex-col bg-card border border-border rounded-2xl shadow-2xl",
+            swiping ? "" : "transition-all duration-200",
             minimized
               ? "bottom-20 md:bottom-6 w-72 h-14"
               : "bottom-20 md:bottom-6 w-[340px] sm:w-[380px] h-[560px]"
           )}
+          style={{
+            transform: swipeY > 0 ? `translateY(${swipeY}px)` : undefined,
+            opacity: swipeY > 0 ? Math.max(0, 1 - swipeY / 200) : 1,
+          }}
         >
-          {/* Header */}
-          <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border rounded-t-2xl bg-muted/50 shrink-0">
+          {/* Header - swipe handle */}
+          <div data-swipe-handle className="flex items-center gap-2.5 px-4 py-3 border-b border-border rounded-t-2xl bg-muted/50 shrink-0 cursor-grab active:cursor-grabbing">
+            {/* Swipe indicator for mobile */}
+            <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-8 h-1 rounded-full bg-border md:hidden" />
             <div className="h-7 w-7 rounded-full gradient-kenya flex items-center justify-center shrink-0">
               <Sparkles className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
