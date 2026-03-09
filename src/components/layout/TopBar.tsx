@@ -88,8 +88,13 @@ const TopBar = () => {
           <div className="hidden sm:block">
             <IdentityToggle />
           </div>
-          <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="rounded-full text-muted-foreground hover:text-foreground h-8 w-8 hidden sm:flex">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="rounded-full text-muted-foreground hover:text-foreground h-8 w-8 hidden sm:flex relative">
             <MessageCircle className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
           </Button>
           <NotificationsDropdown />
           <div className="hidden sm:block">
