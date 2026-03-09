@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search, Bell, MessageCircle, Plus, LogOut, UserCircle, CheckCircle2, Moon, Sun, Settings } from "lucide-react";
+import { useUnreadMessages } from "@/hooks/useUnreadMessages";
 import IdentityToggle from "@/components/feed/IdentityToggle";
 import NotificationsDropdown from "@/components/notifications/NotificationsDropdown";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ const TopBar = () => {
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
+  const unreadCount = useUnreadMessages();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,8 +74,13 @@ const TopBar = () => {
         <Button variant="ghost" size="icon" onClick={() => navigate("/search")} className="rounded-full text-muted-foreground sm:hidden h-8 w-8">
           <Search className="h-5 w-5" />
         </Button>
-        <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="rounded-full text-muted-foreground sm:hidden h-8 w-8">
+        <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="rounded-full text-muted-foreground sm:hidden h-8 w-8 relative">
           <MessageCircle className="h-5 w-5" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center">
+              {unreadCount > 99 ? "99+" : unreadCount}
+            </span>
+          )}
         </Button>
 
         {/* Right actions */}
@@ -81,8 +88,13 @@ const TopBar = () => {
           <div className="hidden sm:block">
             <IdentityToggle />
           </div>
-          <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="rounded-full text-muted-foreground hover:text-foreground h-8 w-8 hidden sm:flex">
+          <Button variant="ghost" size="icon" onClick={() => navigate("/messages")} className="rounded-full text-muted-foreground hover:text-foreground h-8 w-8 hidden sm:flex relative">
             <MessageCircle className="h-5 w-5" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-accent text-accent-foreground text-[10px] font-bold flex items-center justify-center">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
           </Button>
           <NotificationsDropdown />
           <div className="hidden sm:block">
