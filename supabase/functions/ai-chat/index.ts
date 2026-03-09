@@ -86,6 +86,23 @@ serve(async (req) => {
 
     // VERIFY MODE: non-streaming, structured output via tool calling
     if (mode === "verify" && claim) {
+      // Extract and analyze links in the claim
+      const urls = extractUrls(claim);
+      const linkAnalysis = urls.map(url => {
+        const check = quickLinkCheck(url);
+        return { url, domain: getDomain(url), ...check };
+      });
+
+      // Build context with link info
+      let verifyPrompt = `Please fact-check this claim or post:\n\n"${claim}"`;
+      if (linkAnalysis.length > 0) {
+        verifyPrompt += `\n\n---\nLinks found in this post:\n`;
+        for (const link of linkAnalysis) {
+          verifyPrompt += `- ${link.url} (domain: ${link.domain}, initial check: ${link.safe ? 'appears safe' : link.reason})\n`;
+        }
+        verifyPrompt += `\nPlease analyze whether these links match what the post claims and if they appear trustworthy.`;
+      }
+
       const verifyResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -96,7 +113,7 @@ serve(async (req) => {
           model: "google/gemini-3-flash-preview",
           messages: [
             { role: "system", content: SYSTEM_VERIFY },
-            { role: "user", content: `Please fact-check this claim or post:\n\n"${claim}"` },
+            { role: "user", content: verifyPrompt },
           ],
           tools: [
             {
@@ -127,6 +144,11 @@ serve(async (req) => {
                     sources_note: {
                       type: "string",
                       description: "Note about knowledge sources used",
+                    },
+                    link_warnings: {
+                      type: "array",
+                      items: { type: "string" },
+                      description: "Any warnings about links in the content",
                     },
                   },
                   required: ["verdict", "confidence", "summary", "details", "sources_note"],
