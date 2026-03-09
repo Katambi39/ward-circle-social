@@ -58,12 +58,18 @@ const linkCache = new Map<string, LinkSafetyResult>();
 export async function checkLinkSafety(url: string): Promise<LinkSafetyResult> {
   if (linkCache.has(url)) return linkCache.get(url)!;
 
+  const fallback: LinkSafetyResult = { level: "warning", reason: "Unknown domain — proceed with caution", domain: "" };
+
   try {
-    const { data, error } = await supabase.functions.invoke("check-link", {
-      body: { url },
-    });
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("timeout")), 5000)
+    );
+    const check = supabase.functions.invoke("check-link", { body: { url } });
+
+    const { data, error } = await Promise.race([check, timeout]);
     if (error || !data?.success) {
-      return { level: "unknown", reason: "Could not verify", domain: "" };
+      linkCache.set(url, fallback);
+      return fallback;
     }
     const result: LinkSafetyResult = {
       level: data.level,
@@ -73,7 +79,8 @@ export async function checkLinkSafety(url: string): Promise<LinkSafetyResult> {
     linkCache.set(url, result);
     return result;
   } catch {
-    return { level: "unknown", reason: "Could not verify", domain: "" };
+    linkCache.set(url, fallback);
+    return fallback;
   }
 }
 
