@@ -21,7 +21,7 @@ IMPORTANT: When users ask you to verify claims, fact-check content, or check if 
 3. Provide reasoning and context
 4. If you're unsure, say so honestly — never fabricate verification`;
 
-const SYSTEM_VERIFY = `You are a fact-checking AI for the Conect social platform. Your role is to analyze claims, posts, and statements for accuracy.
+const SYSTEM_VERIFY = `You are a fact-checking AI for the Conect social platform. Your role is to analyze claims, posts, statements, and URLs for accuracy.
 
 You MUST respond using the "verify_claim" tool. Analyze the claim and provide:
 - verdict: "verified" (factually accurate), "misleading" (partially true/missing context), "false" (factually incorrect), or "unverified" (cannot determine)
@@ -30,7 +30,51 @@ You MUST respond using the "verify_claim" tool. Analyze the claim and provide:
 - details: a longer markdown explanation with reasoning, context, and what users should know
 - sources_note: a brief note about what knowledge you're drawing from
 
+If URLs are provided in the analysis context, evaluate whether the link destination matches what the post claims. Look for:
+- Misleading link text (e.g., "Official government site" linking to a scam)
+- Shortened URLs hiding suspicious destinations
+- Phishing patterns or domains mimicking legitimate sites
+- Whether the link content supports the claims being made
+
 Be honest about limitations. If you cannot verify something, say "unverified" rather than guessing. For claims about very recent events, note that your knowledge may not be up to date.`;
+
+// URL extraction helper
+function extractUrls(text: string): string[] {
+  const urlRegex = /(https?:\/\/[^\s<>"{}|\\^`[\]]+)/gi;
+  return text.match(urlRegex) || [];
+}
+
+// Quick link safety check
+const TRUSTED_DOMAINS = new Set([
+  'google.com', 'youtube.com', 'facebook.com', 'twitter.com', 'x.com',
+  'instagram.com', 'linkedin.com', 'github.com', 'wikipedia.org',
+  'reddit.com', 'nation.africa', 'standardmedia.co.ke', 'the-star.co.ke',
+  'safaricom.co.ke', 'mpesa.in', 'equity.co.ke', 'kcbgroup.com',
+]);
+
+const SUSPICIOUS_PATTERNS = [
+  /bit\.ly/i, /tinyurl\.com/i, /t\.co/i, /goo\.gl/i,
+  /\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/,
+  /-login/i, /-verify/i, /-secure/i, /-account/i,
+  /free-?money/i, /claim-?prize/i, /won-?lottery/i,
+  /\.tk$/i, /\.ml$/i, /\.ga$/i, /\.cf$/i,
+];
+
+function getDomain(url: string): string {
+  try {
+    const parts = new URL(url).hostname.split('.');
+    return parts.slice(-2).join('.');
+  } catch { return ''; }
+}
+
+function quickLinkCheck(url: string): { safe: boolean; reason: string } {
+  const domain = getDomain(url);
+  if (TRUSTED_DOMAINS.has(domain)) return { safe: true, reason: 'Trusted domain' };
+  for (const pattern of SUSPICIOUS_PATTERNS) {
+    if (pattern.test(url)) return { safe: false, reason: 'Suspicious URL pattern detected' };
+  }
+  return { safe: true, reason: 'Unknown domain' };
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -42,6 +86,23 @@ serve(async (req) => {
 
     // VERIFY MODE: non-streaming, structured output via tool calling
     if (mode === "verify" && claim) {
+      // Extract and analyze links in the claim
+      const urls = extractUrls(claim);
+      const linkAnalysis = urls.map(url => {
+        const check = quickLinkCheck(url);
+        return { url, domain: getDomain(url), ...check };
+      });
+
+      // Build context with link info
+      let verifyPrompt = `Please fact-check this claim or post:\n\n"${claim}"`;
+      if (linkAnalysis.length > 0) {
+        verifyPrompt += `\n\n---\nLinks found in this post:\n`;
+        for (const link of linkAnalysis) {
+          verifyPrompt += `- ${link.url} (domain: ${link.domain}, initial check: ${link.safe ? 'appears safe' : link.reason})\n`;
+        }
+        verifyPrompt += `\nPlease analyze whether these links match what the post claims and if they appear trustworthy.`;
+      }
+
       const verifyResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -52,7 +113,7 @@ serve(async (req) => {
           model: "google/gemini-3-flash-preview",
           messages: [
             { role: "system", content: SYSTEM_VERIFY },
-            { role: "user", content: `Please fact-check this claim or post:\n\n"${claim}"` },
+            { role: "user", content: verifyPrompt },
           ],
           tools: [
             {
@@ -83,6 +144,11 @@ serve(async (req) => {
                     sources_note: {
                       type: "string",
                       description: "Note about knowledge sources used",
+                    },
+                    link_warnings: {
+                      type: "array",
+                      items: { type: "string" },
+                      description: "Any warnings about links in the content",
                     },
                   },
                   required: ["verdict", "confidence", "summary", "details", "sources_note"],

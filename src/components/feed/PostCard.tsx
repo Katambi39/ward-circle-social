@@ -82,7 +82,7 @@ const PostCard = ({ post: legacyPost, dbPost, index, isBookmarked = false, onTog
 };
 
 type Verdict = "verified" | "misleading" | "false" | "unverified";
-type VerifyResult = { verdict: Verdict; confidence: number; summary: string; details: string; sources_note: string };
+type VerifyResult = { verdict: Verdict; confidence: number; summary: string; details: string; sources_note: string; link_warnings?: string[] };
 
 const verdictStyles: Record<Verdict, { icon: typeof ShieldCheck; label: string; color: string; bg: string }> = {
   verified: { icon: ShieldCheck, label: "Verified", color: "text-green-600 dark:text-green-400", bg: "bg-green-500/10 border-green-500/20" },
@@ -152,7 +152,11 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
 
   const handleFactCheck = async () => {
     if (verifying || verifyResult) return;
-    const claim = (post.title + " " + (post.content || "")).trim();
+    // Include link URL in the claim for analysis
+    let claim = (post.title + " " + (post.content || "")).trim();
+    if (post.linkUrl) {
+      claim += `\n\nLink in post: ${post.linkUrl}`;
+    }
     if (!claim) return;
     setVerifying(true);
     try {
@@ -306,9 +310,22 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
                 <span className="text-[10px] text-muted-foreground">{verifyExpanded ? "▲" : "▼"}</span>
               </button>
               {verifyExpanded && (
-                <div className="mt-2 pt-2 border-t border-border/50 text-xs text-foreground/80">
+                <div className="mt-2 pt-2 border-t border-border/50 text-xs text-foreground/80 space-y-2">
                   <p>{verifyResult.details}</p>
-                  <p className="text-[10px] text-muted-foreground mt-1.5 italic">📚 {verifyResult.sources_note}</p>
+                  {verifyResult.link_warnings && verifyResult.link_warnings.length > 0 && (
+                    <div className="bg-warning/10 border border-warning/20 rounded-lg p-2">
+                      <p className="font-semibold text-warning flex items-center gap-1.5 mb-1">
+                        <ShieldAlert className="h-3.5 w-3.5" />
+                        Link Warnings
+                      </p>
+                      <ul className="list-disc list-inside text-[11px] space-y-0.5">
+                        {verifyResult.link_warnings.map((w, i) => (
+                          <li key={i}>{w}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-muted-foreground italic">📚 {verifyResult.sources_note}</p>
                 </div>
               )}
             </div>
