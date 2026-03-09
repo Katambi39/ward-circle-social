@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback, useMemo, useState } from "react";
+import SEO from "@/components/SEO";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
