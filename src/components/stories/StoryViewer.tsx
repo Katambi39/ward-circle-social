@@ -57,6 +57,7 @@ const StoryViewer = ({ groups, initialGroupIndex, onClose, onDeleted }: StoryVie
   const startTimeRef = useRef(0);
   const elapsedRef = useRef(0);
   const musicAudioRef = useRef<HTMLAudioElement | null>(null);
+  const [musicMuted, setMusicMuted] = useState(false);
   const [musicTrack, setMusicTrack] = useState<MusicTrackData | null>(null);
   const [musicTime, setMusicTime] = useState(0);
   const [viewCount, setViewCount] = useState(0);
