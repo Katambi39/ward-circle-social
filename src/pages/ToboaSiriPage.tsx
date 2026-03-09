@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import SEO from "@/components/SEO";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -146,6 +147,7 @@ const ToboaSiriPage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Toboa Siri" description="Share secrets anonymously on Conect's Toboa Siri. Express yourself freely and safely." path="/toboa-siri" />
       <div className="max-w-2xl mx-auto py-6 px-4">
         {/* Header */}
         <motion.div

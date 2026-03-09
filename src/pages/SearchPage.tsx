@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import SEO from "@/components/SEO";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/layout/AppLayout";
@@ -85,6 +86,7 @@ const SearchPage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Search" description="Search for people, posts, pages, and listings across Conect." path="/search" />
       <div className="max-w-2xl mx-auto py-6 px-4">
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />

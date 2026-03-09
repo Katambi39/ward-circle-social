@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import SEO from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -255,6 +256,7 @@ const MarketplacePage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Marketplace" description="Buy and sell products, services, and digital goods in your community on Conect Marketplace." path="/marketplace" />
       <div className="max-w-4xl mx-auto py-6 px-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

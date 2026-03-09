@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SEO from "@/components/SEO";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
 import CategoryCard from "@/components/discover/CategoryCard";
@@ -64,6 +65,7 @@ const DiscoverPage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Discover" description="Explore trending topics, local events, polls, and challenges happening across Kenya on Conect." path="/discover" />
       <div className="max-w-3xl mx-auto py-4 px-4">
         {/* Hero */}
         <motion.div

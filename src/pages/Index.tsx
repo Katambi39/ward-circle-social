@@ -1,4 +1,5 @@
 import { useEffect, useRef, useCallback, useMemo, useState } from "react";
+import SEO from "@/components/SEO";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -62,6 +63,7 @@ const Index = () => {
 
   return (
     <AppLayout>
+      <SEO title="Feed" description="Your personalized feed on Conect. See posts from your community, friends, and groups." path="/" />
       <div className="max-w-2xl mx-auto py-4 px-4 overflow-x-hidden">
         <FeedTabs />
 

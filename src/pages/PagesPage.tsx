@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import SEO from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -109,6 +110,7 @@ const PagesPage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Pages" description="Discover business and community pages on Conect. Follow your favorite brands and organizations." path="/pages" />
       <div className="max-w-3xl mx-auto py-6 px-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
