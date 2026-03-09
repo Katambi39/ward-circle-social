@@ -288,6 +288,33 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
         {/* Poll Display */}
         <PostPollDisplay postId={postId} />
 
+        {/* Inline Verification Result */}
+        {verifyResult && (() => {
+          const vc = verdictStyles[verifyResult.verdict];
+          const VIcon = vc.icon;
+          return (
+            <div className={cn("rounded-xl border p-2.5 mt-2", vc.bg)}>
+              <button onClick={() => setVerifyExpanded(v => !v)} className="flex items-center gap-2 w-full text-left">
+                <VIcon className={cn("h-4 w-4 shrink-0", vc.color)} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className={cn("font-display font-semibold text-xs", vc.color)}>{vc.label}</span>
+                    <span className="text-[10px] text-muted-foreground">({verifyResult.confidence}%)</span>
+                  </div>
+                  <p className="text-[11px] text-foreground/80 line-clamp-1">{verifyResult.summary}</p>
+                </div>
+                <span className="text-[10px] text-muted-foreground">{verifyExpanded ? "▲" : "▼"}</span>
+              </button>
+              {verifyExpanded && (
+                <div className="mt-2 pt-2 border-t border-border/50 text-xs text-foreground/80">
+                  <p>{verifyResult.details}</p>
+                  <p className="text-[10px] text-muted-foreground mt-1.5 italic">📚 {verifyResult.sources_note}</p>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
         {/* Actions */}
         <div className="flex items-center gap-1 mt-2">
           <div className="flex items-center bg-muted rounded-full">
