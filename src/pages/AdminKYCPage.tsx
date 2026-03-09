@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Shield, CheckCircle2, XCircle, Clock, Eye, ArrowLeft,
-  User, MapPin, Loader2, AlertTriangle,
+  User, MapPin, Loader2, AlertTriangle, Copy,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
