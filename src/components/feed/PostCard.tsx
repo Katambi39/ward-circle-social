@@ -313,8 +313,8 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
                 <div className="mt-2 pt-2 border-t border-border/50 text-xs text-foreground/80 space-y-2">
                   <p>{verifyResult.details}</p>
                   {verifyResult.link_warnings && verifyResult.link_warnings.length > 0 && (
-                    <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-2">
-                      <p className="font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1.5 mb-1">
+                    <div className="bg-warning/10 border border-warning/20 rounded-lg p-2">
+                      <p className="font-semibold text-warning flex items-center gap-1.5 mb-1">
                         <ShieldAlert className="h-3.5 w-3.5" />
                         Link Warnings
                       </p>
