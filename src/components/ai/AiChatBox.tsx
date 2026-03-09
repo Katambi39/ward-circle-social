@@ -164,10 +164,39 @@ const AiChatBox = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [swipeY, setSwipeY] = useState(0);
+  const [swiping, setSwiping] = useState(false);
+  const swipeStartRef = useRef<number | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const abortRef = useRef<AbortController | null>(null);
   const { toast } = useToast();
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const target = e.target as HTMLElement;
+    // Only start swipe from the header area
+    if (target.closest('[data-swipe-handle]')) {
+      swipeStartRef.current = e.touches[0].clientY;
+      setSwiping(true);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (swipeStartRef.current === null) return;
+    const delta = e.touches[0].clientY - swipeStartRef.current;
+    if (delta > 0) {
+      setSwipeY(delta);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (swipeY > 120) {
+      closeChat();
+    }
+    setSwipeY(0);
+    setSwiping(false);
+    swipeStartRef.current = null;
+  };
 
   useEffect(() => {
     if (open && !minimized) {
