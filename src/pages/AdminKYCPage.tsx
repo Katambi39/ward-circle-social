@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Shield, CheckCircle2, XCircle, Clock, Eye, ArrowLeft,
-  User, MapPin, Loader2, AlertTriangle,
+  User, MapPin, Loader2, AlertTriangle, Copy,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatDistanceToNow } from "date-fns";
@@ -50,6 +50,7 @@ const AdminKYCPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [submissions, setSubmissions] = useState<KYCSubmission[]>([]);
+  const [duplicateFlags, setDuplicateFlags] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [selectedSubmission, setSelectedSubmission] = useState<KYCSubmission | null>(null);
@@ -76,6 +77,15 @@ const AdminKYCPage = () => {
     }
     setIsAdmin(true);
     fetchSubmissions();
+    fetchDuplicateFlags();
+  };
+
+  const fetchDuplicateFlags = async () => {
+    const { data } = await supabase
+      .from("duplicate_id_flags")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setDuplicateFlags(data ?? []);
   };
 
   const fetchSubmissions = async () => {
@@ -180,12 +190,15 @@ const AdminKYCPage = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="w-full grid grid-cols-4 rounded-xl">
+          <TabsList className="w-full grid grid-cols-5 rounded-xl">
             <TabsTrigger value="pending" className="rounded-xl font-display text-xs">
               Pending {counts.pending > 0 && `(${counts.pending})`}
             </TabsTrigger>
             <TabsTrigger value="approved" className="rounded-xl font-display text-xs">Approved</TabsTrigger>
             <TabsTrigger value="rejected" className="rounded-xl font-display text-xs">Rejected</TabsTrigger>
+            <TabsTrigger value="duplicates" className="rounded-xl font-display text-xs">
+              Duplicates {duplicateFlags.filter(f => !f.resolved).length > 0 && `(${duplicateFlags.filter(f => !f.resolved).length})`}
+            </TabsTrigger>
             <TabsTrigger value="all" className="rounded-xl font-display text-xs">All</TabsTrigger>
           </TabsList>
 
@@ -262,6 +275,74 @@ const AdminKYCPage = () => {
                     );
                   })}
                 </AnimatePresence>
+              </div>
+            )}
+          </TabsContent>
+
+          {/* Duplicates Tab */}
+          <TabsContent value="duplicates">
+            {duplicateFlags.length === 0 ? (
+              <div className="text-center py-16">
+                <CheckCircle2 className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground font-display">No duplicate ID attempts detected</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {duplicateFlags.map((flag) => (
+                  <Card key={flag.id} className={`border-border ${!flag.resolved ? 'border-destructive/30' : ''}`}>
+                    <CardContent className="p-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Copy className="h-4 w-4 text-destructive" />
+                          <span className="font-display font-bold text-sm text-foreground">
+                            Duplicate National ID Attempt
+                          </span>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className={flag.resolved
+                            ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px]"
+                            : "bg-destructive/10 text-destructive border-destructive/20 text-[10px]"
+                          }
+                        >
+                          {flag.resolved ? "Resolved" : "Unresolved"}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <p>
+                          <span className="font-medium text-foreground">Attempted by:</span>{" "}
+                          <span className="font-mono">{flag.attempted_user_id.slice(0, 8)}...</span>
+                        </p>
+                        <p>
+                          <span className="font-medium text-foreground">Already registered to:</span>{" "}
+                          <span className="font-mono">{flag.existing_user_id.slice(0, 8)}...</span>
+                        </p>
+                        <p>
+                          <span className="font-medium text-foreground">ID Hash:</span>{" "}
+                          <span className="font-mono">{flag.national_id_hash.slice(0, 16)}...</span>
+                        </p>
+                        <p>{formatDistanceToNow(new Date(flag.created_at), { addSuffix: true })}</p>
+                      </div>
+                      {!flag.resolved && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="rounded-xl font-display text-xs mt-2"
+                          onClick={async () => {
+                            await supabase
+                              .from("duplicate_id_flags")
+                              .update({ resolved: true, resolved_at: new Date().toISOString(), resolved_by: user?.id })
+                              .eq("id", flag.id);
+                            fetchDuplicateFlags();
+                            toast({ title: "Marked as resolved ✓" });
+                          }}
+                        >
+                          Mark Resolved
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             )}
           </TabsContent>

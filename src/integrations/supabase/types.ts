@@ -215,6 +215,42 @@ export type Database = {
           },
         ]
       }
+      duplicate_id_flags: {
+        Row: {
+          attempted_user_id: string
+          created_at: string
+          existing_user_id: string
+          id: string
+          national_id_hash: string
+          notes: string | null
+          resolved: boolean
+          resolved_at: string | null
+          resolved_by: string | null
+        }
+        Insert: {
+          attempted_user_id: string
+          created_at?: string
+          existing_user_id: string
+          id?: string
+          national_id_hash: string
+          notes?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+        }
+        Update: {
+          attempted_user_id?: string
+          created_at?: string
+          existing_user_id?: string
+          id?: string
+          national_id_hash?: string
+          notes?: string | null
+          resolved?: boolean
+          resolved_at?: string | null
+          resolved_by?: string | null
+        }
+        Relationships: []
+      }
       event_rsvps: {
         Row: {
           created_at: string
