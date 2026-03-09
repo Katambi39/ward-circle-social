@@ -202,6 +202,7 @@ const AuthPage = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <SEO title="Sign In" description="Join Conect — Kenya's community social platform. Sign up or log in to connect with your ward and beyond." path="/auth" />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

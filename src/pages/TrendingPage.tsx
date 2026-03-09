@@ -41,6 +41,7 @@ const TrendingPage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Trending" description="See what's trending in Kenya right now. Top hashtags, topics, and conversations from your region." path="/trending" />
       <div className="max-w-3xl mx-auto py-4 px-4">
         {/* Header */}
         <motion.div

@@ -36,6 +36,7 @@ const GroupsPage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Groups" description="Join ward, county, and community groups on Conect. Find your people and engage in local discussions." path="/groups" />
       <div className="max-w-3xl mx-auto py-6 px-4">
         <div className="flex items-center justify-between mb-6">
           <div>
