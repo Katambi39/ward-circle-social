@@ -2,6 +2,7 @@ import TopBar from "./TopBar";
 import LeftSidebar from "./LeftSidebar";
 import RightSidebar from "./RightSidebar";
 import BottomNav from "./BottomNav";
+import AiChatBox from "@/components/ai/AiChatBox";
 
 interface AppLayoutProps {
   children: React.ReactNode;
