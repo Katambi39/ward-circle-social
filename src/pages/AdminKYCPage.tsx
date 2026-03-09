@@ -50,6 +50,7 @@ const AdminKYCPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [submissions, setSubmissions] = useState<KYCSubmission[]>([]);
+  const [duplicateFlags, setDuplicateFlags] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [selectedSubmission, setSelectedSubmission] = useState<KYCSubmission | null>(null);
