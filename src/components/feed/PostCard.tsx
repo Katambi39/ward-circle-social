@@ -150,6 +150,30 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
     toast.success("Link copied");
   };
 
+  const handleFactCheck = async () => {
+    if (verifying || verifyResult) return;
+    const claim = (post.title + " " + (post.content || "")).trim();
+    if (!claim) return;
+    setVerifying(true);
+    try {
+      const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ mode: "verify", claim }),
+      });
+      if (!resp.ok) throw new Error("Verification failed");
+      const data = await resp.json();
+      setVerifyResult(data.result as VerifyResult);
+    } catch {
+      toast.error("Could not verify this post");
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   if (deleted) return null;
 
   // Strip poll text and old feeling prefix from content for display
