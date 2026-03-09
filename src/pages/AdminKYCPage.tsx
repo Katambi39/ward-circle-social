@@ -278,6 +278,74 @@ const AdminKYCPage = () => {
               </div>
             )}
           </TabsContent>
+
+          {/* Duplicates Tab */}
+          <TabsContent value="duplicates">
+            {duplicateFlags.length === 0 ? (
+              <div className="text-center py-16">
+                <CheckCircle2 className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="text-muted-foreground font-display">No duplicate ID attempts detected</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {duplicateFlags.map((flag) => (
+                  <Card key={flag.id} className={`border-border ${!flag.resolved ? 'border-destructive/30' : ''}`}>
+                    <CardContent className="p-4 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Copy className="h-4 w-4 text-destructive" />
+                          <span className="font-display font-bold text-sm text-foreground">
+                            Duplicate National ID Attempt
+                          </span>
+                        </div>
+                        <Badge
+                          variant="outline"
+                          className={flag.resolved
+                            ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px]"
+                            : "bg-destructive/10 text-destructive border-destructive/20 text-[10px]"
+                          }
+                        >
+                          {flag.resolved ? "Resolved" : "Unresolved"}
+                        </Badge>
+                      </div>
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <p>
+                          <span className="font-medium text-foreground">Attempted by:</span>{" "}
+                          <span className="font-mono">{flag.attempted_user_id.slice(0, 8)}...</span>
+                        </p>
+                        <p>
+                          <span className="font-medium text-foreground">Already registered to:</span>{" "}
+                          <span className="font-mono">{flag.existing_user_id.slice(0, 8)}...</span>
+                        </p>
+                        <p>
+                          <span className="font-medium text-foreground">ID Hash:</span>{" "}
+                          <span className="font-mono">{flag.national_id_hash.slice(0, 16)}...</span>
+                        </p>
+                        <p>{formatDistanceToNow(new Date(flag.created_at), { addSuffix: true })}</p>
+                      </div>
+                      {!flag.resolved && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="rounded-xl font-display text-xs mt-2"
+                          onClick={async () => {
+                            await supabase
+                              .from("duplicate_id_flags")
+                              .update({ resolved: true, resolved_at: new Date().toISOString(), resolved_by: user?.id })
+                              .eq("id", flag.id);
+                            fetchDuplicateFlags();
+                            toast({ title: "Marked as resolved ✓" });
+                          }}
+                        >
+                          Mark Resolved
+                        </Button>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
         </Tabs>
       </div>
 
