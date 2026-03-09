@@ -76,6 +76,7 @@ const StoryReplyBar = ({ storyId, senderId, onSent, onFocus, onBlur }: StoryRepl
           ref={inputRef}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
+          onKeyDown={(e) => e.stopPropagation()}
           onFocus={onFocus}
           onBlur={onBlur}
           placeholder="Reply to story..."
