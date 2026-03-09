@@ -77,6 +77,15 @@ const AdminKYCPage = () => {
     }
     setIsAdmin(true);
     fetchSubmissions();
+    fetchDuplicateFlags();
+  };
+
+  const fetchDuplicateFlags = async () => {
+    const { data } = await supabase
+      .from("duplicate_id_flags")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setDuplicateFlags(data ?? []);
   };
 
   const fetchSubmissions = async () => {
