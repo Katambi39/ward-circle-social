@@ -24,6 +24,7 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         </div>
       </div>
       <BottomNav />
+      <AiChatBox />
     </div>
   );
 };
