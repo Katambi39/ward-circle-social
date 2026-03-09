@@ -155,6 +155,7 @@ const WalletPage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Wallet" description="Manage your Conect wallet. View your balance, transactions, and payment history." path="/wallet" />
       <div className="max-w-2xl mx-auto py-6 px-4 space-y-4">
         {/* Wallet Card */}
         <motion.div

@@ -32,6 +32,7 @@ const ProfilePage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Profile" description="Your profile on Conect. Manage your posts, connections, and listings." path="/profile" />
       <div className="max-w-2xl mx-auto py-6 px-4 space-y-4">
         <ProfileHeader
           onEditClick={() => setEditing(true)}

@@ -147,6 +147,7 @@ const ToboaSiriPage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Toboa Siri" description="Share secrets anonymously on Conect's Toboa Siri. Express yourself freely and safely." path="/toboa-siri" />
       <div className="max-w-2xl mx-auto py-6 px-4">
         {/* Header */}
         <motion.div

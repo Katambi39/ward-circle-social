@@ -72,6 +72,7 @@ const NotificationsPage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Notifications" description="Stay updated with your latest notifications on Conect." path="/notifications" />
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-border sticky top-0 bg-background/95 backdrop-blur-sm z-10">

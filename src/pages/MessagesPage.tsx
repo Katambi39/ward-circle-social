@@ -291,6 +291,7 @@ const MessagesPage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Messages" description="Your direct messages on Conect. Chat privately with friends and connections." path="/messages" />
       <div className="max-w-4xl mx-auto h-[calc(100vh-3.5rem-3.5rem)] md:h-[calc(100vh-3.5rem)] flex">
         {/* Conversation List */}
         <div className={`w-full md:w-80 md:border-r border-border flex flex-col bg-card ${selectedConvo ? "hidden md:flex" : "flex"}`}>

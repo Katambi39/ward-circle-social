@@ -110,6 +110,7 @@ const PagesPage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Pages" description="Discover business and community pages on Conect. Follow your favorite brands and organizations." path="/pages" />
       <div className="max-w-3xl mx-auto py-6 px-4">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

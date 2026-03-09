@@ -46,6 +46,7 @@ const SettingsPage = () => {
 
   return (
     <AppLayout>
+      <SEO title="Settings" description="Manage your Conect account settings, privacy, security, and preferences." path="/settings" />
       <div className="max-w-3xl mx-auto py-6 px-4">
         <h1 className="font-display text-2xl font-bold text-foreground mb-1">Settings</h1>
         <p className="text-sm text-muted-foreground mb-6">Manage your account, privacy, and preferences</p>
