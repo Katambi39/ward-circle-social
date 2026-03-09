@@ -361,6 +361,28 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
             {repostCount > 0 && <span className="text-xs font-display">{repostCount}</span>}
           </Button>
 
+          {/* Fact-check button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              "rounded-full gap-1 px-2",
+              verifyResult
+                ? verdictStyles[verifyResult.verdict].color
+                : "text-muted-foreground hover:text-foreground"
+            )}
+            onClick={(e) => { e.stopPropagation(); handleFactCheck(); }}
+            disabled={verifying}
+          >
+            {verifying ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : verifyResult ? (
+              (() => { const V = verdictStyles[verifyResult.verdict].icon; return <V className="h-4 w-4" />; })()
+            ) : (
+              <ShieldCheck className="h-4 w-4" />
+            )}
+          </Button>
+
           <div className="flex-1" />
 
           <button
