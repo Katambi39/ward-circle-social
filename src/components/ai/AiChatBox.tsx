@@ -136,7 +136,6 @@ function VerificationBadge({ result }: { result: VerifyResult }) {
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className={cn("font-display font-semibold text-xs", config.color)}>{config.label}</span>
-            <span className="text-[10px] text-muted-foreground">({result.confidence}% confidence)</span>
           </div>
           <p className="text-xs text-foreground/80 mt-0.5 line-clamp-2">{result.summary}</p>
         </div>
