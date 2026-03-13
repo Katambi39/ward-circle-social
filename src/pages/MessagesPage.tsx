@@ -487,7 +487,7 @@ const MessagesPage = () => {
                     </div>
                   )}
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="font-display font-bold text-sm text-foreground flex items-center gap-1">
                     {selectedConvo.otherUser?.display_name || "User"}
                     {selectedConvo.otherUser?.verification_status === "verified" && (
@@ -495,6 +495,14 @@ const MessagesPage = () => {
                     )}
                   </p>
                   <p className="text-xs text-muted-foreground">@{selectedConvo.otherUser?.username}</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-muted-foreground hover:text-primary" onClick={() => startCall("voice")}>
+                    <Phone className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-muted-foreground hover:text-primary" onClick={() => startCall("video")}>
+                    <Video className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
 
