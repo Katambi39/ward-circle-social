@@ -141,6 +141,53 @@ export type Database = {
           },
         ]
       }
+      call_signals: {
+        Row: {
+          call_type: string
+          callee_id: string
+          caller_id: string
+          conversation_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          signal_data: Json | null
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          call_type?: string
+          callee_id: string
+          caller_id: string
+          conversation_id: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          signal_data?: Json | null
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          call_type?: string
+          callee_id?: string
+          caller_id?: string
+          conversation_id?: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          signal_data?: Json | null
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_signals_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           content: string
@@ -1261,6 +1308,80 @@ export type Database = {
         }
         Relationships: []
       }
+      sticker_packs: {
+        Row: {
+          cover_url: string | null
+          created_at: string
+          creator_id: string | null
+          description: string | null
+          download_count: number
+          id: string
+          is_official: boolean
+          is_public: boolean
+          name: string
+          sticker_count: number
+        }
+        Insert: {
+          cover_url?: string | null
+          created_at?: string
+          creator_id?: string | null
+          description?: string | null
+          download_count?: number
+          id?: string
+          is_official?: boolean
+          is_public?: boolean
+          name: string
+          sticker_count?: number
+        }
+        Update: {
+          cover_url?: string | null
+          created_at?: string
+          creator_id?: string | null
+          description?: string | null
+          download_count?: number
+          id?: string
+          is_official?: boolean
+          is_public?: boolean
+          name?: string
+          sticker_count?: number
+        }
+        Relationships: []
+      }
+      stickers: {
+        Row: {
+          created_at: string
+          emoji_tag: string | null
+          id: string
+          image_url: string
+          name: string
+          pack_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji_tag?: string | null
+          id?: string
+          image_url: string
+          name?: string
+          pack_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji_tag?: string | null
+          id?: string
+          image_url?: string
+          name?: string
+          pack_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stickers_pack_id_fkey"
+            columns: ["pack_id"]
+            isOneToOne: false
+            referencedRelation: "sticker_packs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stories: {
         Row: {
           caption: string | null
@@ -1516,6 +1637,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_sticker_packs: {
+        Row: {
+          added_at: string
+          id: string
+          pack_id: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          id?: string
+          pack_id: string
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          id?: string
+          pack_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_sticker_packs_pack_id_fkey"
+            columns: ["pack_id"]
+            isOneToOne: false
+            referencedRelation: "sticker_packs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       votes: {
         Row: {

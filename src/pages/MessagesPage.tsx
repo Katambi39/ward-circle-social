@@ -12,9 +12,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   MessageSquare, Send, ArrowLeft, CheckCircle2, Shield, Search,
   Circle, ShieldAlert, Trash2, Paperclip, Loader2, X, FileText, Download,
+  Phone, Video,
 } from "lucide-react";
 import { isExplicitLink } from "@/components/feed/LinkSafety";
 import DmLinkWarning from "@/components/messages/DmLinkWarning";
+import VoiceNoteRecorder from "@/components/messages/VoiceNoteRecorder";
+import VoiceNotePlayer from "@/components/messages/VoiceNotePlayer";
+import StickerPicker from "@/components/messages/StickerPicker";
+import CallScreen from "@/components/messages/CallScreen";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow, isToday, isYesterday } from "date-fns";
 
@@ -62,6 +67,13 @@ const MessagesPage = () => {
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Call state
+  const [activeCall, setActiveCall] = useState<{
+    id: string; type: "voice" | "video"; isIncoming: boolean;
+    callerId: string; calleeId: string;
+  } | null>(null);
+  const [incomingCall, setIncomingCall] = useState<any | null>(null);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -196,6 +208,68 @@ const MessagesPage = () => {
       fetchMessages(selectedConvo.id);
     }
   }, [selectedConvo]);
+
+  // Listen for incoming calls
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel("incoming-calls")
+      .on("postgres_changes", {
+        event: "INSERT",
+        schema: "public",
+        table: "call_signals",
+        filter: `callee_id=eq.${user.id}`,
+      }, (payload) => {
+        const call = payload.new as any;
+        if (call.status === "ringing") {
+          setIncomingCall(call);
+        }
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
+
+  const startCall = async (type: "voice" | "video") => {
+    if (!user || !selectedConvo) return;
+    const otherId = selectedConvo.participant_one === user.id
+      ? selectedConvo.participant_two : selectedConvo.participant_one;
+    const { data, error } = await supabase.from("call_signals").insert({
+      conversation_id: selectedConvo.id,
+      caller_id: user.id,
+      callee_id: otherId,
+      call_type: type,
+      status: "ringing",
+    } as any).select().single();
+    if (error) {
+      toast({ title: "Call failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    setActiveCall({
+      id: (data as any).id,
+      type,
+      isIncoming: false,
+      callerId: user.id,
+      calleeId: otherId,
+    });
+  };
+
+  const handleSendSticker = async (stickerUrl: string) => {
+    if (!user || !selectedConvo) return;
+    setSending(true);
+    try {
+      await supabase.from("direct_messages").insert({
+        conversation_id: selectedConvo.id,
+        sender_id: user.id,
+        content: "🎨 Sticker",
+        media_url: stickerUrl,
+      } as any);
+      await supabase.from("conversations").update({ last_message_at: new Date().toISOString() } as any).eq("id", selectedConvo.id);
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setSending(false);
+    }
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -413,7 +487,7 @@ const MessagesPage = () => {
                     </div>
                   )}
                 </div>
-                <div>
+                <div className="flex-1">
                   <p className="font-display font-bold text-sm text-foreground flex items-center gap-1">
                     {selectedConvo.otherUser?.display_name || "User"}
                     {selectedConvo.otherUser?.verification_status === "verified" && (
@@ -421,6 +495,14 @@ const MessagesPage = () => {
                     )}
                   </p>
                   <p className="text-xs text-muted-foreground">@{selectedConvo.otherUser?.username}</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-muted-foreground hover:text-primary" onClick={() => startCall("voice")}>
+                    <Phone className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full text-muted-foreground hover:text-primary" onClick={() => startCall("video")}>
+                    <Video className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
 
@@ -486,11 +568,17 @@ const MessagesPage = () => {
                                 {(msg as any).media_url && (
                                   (() => {
                                     const url = (msg as any).media_url as string;
-                                    const isVideo = /\.(mp4|webm|mov)(\?|$)/i.test(url);
+                                    const isVoiceNote = /voice-notes/.test(url) || (msg.content.startsWith("🎤") && /\.webm(\?|$)/i.test(url));
+                                    const isSticker = msg.content === "🎨 Sticker";
+                                    const isVideo = /\.(mp4|mov)(\?|$)/i.test(url);
                                     const isImage = /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?|$)/i.test(url);
                                     const isDoc = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar)(\?|$)/i.test(url);
                                     const fileName = decodeURIComponent(url.split("/").pop()?.split("?")[0] || "file").replace(/^\d+_[a-z0-9]+\./, "");
-                                    if (isVideo) {
+                                    if (isVoiceNote) {
+                                      return <VoiceNotePlayer url={url} isMe={isMe} />;
+                                    } else if (isSticker) {
+                                      return <img src={url} alt="Sticker" className="w-28 h-28 object-contain" />;
+                                    } else if (isVideo) {
                                       return <video src={url} controls className="rounded-lg max-w-full max-h-48 mt-1" />;
                                     } else if (isImage) {
                                       return <img src={url} alt="" className="rounded-lg max-w-full max-h-48 mt-1 cursor-pointer" onClick={() => window.open(url, "_blank")} />;
@@ -507,7 +595,7 @@ const MessagesPage = () => {
                                     }
                                   })()
                                 )}
-                                {msg.content && msg.content !== "📎 Media" && (
+                                {msg.content && msg.content !== "📎 Media" && !msg.content.startsWith("🎤") && msg.content !== "🎨 Sticker" && (
                                   <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
                                 )}
                                 {msg.content === "📎 Media" && !(msg as any).media_url && (
@@ -578,22 +666,43 @@ const MessagesPage = () => {
                   >
                     <Paperclip className="h-5 w-5" />
                   </Button>
-                  <Input
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Type a message..."
-                    className="rounded-xl flex-1"
-                    disabled={sending}
-                  />
-                  <Button
-                    onClick={handleSend}
-                    disabled={sending || (!newMessage.trim() && !mediaFile)}
-                    size="sm"
-                    className="rounded-xl gradient-kenya text-primary-foreground h-10 w-10 p-0"
-                  >
-                    {uploadingMedia ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  </Button>
+                  <StickerPicker onSelect={handleSendSticker} />
+                  {newMessage.trim() || mediaFile ? (
+                    <>
+                      <Input
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Type a message..."
+                        className="rounded-xl flex-1"
+                        disabled={sending}
+                      />
+                      <Button
+                        onClick={handleSend}
+                        disabled={sending || (!newMessage.trim() && !mediaFile)}
+                        size="sm"
+                        className="rounded-xl gradient-kenya text-primary-foreground h-10 w-10 p-0"
+                      >
+                        {uploadingMedia ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Input
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Type a message..."
+                        className="rounded-xl flex-1"
+                        disabled={sending}
+                      />
+                      <VoiceNoteRecorder
+                        conversationId={selectedConvo.id}
+                        senderId={user!.id}
+                        onSent={() => {}}
+                      />
+                    </>
+                  )}
                 </div>
               </div>
             </>
@@ -612,6 +721,78 @@ const MessagesPage = () => {
           )}
         </div>
       </div>
+
+      {/* Active Call Screen */}
+      <AnimatePresence>
+        {activeCall && selectedConvo?.otherUser && (
+          <CallScreen
+            callId={activeCall.id}
+            conversationId={selectedConvo.id}
+            callType={activeCall.type}
+            isIncoming={activeCall.isIncoming}
+            callerId={activeCall.callerId}
+            calleeId={activeCall.calleeId}
+            currentUserId={user!.id}
+            otherUser={selectedConvo.otherUser}
+            onEnd={() => setActiveCall(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Incoming Call Popup */}
+      <AnimatePresence>
+        {incomingCall && !activeCall && (
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-card border border-border rounded-2xl shadow-xl p-4 flex items-center gap-4 min-w-[300px]"
+          >
+            <div className="h-12 w-12 rounded-full gradient-kenya flex items-center justify-center animate-pulse">
+              {incomingCall.call_type === "video" ? (
+                <Video className="h-6 w-6 text-primary-foreground" />
+              ) : (
+                <Phone className="h-6 w-6 text-primary-foreground" />
+              )}
+            </div>
+            <div className="flex-1">
+              <p className="font-display font-bold text-sm text-foreground">Incoming {incomingCall.call_type} call</p>
+              <p className="text-xs text-muted-foreground">Tap to answer</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="icon"
+                className="h-10 w-10 rounded-full bg-destructive hover:bg-destructive/90"
+                onClick={async () => {
+                  await supabase.from("call_signals").update({ status: "rejected", ended_at: new Date().toISOString() } as any).eq("id", incomingCall.id);
+                  setIncomingCall(null);
+                }}
+              >
+                <Phone className="h-4 w-4 text-destructive-foreground rotate-[135deg]" />
+              </Button>
+              <Button
+                size="icon"
+                className="h-10 w-10 rounded-full bg-green-500 hover:bg-green-600"
+                onClick={() => {
+                  // Find the conversation for this call
+                  const convo = conversations.find(c => c.id === incomingCall.conversation_id);
+                  if (convo) setSelectedConvo(convo);
+                  setActiveCall({
+                    id: incomingCall.id,
+                    type: incomingCall.call_type,
+                    isIncoming: true,
+                    callerId: incomingCall.caller_id,
+                    calleeId: incomingCall.callee_id,
+                  });
+                  setIncomingCall(null);
+                }}
+              >
+                <Phone className="h-4 w-4 text-white" />
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </AppLayout>
   );
 };
