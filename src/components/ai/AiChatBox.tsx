@@ -37,13 +37,15 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 
 // ── Streaming helper ──
+type MessagePayload = { role: string; content: string | Array<{ type: string; text?: string; image_url?: { url: string } }> };
+
 async function streamChat({
   messages,
   onDelta,
   onDone,
   signal,
 }: {
-  messages: { role: string; content: string }[];
+  messages: MessagePayload[];
   onDelta: (chunk: string) => void;
   onDone: () => void;
   signal?: AbortSignal;
