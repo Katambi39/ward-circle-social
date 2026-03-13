@@ -568,11 +568,17 @@ const MessagesPage = () => {
                                 {(msg as any).media_url && (
                                   (() => {
                                     const url = (msg as any).media_url as string;
-                                    const isVideo = /\.(mp4|webm|mov)(\?|$)/i.test(url);
+                                    const isVoiceNote = /voice-notes/.test(url) || (msg.content.startsWith("🎤") && /\.webm(\?|$)/i.test(url));
+                                    const isSticker = msg.content === "🎨 Sticker";
+                                    const isVideo = /\.(mp4|mov)(\?|$)/i.test(url);
                                     const isImage = /\.(jpg|jpeg|png|gif|webp|svg|bmp)(\?|$)/i.test(url);
                                     const isDoc = /\.(pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar)(\?|$)/i.test(url);
                                     const fileName = decodeURIComponent(url.split("/").pop()?.split("?")[0] || "file").replace(/^\d+_[a-z0-9]+\./, "");
-                                    if (isVideo) {
+                                    if (isVoiceNote) {
+                                      return <VoiceNotePlayer url={url} isMe={isMe} />;
+                                    } else if (isSticker) {
+                                      return <img src={url} alt="Sticker" className="w-28 h-28 object-contain" />;
+                                    } else if (isVideo) {
                                       return <video src={url} controls className="rounded-lg max-w-full max-h-48 mt-1" />;
                                     } else if (isImage) {
                                       return <img src={url} alt="" className="rounded-lg max-w-full max-h-48 mt-1 cursor-pointer" onClick={() => window.open(url, "_blank")} />;
