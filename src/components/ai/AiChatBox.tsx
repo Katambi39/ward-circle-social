@@ -37,13 +37,15 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-chat`;
 
 // ── Streaming helper ──
+type MessagePayload = { role: string; content: string | Array<{ type: string; text?: string; image_url?: { url: string } }> };
+
 async function streamChat({
   messages,
   onDelta,
   onDone,
   signal,
 }: {
-  messages: { role: string; content: string }[];
+  messages: MessagePayload[];
   onDelta: (chunk: string) => void;
   onDone: () => void;
   signal?: AbortSignal;
@@ -422,7 +424,20 @@ const AiChatBox = () => {
 
     try {
       await streamChat({
-        messages: newMessages.map((m) => ({ role: m.role, content: m.content })),
+        messages: newMessages.map((m) => {
+          // If message has an image attachment, send as multipart vision message
+          if (m.file_url && m.file_type?.startsWith("image/")) {
+            const parts: Array<{ type: string; text?: string; image_url?: { url: string } }> = [];
+            // Add text part (strip the markdown file link)
+            const textContent = m.content.replace(/\n\n📎 \[.*?\]\(.*?\)/, "").replace(/📎 Shared file: \[.*?\]\(.*?\)/, "").trim();
+            if (textContent) {
+              parts.push({ type: "text", text: textContent });
+            }
+            parts.push({ type: "image_url", image_url: { url: m.file_url } });
+            return { role: m.role, content: parts };
+          }
+          return { role: m.role, content: m.content };
+        }),
         signal: abortRef.current.signal,
         onDelta: (chunk) => {
           assistantSoFar += chunk;
