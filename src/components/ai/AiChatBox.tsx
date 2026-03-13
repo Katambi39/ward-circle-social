@@ -376,9 +376,6 @@ const AiChatBox = () => {
     return () => document.removeEventListener("keydown", handleEsc);
   }, [open]);
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
 
   // ── Auto-title from first user message ──
   const autoTitle = (text: string) => text.slice(0, 40) + (text.length > 40 ? "..." : "");
