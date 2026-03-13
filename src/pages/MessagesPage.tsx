@@ -67,6 +67,13 @@ const MessagesPage = () => {
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
   const [uploadingMedia, setUploadingMedia] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Call state
+  const [activeCall, setActiveCall] = useState<{
+    id: string; type: "voice" | "video"; isIncoming: boolean;
+    callerId: string; calleeId: string;
+  } | null>(null);
+  const [incomingCall, setIncomingCall] = useState<any | null>(null);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
