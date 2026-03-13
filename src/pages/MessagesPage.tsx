@@ -12,9 +12,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   MessageSquare, Send, ArrowLeft, CheckCircle2, Shield, Search,
   Circle, ShieldAlert, Trash2, Paperclip, Loader2, X, FileText, Download,
+  Phone, Video,
 } from "lucide-react";
 import { isExplicitLink } from "@/components/feed/LinkSafety";
 import DmLinkWarning from "@/components/messages/DmLinkWarning";
+import VoiceNoteRecorder from "@/components/messages/VoiceNoteRecorder";
+import VoiceNotePlayer from "@/components/messages/VoiceNotePlayer";
+import StickerPicker from "@/components/messages/StickerPicker";
+import CallScreen from "@/components/messages/CallScreen";
 import { motion, AnimatePresence } from "framer-motion";
 import { format, formatDistanceToNow, isToday, isYesterday } from "date-fns";
 
