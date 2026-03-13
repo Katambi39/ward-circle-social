@@ -209,7 +209,68 @@ const MessagesPage = () => {
     }
   }, [selectedConvo]);
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Listen for incoming calls
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel("incoming-calls")
+      .on("postgres_changes", {
+        event: "INSERT",
+        schema: "public",
+        table: "call_signals",
+        filter: `callee_id=eq.${user.id}`,
+      }, (payload) => {
+        const call = payload.new as any;
+        if (call.status === "ringing") {
+          setIncomingCall(call);
+        }
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
+
+  const startCall = async (type: "voice" | "video") => {
+    if (!user || !selectedConvo) return;
+    const otherId = selectedConvo.participant_one === user.id
+      ? selectedConvo.participant_two : selectedConvo.participant_one;
+    const { data, error } = await supabase.from("call_signals").insert({
+      conversation_id: selectedConvo.id,
+      caller_id: user.id,
+      callee_id: otherId,
+      call_type: type,
+      status: "ringing",
+    } as any).select().single();
+    if (error) {
+      toast({ title: "Call failed", description: error.message, variant: "destructive" });
+      return;
+    }
+    setActiveCall({
+      id: (data as any).id,
+      type,
+      isIncoming: false,
+      callerId: user.id,
+      calleeId: otherId,
+    });
+  };
+
+  const handleSendSticker = async (stickerUrl: string) => {
+    if (!user || !selectedConvo) return;
+    setSending(true);
+    try {
+      await supabase.from("direct_messages").insert({
+        conversation_id: selectedConvo.id,
+        sender_id: user.id,
+        content: "🎨 Sticker",
+        media_url: stickerUrl,
+      } as any);
+      await supabase.from("conversations").update({ last_message_at: new Date().toISOString() } as any).eq("id", selectedConvo.id);
+    } catch (e: any) {
+      toast({ title: "Error", description: e.message, variant: "destructive" });
+    } finally {
+      setSending(false);
+    }
+  };
+
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 10 * 1024 * 1024) {
