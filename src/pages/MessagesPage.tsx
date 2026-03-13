@@ -660,22 +660,43 @@ const MessagesPage = () => {
                   >
                     <Paperclip className="h-5 w-5" />
                   </Button>
-                  <Input
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder="Type a message..."
-                    className="rounded-xl flex-1"
-                    disabled={sending}
-                  />
-                  <Button
-                    onClick={handleSend}
-                    disabled={sending || (!newMessage.trim() && !mediaFile)}
-                    size="sm"
-                    className="rounded-xl gradient-kenya text-primary-foreground h-10 w-10 p-0"
-                  >
-                    {uploadingMedia ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                  </Button>
+                  <StickerPicker onSelect={handleSendSticker} />
+                  {newMessage.trim() || mediaFile ? (
+                    <>
+                      <Input
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Type a message..."
+                        className="rounded-xl flex-1"
+                        disabled={sending}
+                      />
+                      <Button
+                        onClick={handleSend}
+                        disabled={sending || (!newMessage.trim() && !mediaFile)}
+                        size="sm"
+                        className="rounded-xl gradient-kenya text-primary-foreground h-10 w-10 p-0"
+                      >
+                        {uploadingMedia ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Input
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder="Type a message..."
+                        className="rounded-xl flex-1"
+                        disabled={sending}
+                      />
+                      <VoiceNoteRecorder
+                        conversationId={selectedConvo.id}
+                        senderId={user!.id}
+                        onSent={() => {}}
+                      />
+                    </>
+                  )}
                 </div>
               </div>
             </>
@@ -694,6 +715,78 @@ const MessagesPage = () => {
           )}
         </div>
       </div>
+
+      {/* Active Call Screen */}
+      <AnimatePresence>
+        {activeCall && selectedConvo?.otherUser && (
+          <CallScreen
+            callId={activeCall.id}
+            conversationId={selectedConvo.id}
+            callType={activeCall.type}
+            isIncoming={activeCall.isIncoming}
+            callerId={activeCall.callerId}
+            calleeId={activeCall.calleeId}
+            currentUserId={user!.id}
+            otherUser={selectedConvo.otherUser}
+            onEnd={() => setActiveCall(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Incoming Call Popup */}
+      <AnimatePresence>
+        {incomingCall && !activeCall && (
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -50 }}
+            className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-card border border-border rounded-2xl shadow-xl p-4 flex items-center gap-4 min-w-[300px]"
+          >
+            <div className="h-12 w-12 rounded-full gradient-kenya flex items-center justify-center animate-pulse">
+              {incomingCall.call_type === "video" ? (
+                <Video className="h-6 w-6 text-primary-foreground" />
+              ) : (
+                <Phone className="h-6 w-6 text-primary-foreground" />
+              )}
+            </div>
+            <div className="flex-1">
+              <p className="font-display font-bold text-sm text-foreground">Incoming {incomingCall.call_type} call</p>
+              <p className="text-xs text-muted-foreground">Tap to answer</p>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="icon"
+                className="h-10 w-10 rounded-full bg-destructive hover:bg-destructive/90"
+                onClick={async () => {
+                  await supabase.from("call_signals").update({ status: "rejected", ended_at: new Date().toISOString() } as any).eq("id", incomingCall.id);
+                  setIncomingCall(null);
+                }}
+              >
+                <Phone className="h-4 w-4 text-destructive-foreground rotate-[135deg]" />
+              </Button>
+              <Button
+                size="icon"
+                className="h-10 w-10 rounded-full bg-green-500 hover:bg-green-600"
+                onClick={() => {
+                  // Find the conversation for this call
+                  const convo = conversations.find(c => c.id === incomingCall.conversation_id);
+                  if (convo) setSelectedConvo(convo);
+                  setActiveCall({
+                    id: incomingCall.id,
+                    type: incomingCall.call_type,
+                    isIncoming: true,
+                    callerId: incomingCall.caller_id,
+                    calleeId: incomingCall.callee_id,
+                  });
+                  setIncomingCall(null);
+                }}
+              >
+                <Phone className="h-4 w-4 text-white" />
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </AppLayout>
   );
 };
