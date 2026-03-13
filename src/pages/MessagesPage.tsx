@@ -595,7 +595,7 @@ const MessagesPage = () => {
                                     }
                                   })()
                                 )}
-                                {msg.content && msg.content !== "📎 Media" && (
+                                {msg.content && msg.content !== "📎 Media" && !msg.content.startsWith("🎤") && msg.content !== "🎨 Sticker" && (
                                   <p className="text-sm leading-relaxed whitespace-pre-wrap break-words">{msg.content}</p>
                                 )}
                                 {msg.content === "📎 Media" && !(msg as any).media_url && (
