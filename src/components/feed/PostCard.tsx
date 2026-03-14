@@ -26,6 +26,7 @@ import {
 export interface PostData {
   id: string;
   author: string;
+  authorUsername?: string;
   authorAvatar?: string;
   group: string;
   groupLocality?: string;
@@ -41,6 +42,7 @@ export interface PostData {
   isAnonymous?: boolean;
   feeling?: string;
   linkUrl?: string;
+  visibility?: string;
 }
 
 interface PostCardProps {
