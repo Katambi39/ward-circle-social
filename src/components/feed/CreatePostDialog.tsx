@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Image, Link2, X, Eye, EyeOff, Users, Loader2, BarChart3, Smile, Plus, Trash2, Video, ShieldAlert } from "lucide-react";
+import { Image, Link2, X, Eye, EyeOff, Users, Loader2, BarChart3, Smile, Plus, Trash2, Video, ShieldAlert, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -82,6 +82,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
   const [showFeelingPicker, setShowFeelingPicker] = useState(false);
   const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
   const [showPoll, setShowPoll] = useState(false);
+  const [visibility, setVisibility] = useState<"public" | "friends">("public");
 
   // Sync anonymous state and group when dialog opens
   useEffect(() => {
@@ -156,6 +157,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
     setShowFeelingPicker(false);
     setPollOptions(["", ""]);
     setShowPoll(false);
+    setVisibility("public");
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -345,6 +347,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
         moderation_status: modResult.is_flagged ? "flagged" : "approved",
         moderation_reason: modResult.is_flagged ? modResult.reason : null,
         feeling: selectedFeeling ? `${selectedFeeling.emoji} ${selectedFeeling.label}` : null,
+        visibility: visibility,
       } as any).select("id").single();
 
       if (error) throw error;
@@ -545,23 +548,56 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
           </div>
         )}
 
-        {/* Group selection */}
+        {/* Visibility selector */}
         <div className="space-y-2">
           <Label className="text-xs font-display text-muted-foreground flex items-center gap-1.5">
-            <Users className="h-3.5 w-3.5" /> Post to group
+            {visibility === "public" ? <Globe className="h-3.5 w-3.5" /> : <Users className="h-3.5 w-3.5" />} Post visibility
           </Label>
-          <Select value={selectedGroup} onValueChange={setSelectedGroup}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a group" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">My Feed (no group)</SelectItem>
-              {groups.map((g) => (
-                <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setVisibility("public")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border text-sm font-display font-medium transition-colors ${
+                visibility === "public"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              <Globe className="h-4 w-4" />
+              Public
+            </button>
+            <button
+              onClick={() => setVisibility("friends")}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-lg border text-sm font-display font-medium transition-colors ${
+                visibility === "friends"
+                  ? "border-primary bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              <Users className="h-4 w-4" />
+              Friends
+            </button>
+          </div>
         </div>
+
+        {/* Group selection */}
+        {groups.length > 0 && (
+          <div className="space-y-2">
+            <Label className="text-xs font-display text-muted-foreground flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5" /> Post to group (optional)
+            </Label>
+            <Select value={selectedGroup} onValueChange={setSelectedGroup}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a group" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No group</SelectItem>
+                {groups.map((g) => (
+                  <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {/* Anonymous toggle */}
         <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-muted/50">

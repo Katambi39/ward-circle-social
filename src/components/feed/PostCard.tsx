@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import SafeLink from "./SafeLink";
 import { useNavigate } from "react-router-dom";
-import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy, Repeat2, ShieldCheck, ShieldAlert, ShieldX, ShieldQuestion, Loader2 } from "lucide-react";
+import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy, Repeat2, ShieldCheck, ShieldAlert, ShieldX, ShieldQuestion, Loader2, Globe, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -26,6 +26,7 @@ import {
 export interface PostData {
   id: string;
   author: string;
+  authorUsername?: string;
   authorAvatar?: string;
   group: string;
   groupLocality?: string;
@@ -41,6 +42,7 @@ export interface PostData {
   isAnonymous?: boolean;
   feeling?: string;
   linkUrl?: string;
+  visibility?: string;
 }
 
 interface PostCardProps {
@@ -55,8 +57,9 @@ function dbPostToDisplay(p: DbPost): PostData {
   return {
     id: p.id,
     author: p.is_anonymous ? "Anonymous" : p.author_name,
+    authorUsername: p.is_anonymous ? undefined : p.author_username,
     authorAvatar: p.is_anonymous ? undefined : (p.author_avatar || undefined),
-    group: p.group_name || "General",
+    group: p.group_name || "",
     groupLocality: p.group_location || undefined,
     timeAgo: formatDistanceToNow(new Date(p.created_at), { addSuffix: true }),
     title: p.title,
@@ -70,6 +73,7 @@ function dbPostToDisplay(p: DbPost): PostData {
     isAnonymous: p.is_anonymous,
     feeling: p.feeling || undefined,
     linkUrl: p.link_url || undefined,
+    visibility: p.visibility || "public",
   };
 }
 
@@ -211,17 +215,31 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
               >
                 {post.isAnonymous ? "Anonymous" : post.author}
               </span>
+              {!post.isAnonymous && post.authorUsername && (
+                <span className="text-xs text-muted-foreground">@{post.authorUsername}</span>
+              )}
               {post.isVerified && !post.isAnonymous && (
                 <Shield className="h-3.5 w-3.5 text-primary fill-primary/20" />
               )}
               {post.feeling && (
                 <span className="text-xs text-muted-foreground">— {post.feeling}</span>
               )}
-              <span className="text-muted-foreground text-xs">·</span>
-              <span className="text-xs text-muted-foreground">{post.timeAgo}</span>
             </div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <span className="font-medium text-secondary">{post.group}</span>
+              {post.visibility === "friends" ? (
+                <Users className="h-3 w-3 text-secondary" />
+              ) : (
+                <Globe className="h-3 w-3 text-secondary" />
+              )}
+              <span className="font-medium text-secondary">
+                {post.visibility === "friends" ? "Friends" : "Public"}
+              </span>
+              {post.group && (
+                <>
+                  <span>·</span>
+                  <span className="font-medium">{post.group}</span>
+                </>
+              )}
               {post.groupLocality && (
                 <>
                   <span>·</span>
@@ -229,6 +247,8 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
                   <span>{post.groupLocality}</span>
                 </>
               )}
+              <span>·</span>
+              <span>{post.timeAgo}</span>
             </div>
           </div>
           <DropdownMenu>

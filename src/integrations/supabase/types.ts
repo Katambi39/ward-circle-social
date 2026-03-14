@@ -1154,6 +1154,7 @@ export type Database = {
           upvotes: number
           user_id: string
           video_url: string | null
+          visibility: string
         }
         Insert: {
           comment_count?: number
@@ -1178,6 +1179,7 @@ export type Database = {
           upvotes?: number
           user_id: string
           video_url?: string | null
+          visibility?: string
         }
         Update: {
           comment_count?: number
@@ -1202,6 +1204,7 @@ export type Database = {
           upvotes?: number
           user_id?: string
           video_url?: string | null
+          visibility?: string
         }
         Relationships: [
           {

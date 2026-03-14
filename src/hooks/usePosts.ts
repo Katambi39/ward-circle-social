@@ -19,6 +19,7 @@ export interface DbPost {
   repost_of: string | null;
   repost_comment: string | null;
   feeling: string | null;
+  visibility: string;
   // Joined data
   author_name: string;
   author_username: string;
@@ -96,6 +97,7 @@ export function usePosts() {
         repost_of: p.repost_of || null,
         repost_comment: p.repost_comment || null,
         feeling: p.feeling || null,
+        visibility: p.visibility || "public",
       };
     });
 
@@ -167,6 +169,7 @@ export function usePosts() {
               repost_of: p.repost_of || null,
               repost_comment: p.repost_comment || null,
               feeling: p.feeling || null,
+              visibility: p.visibility || "public",
             };
             setPosts((prev) => [newPost, ...prev]);
           }
