@@ -19,6 +19,7 @@ export interface DbPost {
   repost_of: string | null;
   repost_comment: string | null;
   feeling: string | null;
+  visibility: string;
   // Joined data
   author_name: string;
   author_username: string;
