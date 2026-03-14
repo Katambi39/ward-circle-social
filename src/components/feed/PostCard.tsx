@@ -215,17 +215,31 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
               >
                 {post.isAnonymous ? "Anonymous" : post.author}
               </span>
+              {!post.isAnonymous && post.authorUsername && (
+                <span className="text-xs text-muted-foreground">@{post.authorUsername}</span>
+              )}
               {post.isVerified && !post.isAnonymous && (
                 <Shield className="h-3.5 w-3.5 text-primary fill-primary/20" />
               )}
               {post.feeling && (
                 <span className="text-xs text-muted-foreground">— {post.feeling}</span>
               )}
-              <span className="text-muted-foreground text-xs">·</span>
-              <span className="text-xs text-muted-foreground">{post.timeAgo}</span>
             </div>
             <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <span className="font-medium text-secondary">{post.group}</span>
+              {post.visibility === "friends" ? (
+                <Users className="h-3 w-3 text-secondary" />
+              ) : (
+                <Globe className="h-3 w-3 text-secondary" />
+              )}
+              <span className="font-medium text-secondary">
+                {post.visibility === "friends" ? "Friends" : "Public"}
+              </span>
+              {post.group && (
+                <>
+                  <span>·</span>
+                  <span className="font-medium">{post.group}</span>
+                </>
+              )}
               {post.groupLocality && (
                 <>
                   <span>·</span>
@@ -233,6 +247,8 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
                   <span>{post.groupLocality}</span>
                 </>
               )}
+              <span>·</span>
+              <span>{post.timeAgo}</span>
             </div>
           </div>
           <DropdownMenu>
