@@ -169,6 +169,7 @@ export function usePosts() {
               repost_of: p.repost_of || null,
               repost_comment: p.repost_comment || null,
               feeling: p.feeling || null,
+              visibility: p.visibility || "public",
             };
             setPosts((prev) => [newPost, ...prev]);
           }
