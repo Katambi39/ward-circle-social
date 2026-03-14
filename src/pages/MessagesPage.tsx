@@ -750,6 +750,7 @@ const MessagesPage = () => {
             currentUserId={user!.id}
             otherUser={selectedConvo.otherUser}
             onEnd={() => setActiveCall(null)}
+            preAcquiredStream={activeCall.preAcquiredStream}
           />
         )}
       </AnimatePresence>
