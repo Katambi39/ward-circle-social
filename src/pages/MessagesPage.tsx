@@ -71,7 +71,7 @@ const MessagesPage = () => {
   // Call state
   const [activeCall, setActiveCall] = useState<{
     id: string; type: "voice" | "video"; isIncoming: boolean;
-    callerId: string; calleeId: string;
+    callerId: string; calleeId: string; preAcquiredStream?: MediaStream | null;
   } | null>(null);
   const [incomingCall, setIncomingCall] = useState<any | null>(null);
 
