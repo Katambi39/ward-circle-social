@@ -57,8 +57,9 @@ function dbPostToDisplay(p: DbPost): PostData {
   return {
     id: p.id,
     author: p.is_anonymous ? "Anonymous" : p.author_name,
+    authorUsername: p.is_anonymous ? undefined : p.author_username,
     authorAvatar: p.is_anonymous ? undefined : (p.author_avatar || undefined),
-    group: p.group_name || "General",
+    group: p.group_name || "",
     groupLocality: p.group_location || undefined,
     timeAgo: formatDistanceToNow(new Date(p.created_at), { addSuffix: true }),
     title: p.title,
@@ -72,6 +73,7 @@ function dbPostToDisplay(p: DbPost): PostData {
     isAnonymous: p.is_anonymous,
     feeling: p.feeling || undefined,
     linkUrl: p.link_url || undefined,
+    visibility: p.visibility || "public",
   };
 }
 
