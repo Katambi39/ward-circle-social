@@ -157,6 +157,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
     setShowFeelingPicker(false);
     setPollOptions(["", ""]);
     setShowPoll(false);
+    setVisibility("public");
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
