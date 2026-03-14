@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Phone, PhoneOff, Video, VideoOff, Mic, MicOff, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface CallScreenProps {
   callId: string;
@@ -14,11 +14,20 @@ interface CallScreenProps {
   currentUserId: string;
   otherUser: { display_name: string; avatar_url: string | null; username: string };
   onEnd: () => void;
+  /** Pre-acquired media stream from the click handler (caller only) */
+  preAcquiredStream?: MediaStream | null;
 }
+
+const ICE_SERVERS = [
+  { urls: "stun:stun.l.google.com:19302" },
+  { urls: "stun:stun1.l.google.com:19302" },
+  { urls: "stun:stun2.l.google.com:19302" },
+];
 
 const CallScreen = ({
   callId, conversationId, callType, isIncoming,
   callerId, calleeId, currentUserId, otherUser, onEnd,
+  preAcquiredStream,
 }: CallScreenProps) => {
   const [status, setStatus] = useState<"ringing" | "connecting" | "connected" | "ended">(
     isIncoming ? "ringing" : "connecting"
@@ -27,70 +36,95 @@ const CallScreen = ({
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const pcRef = useRef<RTCPeerConnection | null>(null);
-  const localStreamRef = useRef<MediaStream | null>(null);
+  const localStreamRef = useRef<MediaStream | null>(preAcquiredStream || null);
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement>(null);
   const timerRef = useRef<ReturnType<typeof setInterval>>();
+  const isMountedRef = useRef(true);
+  const processedCandidatesRef = useRef<Set<string>>(new Set());
+
+  const isCaller = currentUserId === callerId;
+  const myRole = isCaller ? "caller" : "callee";
 
   const cleanup = useCallback(() => {
     localStreamRef.current?.getTracks().forEach(t => t.stop());
+    localStreamRef.current = null;
     pcRef.current?.close();
+    pcRef.current = null;
     if (timerRef.current) clearInterval(timerRef.current);
   }, []);
 
   const endCall = useCallback(async (newStatus = "ended") => {
+    if (!isMountedRef.current) return;
     setStatus("ended");
     cleanup();
     await supabase.from("call_signals").update({
       status: newStatus,
       ended_at: new Date().toISOString(),
     } as any).eq("id", callId);
-    setTimeout(onEnd, 1000);
+    setTimeout(onEnd, 1200);
   }, [callId, cleanup, onEnd]);
 
-  const setupPeerConnection = useCallback(async () => {
-    const pc = new RTCPeerConnection({
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-      ],
-    });
-    pcRef.current = pc;
-
+  // Get or acquire media stream
+  const getMediaStream = useCallback(async (): Promise<MediaStream | null> => {
+    // Use pre-acquired stream if available
+    if (localStreamRef.current) return localStreamRef.current;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
         video: callType === "video",
       });
       localStreamRef.current = stream;
-      stream.getTracks().forEach(t => pc.addTrack(t, stream));
-      if (localVideoRef.current && callType === "video") {
-        localVideoRef.current.srcObject = stream;
-      }
-    } catch {
-      await endCall("ended");
-      return;
+      return stream;
+    } catch (err) {
+      console.error("Failed to get media:", err);
+      return null;
+    }
+  }, [callType]);
+
+  const setupPeerConnection = useCallback(async (stream: MediaStream): Promise<RTCPeerConnection> => {
+    const pc = new RTCPeerConnection({ iceServers: ICE_SERVERS });
+    pcRef.current = pc;
+
+    // Add local tracks
+    stream.getTracks().forEach(t => pc.addTrack(t, stream));
+    if (localVideoRef.current && callType === "video") {
+      localVideoRef.current.srcObject = stream;
     }
 
+    // Handle remote tracks
     pc.ontrack = (e) => {
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = e.streams[0];
+      const remoteStream = e.streams[0];
+      if (remoteVideoRef.current && callType === "video") {
+        remoteVideoRef.current.srcObject = remoteStream;
+      }
+      // For voice calls, use hidden audio element for playback
+      if (remoteAudioRef.current && callType === "voice") {
+        remoteAudioRef.current.srcObject = remoteStream;
       }
     };
 
+    // Send ICE candidates - use role-specific field to avoid overwriting
     pc.onicecandidate = async (e) => {
       if (e.candidate) {
-        const { data: current } = await supabase.from("call_signals").select("signal_data").eq("id", callId).single();
+        const candidateKey = `${myRole}_candidates`;
+        const { data: current } = await supabase
+          .from("call_signals")
+          .select("signal_data")
+          .eq("id", callId)
+          .single();
         const signalData = (current?.signal_data as any) || {};
-        const candidates = signalData.candidates || [];
-        candidates.push(e.candidate.toJSON());
+        const existingCandidates = signalData[candidateKey] || [];
+        existingCandidates.push(e.candidate.toJSON());
         await supabase.from("call_signals").update({
-          signal_data: { ...signalData, candidates },
+          signal_data: { ...signalData, [candidateKey]: existingCandidates },
         } as any).eq("id", callId);
       }
     };
 
     pc.onconnectionstatechange = () => {
+      if (!isMountedRef.current) return;
       if (pc.connectionState === "connected") {
         setStatus("connected");
         timerRef.current = setInterval(() => setDuration(d => d + 1), 1000);
@@ -100,46 +134,88 @@ const CallScreen = ({
       }
     };
 
-    return pc;
-  }, [callId, callType, endCall]);
+    pc.oniceconnectionstatechange = () => {
+      if (!isMountedRef.current) return;
+      if (pc.iceConnectionState === "connected" || pc.iceConnectionState === "completed") {
+        setStatus("connected");
+        if (!timerRef.current) {
+          timerRef.current = setInterval(() => setDuration(d => d + 1), 1000);
+        }
+      }
+    };
 
-  // Caller: create offer
+    return pc;
+  }, [callId, callType, endCall, myRole]);
+
+  // Add remote ICE candidates helper
+  const addRemoteCandidates = useCallback(async (pc: RTCPeerConnection, signalData: any) => {
+    const otherRole = isCaller ? "callee" : "caller";
+    const remoteCandidates = signalData[`${otherRole}_candidates`] || [];
+    for (const c of remoteCandidates) {
+      const key = JSON.stringify(c);
+      if (!processedCandidatesRef.current.has(key)) {
+        processedCandidatesRef.current.add(key);
+        try {
+          await pc.addIceCandidate(new RTCIceCandidate(c));
+        } catch (err) {
+          // Ignore duplicate candidate errors
+        }
+      }
+    }
+  }, [isCaller]);
+
+  // Caller: create offer - called directly from useEffect with pre-acquired stream
   const createOffer = useCallback(async () => {
-    const pc = await setupPeerConnection();
-    if (!pc) return;
+    const stream = await getMediaStream();
+    if (!stream) { await endCall("ended"); return; }
+
+    const pc = await setupPeerConnection(stream);
     const offer = await pc.createOffer();
     await pc.setLocalDescription(offer);
     await supabase.from("call_signals").update({
-      signal_data: { offer: offer },
+      signal_data: { offer: { type: offer.type, sdp: offer.sdp } },
+      status: "ringing",
     } as any).eq("id", callId);
-  }, [callId, setupPeerConnection]);
+  }, [callId, setupPeerConnection, getMediaStream, endCall]);
 
-  // Callee: answer
+  // Callee: answer - called directly from button click (gesture context preserved)
   const answerCall = useCallback(async () => {
     setStatus("connecting");
-    const pc = await setupPeerConnection();
-    if (!pc) return;
+
+    // CRITICAL: getUserMedia called directly in click handler
+    const stream = await getMediaStream();
+    if (!stream) { await endCall("ended"); return; }
+
+    const pc = await setupPeerConnection(stream);
 
     // Get the offer
-    const { data } = await supabase.from("call_signals").select("signal_data").eq("id", callId).single();
+    const { data } = await supabase
+      .from("call_signals")
+      .select("signal_data")
+      .eq("id", callId)
+      .single();
     const signalData = data?.signal_data as any;
-    if (signalData?.offer) {
-      await pc.setRemoteDescription(new RTCSessionDescription(signalData.offer));
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      await supabase.from("call_signals").update({
-        status: "answered",
-        signal_data: { ...signalData, answer },
-      } as any).eq("id", callId);
+    if (!signalData?.offer) {
+      await endCall("ended");
+      return;
     }
 
-    // Add any existing ICE candidates
-    if (signalData?.candidates) {
-      for (const c of signalData.candidates) {
-        try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch {}
-      }
-    }
-  }, [callId, setupPeerConnection]);
+    await pc.setRemoteDescription(new RTCSessionDescription(signalData.offer));
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+
+    await supabase.from("call_signals").update({
+      status: "answered",
+      signal_data: {
+        ...signalData,
+        answer: { type: answer.type, sdp: answer.sdp },
+      },
+      started_at: new Date().toISOString(),
+    } as any).eq("id", callId);
+
+    // Add any existing caller ICE candidates
+    await addRemoteCandidates(pc, signalData);
+  }, [callId, setupPeerConnection, getMediaStream, endCall, addRemoteCandidates]);
 
   // Listen for signal changes via realtime
   useEffect(() => {
@@ -151,12 +227,13 @@ const CallScreen = ({
         table: "call_signals",
         filter: `id=eq.${callId}`,
       }, async (payload) => {
+        if (!isMountedRef.current) return;
         const updated = payload.new as any;
 
-        if (updated.status === "ended" || updated.status === "rejected" || updated.status === "missed") {
+        if (["ended", "rejected", "missed"].includes(updated.status)) {
           setStatus("ended");
           cleanup();
-          setTimeout(onEnd, 1000);
+          setTimeout(onEnd, 1200);
           return;
         }
 
@@ -166,25 +243,44 @@ const CallScreen = ({
 
         // Caller receives answer
         if (signalData.answer && !pc.remoteDescription) {
-          await pc.setRemoteDescription(new RTCSessionDescription(signalData.answer));
-        }
-
-        // Both sides receive ICE candidates
-        if (signalData.candidates) {
-          for (const c of signalData.candidates) {
-            try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch {}
+          try {
+            await pc.setRemoteDescription(new RTCSessionDescription(signalData.answer));
+          } catch (err) {
+            console.error("Failed to set remote description:", err);
           }
         }
+
+        // Process remote ICE candidates
+        await addRemoteCandidates(pc, signalData);
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [callId, cleanup, onEnd]);
+  }, [callId, cleanup, onEnd, addRemoteCandidates]);
 
-  // Auto-start for caller
+  // Auto-start for caller (stream already acquired from click handler)
   useEffect(() => {
     if (!isIncoming) createOffer();
   }, [isIncoming, createOffer]);
+
+  // Auto-miss after 30s of ringing
+  useEffect(() => {
+    if (status !== "ringing" && status !== "connecting") return;
+    const timeout = setTimeout(() => {
+      if (isMountedRef.current && (status === "ringing" || status === "connecting")) {
+        endCall("missed");
+      }
+    }, 30000);
+    return () => clearTimeout(timeout);
+  }, [status, endCall]);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+      cleanup();
+    };
+  }, [cleanup]);
 
   const toggleMute = () => {
     localStreamRef.current?.getAudioTracks().forEach(t => { t.enabled = !t.enabled; });
@@ -209,6 +305,9 @@ const CallScreen = ({
       {callType === "video" && status === "connected" && (
         <video ref={remoteVideoRef} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover" />
       )}
+
+      {/* Hidden audio element for voice calls */}
+      <audio ref={remoteAudioRef} autoPlay playsInline className="hidden" />
 
       {/* Local video (pip) */}
       {callType === "video" && (

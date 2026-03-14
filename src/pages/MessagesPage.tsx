@@ -71,7 +71,7 @@ const MessagesPage = () => {
   // Call state
   const [activeCall, setActiveCall] = useState<{
     id: string; type: "voice" | "video"; isIncoming: boolean;
-    callerId: string; calleeId: string;
+    callerId: string; calleeId: string; preAcquiredStream?: MediaStream | null;
   } | null>(null);
   const [incomingCall, setIncomingCall] = useState<any | null>(null);
 
@@ -231,6 +231,19 @@ const MessagesPage = () => {
 
   const startCall = async (type: "voice" | "video") => {
     if (!user || !selectedConvo) return;
+    
+    // CRITICAL: Acquire media stream directly in click handler (user gesture)
+    let stream: MediaStream | null = null;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+        video: type === "video",
+      });
+    } catch (err) {
+      toast({ title: "Permission denied", description: "Please allow microphone/camera access to make calls.", variant: "destructive" });
+      return;
+    }
+
     const otherId = selectedConvo.participant_one === user.id
       ? selectedConvo.participant_two : selectedConvo.participant_one;
     const { data, error } = await supabase.from("call_signals").insert({
@@ -241,6 +254,7 @@ const MessagesPage = () => {
       status: "ringing",
     } as any).select().single();
     if (error) {
+      stream.getTracks().forEach(t => t.stop());
       toast({ title: "Call failed", description: error.message, variant: "destructive" });
       return;
     }
@@ -250,6 +264,7 @@ const MessagesPage = () => {
       isIncoming: false,
       callerId: user.id,
       calleeId: otherId,
+      preAcquiredStream: stream,
     });
   };
 
@@ -735,6 +750,7 @@ const MessagesPage = () => {
             currentUserId={user!.id}
             otherUser={selectedConvo.otherUser}
             onEnd={() => setActiveCall(null)}
+            preAcquiredStream={activeCall.preAcquiredStream}
           />
         )}
       </AnimatePresence>
