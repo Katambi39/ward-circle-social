@@ -82,6 +82,7 @@ const CreatePostDialog = ({ open, onOpenChange, intent = "default", groupId, gro
   const [showFeelingPicker, setShowFeelingPicker] = useState(false);
   const [pollOptions, setPollOptions] = useState<string[]>(["", ""]);
   const [showPoll, setShowPoll] = useState(false);
+  const [visibility, setVisibility] = useState<"public" | "friends">("public");
 
   // Sync anonymous state and group when dialog opens
   useEffect(() => {
