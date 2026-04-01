@@ -369,6 +369,53 @@ export type Database = {
         }
         Relationships: []
       }
+      escrow_holds: {
+        Row: {
+          amount: number
+          buyer_id: string
+          created_at: string
+          dispute_reason: string | null
+          id: string
+          listing_id: string
+          release_at: string
+          released_at: string | null
+          seller_id: string
+          status: string
+        }
+        Insert: {
+          amount: number
+          buyer_id: string
+          created_at?: string
+          dispute_reason?: string | null
+          id?: string
+          listing_id: string
+          release_at?: string
+          released_at?: string | null
+          seller_id: string
+          status?: string
+        }
+        Update: {
+          amount?: number
+          buyer_id?: string
+          created_at?: string
+          dispute_reason?: string | null
+          id?: string
+          listing_id?: string
+          release_at?: string
+          released_at?: string | null
+          seller_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escrow_holds_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_rsvps: {
         Row: {
           created_at: string
@@ -652,6 +699,59 @@ export type Database = {
           view_count?: number
         }
         Relationships: []
+      }
+      marketplace_reports: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          description: string
+          evidence_urls: string[] | null
+          id: string
+          listing_id: string | null
+          report_type: Database["public"]["Enums"]["report_type"]
+          reported_user_id: string | null
+          reporter_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          description: string
+          evidence_urls?: string[] | null
+          id?: string
+          listing_id?: string | null
+          report_type?: Database["public"]["Enums"]["report_type"]
+          reported_user_id?: string | null
+          reporter_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          description?: string
+          evidence_urls?: string[] | null
+          id?: string
+          listing_id?: string | null
+          report_type?: Database["public"]["Enums"]["report_type"]
+          reported_user_id?: string | null
+          reporter_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_reports_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       moderation_flags: {
         Row: {
@@ -1785,6 +1885,7 @@ export type Database = {
         }
         Returns: Json
       }
+      release_mature_escrows: { Args: never; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
@@ -1798,6 +1899,14 @@ export type Database = {
         | "page"
       listing_category: "products" | "services" | "digital" | "property"
       listing_status: "active" | "sold" | "paused" | "removed"
+      report_type:
+        | "scam"
+        | "fake_item"
+        | "non_delivery"
+        | "seller_dispute"
+        | "listing_violation"
+        | "refund_request"
+        | "other"
       transaction_status: "pending" | "completed" | "failed" | "refunded"
       transaction_type:
         | "deposit"
@@ -1945,6 +2054,15 @@ export const Constants = {
       ],
       listing_category: ["products", "services", "digital", "property"],
       listing_status: ["active", "sold", "paused", "removed"],
+      report_type: [
+        "scam",
+        "fake_item",
+        "non_delivery",
+        "seller_dispute",
+        "listing_violation",
+        "refund_request",
+        "other",
+      ],
       transaction_status: ["pending", "completed", "failed", "refunded"],
       transaction_type: ["deposit", "withdrawal", "purchase", "sale", "refund"],
       verification_status: ["unverified", "pending", "verified", "rejected"],
