@@ -28,8 +28,11 @@ import UserProfilePage from "./pages/UserProfilePage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import VerifyIdentityPage from "./pages/VerifyIdentityPage";
+import PhoneVerifyPage from "./pages/PhoneVerifyPage";
+import BuyerProtectionPage from "./pages/BuyerProtectionPage";
 import AdminKYCPage from "./pages/AdminKYCPage";
 import AdminModerationPage from "./pages/AdminModerationPage";
+import AdminMarketplacePage from "./pages/AdminMarketplacePage";
 import NotificationsPage from "./pages/NotificationsPage";
 import NotFound from "./pages/NotFound";
 
