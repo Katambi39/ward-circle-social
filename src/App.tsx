@@ -28,8 +28,11 @@ import UserProfilePage from "./pages/UserProfilePage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OnboardingPage from "./pages/OnboardingPage";
 import VerifyIdentityPage from "./pages/VerifyIdentityPage";
+import PhoneVerifyPage from "./pages/PhoneVerifyPage";
+import BuyerProtectionPage from "./pages/BuyerProtectionPage";
 import AdminKYCPage from "./pages/AdminKYCPage";
 import AdminModerationPage from "./pages/AdminModerationPage";
+import AdminMarketplacePage from "./pages/AdminMarketplacePage";
 import NotificationsPage from "./pages/NotificationsPage";
 import NotFound from "./pages/NotFound";
 
@@ -49,6 +52,8 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
               <Route path="/verify-identity" element={<ProtectedRoute><VerifyIdentityPage /></ProtectedRoute>} />
+              <Route path="/verify-phone" element={<ProtectedRoute><PhoneVerifyPage /></ProtectedRoute>} />
+              <Route path="/buyer-protection" element={<ProtectedRoute><BuyerProtectionPage /></ProtectedRoute>} />
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
               <Route path="/groups" element={<ProtectedRoute><GroupsPage /></ProtectedRoute>} />
               <Route path="/groups/:slug" element={<ProtectedRoute><GroupDetailPage /></ProtectedRoute>} />
@@ -69,6 +74,7 @@ const App = () => (
               <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
               <Route path="/admin/kyc" element={<ProtectedRoute><AdminKYCPage /></ProtectedRoute>} />
               <Route path="/admin/moderation" element={<ProtectedRoute><AdminModerationPage /></ProtectedRoute>} />
+              <Route path="/admin/marketplace" element={<ProtectedRoute><AdminMarketplacePage /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
