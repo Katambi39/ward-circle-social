@@ -127,7 +127,7 @@ const ListingDetailPage = () => {
       if (error) throw error;
       const result = data as any;
       if (result.success) {
-        toast({ title: "Purchase complete! 🎉", description: `You bought "${listing.title}"` });
+        toast({ title: "Purchase complete! 🎉", description: "Funds held in escrow for 72 hours for your protection." });
         setBuyDialogOpen(false);
         fetchListing();
       } else {
