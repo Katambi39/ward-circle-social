@@ -312,11 +312,16 @@ const ListingDetailPage = () => {
                         <span className="text-muted-foreground font-display">Your wallet balance</span>
                         <span className="font-display font-bold text-foreground">{formatPrice(walletBalance)}</span>
                       </div>
-                      {walletBalance < listing.price && (
+                        <div className="flex items-start gap-2 text-xs bg-primary/5 rounded-lg p-3 border border-primary/20 text-muted-foreground">
+                          <Shield className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
+                          <span>Your funds will be held in escrow for 72 hours for buyer protection. <a href="/buyer-protection" className="text-primary underline">Learn more</a></span>
+                        </div>
+                        {walletBalance < listing.price && (
                         <div className="flex items-center gap-2 text-accent text-xs bg-accent/5 rounded-lg p-3 border border-accent/20">
                           <AlertCircle className="h-4 w-4 flex-shrink-0" />
                           <span>Insufficient balance. Add funds to your wallet first.</span>
                         </div>
+                        )}
                       )}
                       <div className="flex gap-2">
                         {walletBalance < listing.price ? (

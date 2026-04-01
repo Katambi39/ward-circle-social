@@ -297,7 +297,7 @@ const AuthPage = () => {
                     <div className="flex items-start gap-2 p-3 bg-muted rounded-lg">
                       <Eye className="h-4 w-4 text-secondary shrink-0 mt-0.5" />
                       <p className="text-xs text-muted-foreground">
-                        After signing up, you can verify your identity to join locality groups and unlock all features.
+                        After signing up, verify your phone number to join groups and communities. Sellers must also complete KYC verification.
                       </p>
                     </div>
 
