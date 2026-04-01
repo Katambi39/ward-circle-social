@@ -322,7 +322,6 @@ const ListingDetailPage = () => {
                           <span>Insufficient balance. Add funds to your wallet first.</span>
                         </div>
                         )}
-                      )}
                       <div className="flex gap-2">
                         {walletBalance < listing.price ? (
                           <Button onClick={() => navigate("/wallet")} className="flex-1 rounded-xl gradient-kenya text-primary-foreground font-display">
