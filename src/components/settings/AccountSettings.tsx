@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ import { KENYA_COUNTIES } from "@/data/kenyaLocalities";
 
 const AccountSettings = () => {
   const { user, profile, refreshProfile, signOut } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name || "");
@@ -102,13 +104,13 @@ const AccountSettings = () => {
             )}
           </div>
           {!isVerified && (
-            <Button variant="outline" size="sm" className="rounded-xl font-display text-xs gap-1.5">
+            <Button variant="outline" size="sm" onClick={() => navigate("/verify-phone")} className="rounded-xl font-display text-xs gap-1.5">
               <Shield className="h-3.5 w-3.5" />
-              {isPending ? "Check Verification Status" : "Request Verification"}
+              {isPending ? "Check Verification Status" : "Verify Phone Number"}
             </Button>
           )}
           {isVerified && (
-            <Button variant="outline" size="sm" className="rounded-xl font-display text-xs gap-1.5">
+            <Button variant="outline" size="sm" onClick={() => navigate("/verify-phone")} className="rounded-xl font-display text-xs gap-1.5">
               <Shield className="h-3.5 w-3.5" /> Request Re-verification
             </Button>
           )}

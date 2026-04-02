@@ -1,19 +1,16 @@
-import { useState } from "react";
+import { useUserSettings } from "@/hooks/useUserSettings";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Filter, Wifi, HardDrive, HelpCircle, MessageSquare, Star, Search, ShieldAlert,
 } from "lucide-react";
 
 const AppPreferencesSettings = () => {
   const { toast } = useToast();
-  const [hideSensitive, setHideSensitive] = useState(true);
-  const [safeSearch, setSafeSearch] = useState(true);
-  const [localContent, setLocalContent] = useState(true);
-  const [dataSaver, setDataSaver] = useState(false);
-  const [offlineAccess, setOfflineAccess] = useState(false);
+  const { settings, loading, updateSetting } = useUserSettings();
 
   const handleClearCache = () => {
     if ('caches' in window) {
@@ -21,6 +18,8 @@ const AppPreferencesSettings = () => {
     }
     toast({ title: "Cache cleared ✓" });
   };
+
+  if (loading) return <div className="space-y-4">{[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full rounded-xl" />)}</div>;
 
   return (
     <div className="space-y-6">
@@ -38,7 +37,7 @@ const AppPreferencesSettings = () => {
               </p>
               <p className="text-xs text-muted-foreground">Filter potentially sensitive trends and posts</p>
             </div>
-            <Switch checked={hideSensitive} onCheckedChange={setHideSensitive} />
+            <Switch checked={settings.hide_sensitive} onCheckedChange={(v) => updateSetting("hide_sensitive", v)} />
           </div>
 
           <div className="flex items-center justify-between">
@@ -48,7 +47,7 @@ const AppPreferencesSettings = () => {
               </p>
               <p className="text-xs text-muted-foreground">Filter explicit content from search results</p>
             </div>
-            <Switch checked={safeSearch} onCheckedChange={setSafeSearch} />
+            <Switch checked={settings.safe_search} onCheckedChange={(v) => updateSetting("safe_search", v)} />
           </div>
 
           <div className="flex items-center justify-between">
@@ -56,7 +55,7 @@ const AppPreferencesSettings = () => {
               <p className="text-sm font-display font-medium text-foreground">Prioritize Local Content</p>
               <p className="text-xs text-muted-foreground">Show Kenyan and nearby content first</p>
             </div>
-            <Switch checked={localContent} onCheckedChange={setLocalContent} />
+            <Switch checked={settings.local_content} onCheckedChange={(v) => updateSetting("local_content", v)} />
           </div>
         </div>
       </section>
@@ -77,7 +76,7 @@ const AppPreferencesSettings = () => {
               </p>
               <p className="text-xs text-muted-foreground">Reduce data usage — ideal for limited bundles</p>
             </div>
-            <Switch checked={dataSaver} onCheckedChange={setDataSaver} />
+            <Switch checked={settings.data_saver} onCheckedChange={(v) => updateSetting("data_saver", v)} />
           </div>
 
           <div className="flex items-center justify-between">
@@ -85,7 +84,7 @@ const AppPreferencesSettings = () => {
               <p className="text-sm font-display font-medium text-foreground">Offline Access</p>
               <p className="text-xs text-muted-foreground">Cache content for areas with spotty internet</p>
             </div>
-            <Switch checked={offlineAccess} onCheckedChange={setOfflineAccess} />
+            <Switch checked={settings.offline_access} onCheckedChange={(v) => updateSetting("offline_access", v)} />
           </div>
 
           <Button variant="outline" size="sm" onClick={handleClearCache} className="rounded-xl font-display text-xs gap-1.5 w-full">

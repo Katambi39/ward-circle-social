@@ -1,31 +1,25 @@
-import { useState } from "react";
+import { useUserSettings } from "@/hooks/useUserSettings";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
   Eye, EyeOff, MapPin, Users, Globe, ShieldCheck, Ban, Flag, UserX,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PrivacySettings = () => {
-  const [profileVisibility, setProfileVisibility] = useState("public");
-  const [postVisibility, setPostVisibility] = useState("public");
-  const [locationSharing, setLocationSharing] = useState(true);
-  const [showInDiscover, setShowInDiscover] = useState(true);
-  const [trendParticipation, setTrendParticipation] = useState(true);
-  const [cameraPermission, setCameraPermission] = useState(true);
-  const [contactsPermission, setContactsPermission] = useState(false);
-  const [targetedAds, setTargetedAds] = useState(false);
-  const [analyticsOptIn, setAnalyticsOptIn] = useState(true);
+  const { settings, loading, updateSetting } = useUserSettings();
 
   const visibilityOptions = [
     { value: "public", label: "Public", icon: Globe },
     { value: "friends", label: "Connections Only", icon: Users },
     { value: "verified", label: "Verified Users Only", icon: ShieldCheck },
   ];
+
+  if (loading) return <div className="space-y-4">{[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full rounded-xl" />)}</div>;
 
   return (
     <div className="space-y-6">
@@ -38,7 +32,7 @@ const PrivacySettings = () => {
         <div className="space-y-3">
           <div>
             <p className="text-sm font-display font-medium text-foreground mb-1">Profile Visibility</p>
-            <Select value={profileVisibility} onValueChange={setProfileVisibility}>
+            <Select value={settings.profile_visibility} onValueChange={(v) => updateSetting("profile_visibility", v)}>
               <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {visibilityOptions.map((opt) => (
@@ -54,7 +48,7 @@ const PrivacySettings = () => {
 
           <div>
             <p className="text-sm font-display font-medium text-foreground mb-1">Post Default Visibility</p>
-            <Select value={postVisibility} onValueChange={setPostVisibility}>
+            <Select value={settings.post_visibility} onValueChange={(v) => updateSetting("post_visibility", v)}>
               <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
               <SelectContent>
                 {visibilityOptions.map((opt) => (
@@ -75,7 +69,7 @@ const PrivacySettings = () => {
               </p>
               <p className="text-xs text-muted-foreground">Show your county/ward on your profile</p>
             </div>
-            <Switch checked={locationSharing} onCheckedChange={setLocationSharing} />
+            <Switch checked={settings.location_sharing} onCheckedChange={(v) => updateSetting("location_sharing", v)} />
           </div>
 
           <div className="flex items-center justify-between">
@@ -83,7 +77,7 @@ const PrivacySettings = () => {
               <p className="text-sm font-display font-medium text-foreground">Show in Discover</p>
               <p className="text-xs text-muted-foreground">Allow others to find you in the discover section</p>
             </div>
-            <Switch checked={showInDiscover} onCheckedChange={setShowInDiscover} />
+            <Switch checked={settings.show_in_discover} onCheckedChange={(v) => updateSetting("show_in_discover", v)} />
           </div>
 
           <div className="flex items-center justify-between">
@@ -91,7 +85,7 @@ const PrivacySettings = () => {
               <p className="text-sm font-display font-medium text-foreground">Trend Participation</p>
               <p className="text-xs text-muted-foreground">Allow your posts to appear in trending</p>
             </div>
-            <Switch checked={trendParticipation} onCheckedChange={setTrendParticipation} />
+            <Switch checked={settings.trend_participation} onCheckedChange={(v) => updateSetting("trend_participation", v)} />
           </div>
         </div>
       </section>
@@ -110,7 +104,7 @@ const PrivacySettings = () => {
               <p className="text-sm font-display font-medium text-foreground">Camera Access</p>
               <p className="text-xs text-muted-foreground">For photos, stories, and verification</p>
             </div>
-            <Switch checked={cameraPermission} onCheckedChange={setCameraPermission} />
+            <Switch checked={settings.camera_permission} onCheckedChange={(v) => updateSetting("camera_permission", v)} />
           </div>
 
           <div className="flex items-center justify-between">
@@ -118,7 +112,7 @@ const PrivacySettings = () => {
               <p className="text-sm font-display font-medium text-foreground">Contacts Access</p>
               <p className="text-xs text-muted-foreground">Find friends from your contacts</p>
             </div>
-            <Switch checked={contactsPermission} onCheckedChange={setContactsPermission} />
+            <Switch checked={settings.contacts_permission} onCheckedChange={(v) => updateSetting("contacts_permission", v)} />
           </div>
 
           <div className="flex items-center justify-between">
@@ -126,7 +120,7 @@ const PrivacySettings = () => {
               <p className="text-sm font-display font-medium text-foreground">Targeted Advertising</p>
               <p className="text-xs text-muted-foreground">Allow personalized ads based on activity</p>
             </div>
-            <Switch checked={targetedAds} onCheckedChange={setTargetedAds} />
+            <Switch checked={settings.targeted_ads} onCheckedChange={(v) => updateSetting("targeted_ads", v)} />
           </div>
 
           <div className="flex items-center justify-between">
@@ -134,7 +128,7 @@ const PrivacySettings = () => {
               <p className="text-sm font-display font-medium text-foreground">Analytics & Insights</p>
               <p className="text-xs text-muted-foreground">Help improve Conect with usage data</p>
             </div>
-            <Switch checked={analyticsOptIn} onCheckedChange={setAnalyticsOptIn} />
+            <Switch checked={settings.analytics_opt_in} onCheckedChange={(v) => updateSetting("analytics_opt_in", v)} />
           </div>
         </div>
       </section>

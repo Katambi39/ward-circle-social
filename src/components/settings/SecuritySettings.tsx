@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserSettings } from "@/hooks/useUserSettings";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,7 +34,7 @@ const SecuritySettings = () => {
   const [changingPw, setChangingPw] = useState(false);
   const [twoFAEnabled, setTwoFAEnabled] = useState(false);
   const [twoFALoading, setTwoFALoading] = useState(false);
-  const [autoLogout, setAutoLogout] = useState("30");
+  const { settings: userSettings, updateSetting: updateUserSetting } = useUserSettings();
 
   // Passkey state
   const [passkeys, setPasskeys] = useState<any[]>([]);
@@ -376,8 +377,8 @@ const SecuritySettings = () => {
             <p className="text-xs text-muted-foreground">Automatically sign out after inactivity</p>
           </div>
           <select
-            value={autoLogout}
-            onChange={(e) => setAutoLogout(e.target.value)}
+            value={userSettings.auto_logout}
+            onChange={(e) => updateUserSetting("auto_logout", e.target.value)}
             className="text-xs rounded-lg border border-border bg-card px-2 py-1.5 font-display"
           >
             <option value="15">15 min</option>
