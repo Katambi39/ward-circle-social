@@ -130,10 +130,10 @@ const WalletPage = () => {
           </div>
           <h1 className="font-display text-xl font-bold text-foreground mb-2">Wallet Access Restricted</h1>
           <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-            Only verified users can access the wallet. Complete your identity verification to unlock M-Pesa deposits, purchases, and more.
+            Only verified users can access the wallet. Verify your phone number to unlock M-Pesa deposits, purchases, and more.
           </p>
-          <Button onClick={() => window.location.href = "/verify-identity"} className="gradient-kenya text-primary-foreground font-display rounded-xl gap-2">
-            <CreditCard className="h-4 w-4" /> Verify Identity
+          <Button onClick={() => window.location.href = "/verify-phone"} className="gradient-kenya text-primary-foreground font-display rounded-xl gap-2">
+            <CreditCard className="h-4 w-4" /> Verify Phone Number
           </Button>
         </div>
       </AppLayout>
