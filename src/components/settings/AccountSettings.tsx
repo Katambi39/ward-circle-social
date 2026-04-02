@@ -104,13 +104,13 @@ const AccountSettings = () => {
             )}
           </div>
           {!isVerified && (
-            <Button variant="outline" size="sm" className="rounded-xl font-display text-xs gap-1.5">
+            <Button variant="outline" size="sm" onClick={() => navigate("/verify-phone")} className="rounded-xl font-display text-xs gap-1.5">
               <Shield className="h-3.5 w-3.5" />
-              {isPending ? "Check Verification Status" : "Request Verification"}
+              {isPending ? "Check Verification Status" : "Verify Phone Number"}
             </Button>
           )}
           {isVerified && (
-            <Button variant="outline" size="sm" className="rounded-xl font-display text-xs gap-1.5">
+            <Button variant="outline" size="sm" onClick={() => navigate("/verify-phone")} className="rounded-xl font-display text-xs gap-1.5">
               <Shield className="h-3.5 w-3.5" /> Request Re-verification
             </Button>
           )}
