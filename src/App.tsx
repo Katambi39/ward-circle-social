@@ -51,7 +51,7 @@ const App = () => (
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/reset-password" element={<ResetPasswordPage />} />
               <Route path="/onboarding" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
-              <Route path="/verify-identity" element={<ProtectedRoute><VerifyIdentityPage /></ProtectedRoute>} />
+              <Route path="/verify-identity" element={<ProtectedRoute><VerifyIdentityPage /></ProtectedRoute>} />  {/* KYC for marketplace sellers */}
               <Route path="/verify-phone" element={<ProtectedRoute><PhoneVerifyPage /></ProtectedRoute>} />
               <Route path="/buyer-protection" element={<ProtectedRoute><BuyerProtectionPage /></ProtectedRoute>} />
               <Route path="/" element={<ProtectedRoute><Index /></ProtectedRoute>} />
