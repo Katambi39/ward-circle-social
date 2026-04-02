@@ -34,7 +34,7 @@ const SecuritySettings = () => {
   const [changingPw, setChangingPw] = useState(false);
   const [twoFAEnabled, setTwoFAEnabled] = useState(false);
   const [twoFALoading, setTwoFALoading] = useState(false);
-  const [autoLogout, setAutoLogout] = useState("30");
+  const { settings: userSettings, updateSetting: updateUserSetting } = useUserSettings();
 
   // Passkey state
   const [passkeys, setPasskeys] = useState<any[]>([]);
