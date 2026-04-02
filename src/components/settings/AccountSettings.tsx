@@ -22,6 +22,7 @@ import { KENYA_COUNTIES } from "@/data/kenyaLocalities";
 
 const AccountSettings = () => {
   const { user, profile, refreshProfile, signOut } = useAuth();
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [displayName, setDisplayName] = useState(profile?.display_name || "");
