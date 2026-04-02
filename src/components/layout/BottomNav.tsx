@@ -81,14 +81,14 @@ const BottomNav = () => {
 
             {isUnverified && (
               <button
-                onClick={() => handleNav("/verify-identity")}
+                onClick={() => handleNav("/verify-phone")}
                 className="w-full mb-4 p-3 rounded-xl bg-primary/10 border border-primary/20 text-left"
               >
                 <div className="flex items-center gap-2 mb-1">
                   <BadgeCheck className="h-4 w-4 text-primary" />
                   <span className="text-xs font-display font-semibold text-primary">Get Verified</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground">Verify your identity to join locality groups</p>
+                <p className="text-[10px] text-muted-foreground">Verify your phone number to join groups & communities</p>
               </button>
             )}
 

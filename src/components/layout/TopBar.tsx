@@ -138,7 +138,7 @@ const TopBar = () => {
                 <UserCircle className="h-4 w-4" /> My Profile
               </DropdownMenuItem>
               {profile?.verification_status !== "verified" && (
-                <DropdownMenuItem onClick={() => navigate("/verify-identity")} className="gap-2 cursor-pointer text-primary">
+                <DropdownMenuItem onClick={() => navigate("/verify-phone")} className="gap-2 cursor-pointer text-primary">
                   <CheckCircle2 className="h-4 w-4" /> Get Verified
                 </DropdownMenuItem>
               )}
