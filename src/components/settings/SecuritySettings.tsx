@@ -377,8 +377,8 @@ const SecuritySettings = () => {
             <p className="text-xs text-muted-foreground">Automatically sign out after inactivity</p>
           </div>
           <select
-            value={autoLogout}
-            onChange={(e) => setAutoLogout(e.target.value)}
+            value={userSettings.auto_logout}
+            onChange={(e) => updateUserSetting("auto_logout", e.target.value)}
             className="text-xs rounded-lg border border-border bg-card px-2 py-1.5 font-display"
           >
             <option value="15">15 min</option>
