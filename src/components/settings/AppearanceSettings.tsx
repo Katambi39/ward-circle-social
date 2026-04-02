@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { useTheme } from "next-themes";
+import { useUserSettings } from "@/hooks/useUserSettings";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -12,11 +12,7 @@ import {
 
 const AppearanceSettings = () => {
   const { theme, setTheme } = useTheme();
-  const [language, setLanguage] = useState("en");
-  const [fontSize, setFontSize] = useState("medium");
-  const [highContrast, setHighContrast] = useState(false);
-  const [reducedMotion, setReducedMotion] = useState(false);
-  const [simplifiedUI, setSimplifiedUI] = useState(false);
+  const { settings, loading, updateSetting } = useUserSettings();
 
   const themes = [
     { value: "light", label: "Light", icon: Sun, desc: "Classic bright theme" },
@@ -29,6 +25,8 @@ const AppearanceSettings = () => {
     { value: "sw", label: "Kiswahili" },
     { value: "ki", label: "Gĩkũyũ" },
   ];
+
+  if (loading) return <div className="space-y-4">{[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full rounded-xl" />)}</div>;
 
   return (
     <div className="space-y-6">
@@ -64,7 +62,7 @@ const AppearanceSettings = () => {
           <Languages className="h-4 w-4 text-primary" /> Language
         </h3>
 
-        <Select value={language} onValueChange={setLanguage}>
+        <Select value={settings.language} onValueChange={(v) => updateSetting("language", v)}>
           <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
           <SelectContent>
             {languages.map((l) => (
@@ -89,14 +87,14 @@ const AppearanceSettings = () => {
             type="range"
             min="0"
             max="2"
-            value={fontSize === "small" ? 0 : fontSize === "medium" ? 1 : 2}
-            onChange={(e) => setFontSize(["small", "medium", "large"][Number(e.target.value)])}
+            value={settings.font_size === "small" ? 0 : settings.font_size === "medium" ? 1 : 2}
+            onChange={(e) => updateSetting("font_size", ["small", "medium", "large"][Number(e.target.value)])}
             className="flex-1 accent-primary"
           />
           <span className="text-lg text-muted-foreground">A</span>
         </div>
         <p className="text-xs text-muted-foreground font-display">
-          Current: <span className="font-medium text-foreground capitalize">{fontSize}</span>
+          Current: <span className="font-medium text-foreground capitalize">{settings.font_size}</span>
         </p>
       </section>
 
@@ -116,7 +114,7 @@ const AppearanceSettings = () => {
               </p>
               <p className="text-xs text-muted-foreground">Increase contrast for better readability</p>
             </div>
-            <Switch checked={highContrast} onCheckedChange={setHighContrast} />
+            <Switch checked={settings.high_contrast} onCheckedChange={(v) => updateSetting("high_contrast", v)} />
           </div>
 
           <div className="flex items-center justify-between">
@@ -124,7 +122,7 @@ const AppearanceSettings = () => {
               <p className="text-sm font-display font-medium text-foreground">Reduced Motion</p>
               <p className="text-xs text-muted-foreground">Minimize animations throughout the app</p>
             </div>
-            <Switch checked={reducedMotion} onCheckedChange={setReducedMotion} />
+            <Switch checked={settings.reduced_motion} onCheckedChange={(v) => updateSetting("reduced_motion", v)} />
           </div>
 
           <div className="flex items-center justify-between">
@@ -134,7 +132,7 @@ const AppearanceSettings = () => {
               </p>
               <p className="text-xs text-muted-foreground">Reduce visual complexity for easier navigation</p>
             </div>
-            <Switch checked={simplifiedUI} onCheckedChange={setSimplifiedUI} />
+            <Switch checked={settings.simplified_ui} onCheckedChange={(v) => updateSetting("simplified_ui", v)} />
           </div>
         </div>
       </section>
