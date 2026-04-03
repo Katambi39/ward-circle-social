@@ -72,6 +72,32 @@ const ScrollableRow = ({
   );
 };
 
+const AutoScrollRow = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  return (
+    <div className="overflow-hidden -mx-4 px-4 pb-2">
+      <motion.div
+        className="flex gap-3 w-max"
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{
+          x: {
+            repeat: Infinity,
+            repeatType: "loop",
+            duration: 20,
+            ease: "linear",
+          },
+        }}
+      >
+        {children}
+        {children}
+      </motion.div>
+    </div>
+  );
+};
+
 const DiscoverPage = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
@@ -179,13 +205,13 @@ const DiscoverPage = () => {
             action="See All"
             onAction={() => toast.info("All channels coming soon!")}
           />
-          <ScrollableRow>
+          <AutoScrollRow>
             {discoverCategories.map((cat, i) => (
               <div key={cat.id} className="snap-start" onClick={() => handleCategoryClick(cat.name)}>
                 <CategoryCard category={cat} index={i} />
               </div>
             ))}
-          </ScrollableRow>
+          </AutoScrollRow>
         </section>
 
         {/* Content Creation Prompts */}
