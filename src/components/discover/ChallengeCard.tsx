@@ -21,7 +21,7 @@ interface ChallengeCardProps {
   onJoin?: () => void;
 }
 
-const ChallengeCard = ({ challenge, index }: ChallengeCardProps) => {
+const ChallengeCard = ({ challenge, index, onJoin }: ChallengeCardProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
