@@ -221,13 +221,13 @@ const DiscoverPage = () => {
             title="Create & Contribute"
             subtitle="Remix trends, share your story"
           />
-          <ScrollableRow>
+          <AutoScrollRow>
             {creationPrompts.map((prompt, i) => (
               <div key={prompt.id} className="snap-start" onClick={() => handleCreatePrompt(prompt.action, prompt.title)}>
                 <CreationPromptCard prompt={prompt} index={i} />
               </div>
             ))}
-          </ScrollableRow>
+          </AutoScrollRow>
         </section>
 
         {/* Polls & Interactive */}
