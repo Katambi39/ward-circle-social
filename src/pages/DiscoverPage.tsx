@@ -124,15 +124,18 @@ const DiscoverPage = () => {
   };
 
   const handleCreatePrompt = (action: string, title: string) => {
-    if (action === "Start Creating" || action === "Write Now") {
+    if (action === "Record Now") {
       navigate("/");
-      toast.success(`Let's go! Create your "${title}" post.`);
+      toast.success("Open the post composer and record your voice diary!");
     } else if (action === "Upload Photo") {
       navigate("/");
       toast.success("Upload your Golden Hour photo!");
     } else if (action === "Create Quiz") {
       navigate("/");
       toast.success("Create a quiz for your community!");
+    } else {
+      navigate("/");
+      toast.success(`Let's go! Create your "${title}" post.`);
     }
   };
 
