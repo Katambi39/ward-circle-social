@@ -191,6 +191,22 @@ export const creationPrompts: CreationPrompt[] = [
     action: "Create Quiz",
     gradient: "bg-gradient-to-br from-violet-600 to-indigo-700",
   },
+  {
+    id: "5",
+    title: "Voice Note Diary",
+    description: "Record a 60-second voice diary about your day in Kenya — raw & unfiltered",
+    emoji: "🎙️",
+    action: "Record Now",
+    gradient: "bg-gradient-to-br from-rose-600 to-pink-700",
+  },
+  {
+    id: "6",
+    title: "Meme It Up",
+    description: "Turn a trending Kenyan moment into a meme and share the laughs",
+    emoji: "😂",
+    action: "Start Creating",
+    gradient: "bg-gradient-to-br from-cyan-600 to-blue-700",
+  },
 ];
 
 export const challenges: Challenge[] = [
