@@ -58,6 +58,7 @@ const ChallengeCard = ({ challenge, index, onJoin }: ChallengeCardProps) => {
       <Button
         size="sm"
         className="w-full rounded-full gradient-kenya text-primary-foreground font-display text-xs gap-1"
+        onClick={onJoin}
       >
         Join Challenge <ArrowRight className="h-3.5 w-3.5" />
       </Button>
