@@ -18,9 +18,10 @@ export interface Challenge {
 interface ChallengeCardProps {
   challenge: Challenge;
   index: number;
+  onJoin?: () => void;
 }
 
-const ChallengeCard = ({ challenge, index }: ChallengeCardProps) => {
+const ChallengeCard = ({ challenge, index, onJoin }: ChallengeCardProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -57,6 +58,7 @@ const ChallengeCard = ({ challenge, index }: ChallengeCardProps) => {
       <Button
         size="sm"
         className="w-full rounded-full gradient-kenya text-primary-foreground font-display text-xs gap-1"
+        onClick={onJoin}
       >
         Join Challenge <ArrowRight className="h-3.5 w-3.5" />
       </Button>

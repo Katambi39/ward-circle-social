@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import SEO from "@/components/SEO";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
@@ -10,9 +10,10 @@ import ChallengeCard from "@/components/discover/ChallengeCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Search, TrendingUp, MapPin, Sparkles, Trophy, ChevronRight, Flame,
+  Search, TrendingUp, MapPin, Sparkles, Trophy, ChevronRight, ChevronLeft, Flame,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import acaciaIcon from "@/assets/acacia-icon.png";
 import {
   discoverCategories,
@@ -27,11 +28,13 @@ const SectionHeader = ({
   title,
   subtitle,
   action,
+  onAction,
 }: {
   icon: React.ReactNode;
   title: string;
   subtitle?: string;
   action?: string;
+  onAction?: () => void;
 }) => (
   <div className="flex items-center justify-between mb-3">
     <div className="flex items-center gap-2">
@@ -42,12 +45,57 @@ const SectionHeader = ({
       </div>
     </div>
     {action && (
-      <Button variant="ghost" size="sm" className="rounded-full text-xs font-display text-primary gap-1">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="rounded-full text-xs font-display text-primary gap-1"
+        onClick={onAction}
+      >
         {action} <ChevronRight className="h-3.5 w-3.5" />
       </Button>
     )}
   </div>
 );
+
+const ScrollableRow = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (dir: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const amount = 240;
+    scrollRef.current.scrollBy({
+      left: dir === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
+  };
+
+  return (
+    <div className="relative group">
+      <button
+        onClick={() => scroll("left")}
+        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/90 border border-border shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <ChevronLeft className="h-4 w-4 text-foreground" />
+      </button>
+      <div
+        ref={scrollRef}
+        className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
+      >
+        {children}
+      </div>
+      <button
+        onClick={() => scroll("right")}
+        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/90 border border-border shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <ChevronRight className="h-4 w-4 text-foreground" />
+      </button>
+    </div>
+  );
+};
 
 const DiscoverPage = () => {
   const navigate = useNavigate();
@@ -57,10 +105,47 @@ const DiscoverPage = () => {
   const enableLocation = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        () => setLocationEnabled(true),
-        () => setLocationEnabled(false)
+        () => {
+          setLocationEnabled(true);
+          toast.success("Location enabled! Showing nearby discoveries.");
+        },
+        () => {
+          setLocationEnabled(false);
+          toast.error("Location access denied. Please enable it in your browser settings.");
+        }
       );
     }
+  };
+
+  const handleCategoryClick = (categoryName: string) => {
+    toast.info(`Opening ${categoryName} channel...`);
+    // Future: navigate to channel detail page
+  };
+
+  const handleCreatePrompt = (action: string, title: string) => {
+    if (action === "Start Creating" || action === "Write Now") {
+      navigate("/");
+      toast.success(`Let's go! Create your "${title}" post.`);
+    } else if (action === "Upload Photo") {
+      navigate("/");
+      toast.success("Upload your Golden Hour photo!");
+    } else if (action === "Create Quiz") {
+      navigate("/");
+      toast.success("Create a quiz for your community!");
+    }
+  };
+
+  const handleChallengeJoin = (challengeTitle: string) => {
+    toast.success(`You joined "${challengeTitle}"! Start posting to earn rewards.`);
+  };
+
+  const handleNearbyItemClick = (itemName: string, itemType: string) => {
+    toast.info(`Viewing ${itemType}: ${itemName}`);
+  };
+
+  const handleCreatePoll = () => {
+    navigate("/");
+    toast.info("Create a poll from the post composer!");
   };
 
   return (
@@ -117,12 +202,15 @@ const DiscoverPage = () => {
             title="Channels & Categories"
             subtitle="Subscribe to Kenyan-specific niches"
             action="See All"
+            onAction={() => toast.info("All channels coming soon!")}
           />
-          <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+          <ScrollableRow>
             {discoverCategories.map((cat, i) => (
-              <CategoryCard key={cat.id} category={cat} index={i} />
+              <div key={cat.id} className="snap-start" onClick={() => handleCategoryClick(cat.name)}>
+                <CategoryCard category={cat} index={i} />
+              </div>
             ))}
-          </div>
+          </ScrollableRow>
         </section>
 
         {/* Content Creation Prompts */}
@@ -132,11 +220,13 @@ const DiscoverPage = () => {
             title="Create & Contribute"
             subtitle="Remix trends, share your story"
           />
-          <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+          <ScrollableRow>
             {creationPrompts.map((prompt, i) => (
-              <CreationPromptCard key={prompt.id} prompt={prompt} index={i} />
+              <div key={prompt.id} className="snap-start" onClick={() => handleCreatePrompt(prompt.action, prompt.title)}>
+                <CreationPromptCard prompt={prompt} index={i} />
+              </div>
             ))}
-          </div>
+          </ScrollableRow>
         </section>
 
         {/* Polls & Interactive */}
@@ -146,6 +236,7 @@ const DiscoverPage = () => {
             title="Polls & Votes"
             subtitle="From verified creators"
             action="Create Poll"
+            onAction={handleCreatePoll}
           />
           <div className="grid gap-3 sm:grid-cols-2">
             {discoverPolls.map((poll) => (
@@ -161,10 +252,11 @@ const DiscoverPage = () => {
             title="Challenges & Badges"
             subtitle="Earn rewards by participating"
             action="All Challenges"
+            onAction={() => toast.info("All challenges coming soon!")}
           />
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {challenges.map((challenge, i) => (
-              <ChallengeCard key={challenge.id} challenge={challenge} index={i} />
+              <ChallengeCard key={challenge.id} challenge={challenge} index={i} onJoin={() => handleChallengeJoin(challenge.title)} />
             ))}
           </div>
         </section>
@@ -176,6 +268,7 @@ const DiscoverPage = () => {
             title="Near You"
             subtitle="Events, businesses & meetups nearby"
             action="See Map"
+            onAction={() => toast.info("Map view coming soon!")}
           />
           {!locationEnabled ? (
             <motion.div
@@ -198,11 +291,13 @@ const DiscoverPage = () => {
               </Button>
             </motion.div>
           ) : (
-            <div className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+            <ScrollableRow>
               {nearbyItems.map((item, i) => (
-                <NearYouCard key={item.id} item={item} index={i} />
+                <div key={item.id} className="snap-start" onClick={() => handleNearbyItemClick(item.name, item.type)}>
+                  <NearYouCard item={item} index={i} />
+                </div>
               ))}
-            </div>
+            </ScrollableRow>
           )}
         </section>
       </div>
