@@ -10,7 +10,7 @@ import ChallengeCard from "@/components/discover/ChallengeCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Search, TrendingUp, MapPin, Sparkles, Trophy, ChevronRight, ChevronLeft, Flame,
+  Search, TrendingUp, MapPin, Sparkles, Trophy, ChevronRight, Flame,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
