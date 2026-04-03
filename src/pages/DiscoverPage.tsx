@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import SEO from "@/components/SEO";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
@@ -10,7 +10,7 @@ import ChallengeCard from "@/components/discover/ChallengeCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
-  Search, TrendingUp, MapPin, Sparkles, Trophy, ChevronRight, ChevronLeft, Flame,
+  Search, TrendingUp, MapPin, Sparkles, Trophy, ChevronRight, Flame,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -62,37 +62,12 @@ const ScrollableRow = ({
 }: {
   children: React.ReactNode;
 }) => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  const scroll = (dir: "left" | "right") => {
-    if (!scrollRef.current) return;
-    const amount = 240;
-    scrollRef.current.scrollBy({
-      left: dir === "left" ? -amount : amount,
-      behavior: "smooth",
-    });
-  };
-
   return (
-    <div className="relative group">
-      <button
-        onClick={() => scroll("left")}
-        className="absolute left-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/90 border border-border shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <ChevronLeft className="h-4 w-4 text-foreground" />
-      </button>
-      <div
-        ref={scrollRef}
-        className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
-      >
-        {children}
-      </div>
-      <button
-        onClick={() => scroll("right")}
-        className="absolute right-0 top-1/2 -translate-y-1/2 z-10 h-8 w-8 rounded-full bg-background/90 border border-border shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-      >
-        <ChevronRight className="h-4 w-4 text-foreground" />
-      </button>
+    <div
+      className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scroll-smooth snap-x snap-mandatory"
+      style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+    >
+      {children}
     </div>
   );
 };
