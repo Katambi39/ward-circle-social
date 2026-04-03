@@ -205,13 +205,13 @@ const DiscoverPage = () => {
             action="See All"
             onAction={() => toast.info("All channels coming soon!")}
           />
-          <ScrollableRow>
+          <AutoScrollRow>
             {discoverCategories.map((cat, i) => (
               <div key={cat.id} className="snap-start" onClick={() => handleCategoryClick(cat.name)}>
                 <CategoryCard category={cat} index={i} />
               </div>
             ))}
-          </ScrollableRow>
+          </AutoScrollRow>
         </section>
 
         {/* Content Creation Prompts */}
