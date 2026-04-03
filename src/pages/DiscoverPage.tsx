@@ -72,6 +72,32 @@ const ScrollableRow = ({
   );
 };
 
+const AutoScrollRow = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
+  return (
+    <div className="overflow-hidden -mx-4 px-4 pb-2">
+      <motion.div
+        className="flex gap-3 w-max"
+        animate={{ x: ["0%", "-50%"] }}
+        transition={{
+          x: {
+            repeat: Infinity,
+            repeatType: "loop",
+            duration: 20,
+            ease: "linear",
+          },
+        }}
+      >
+        {children}
+        {children}
+      </motion.div>
+    </div>
+  );
+};
+
 const DiscoverPage = () => {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
