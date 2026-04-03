@@ -18,6 +18,7 @@ export interface Challenge {
 interface ChallengeCardProps {
   challenge: Challenge;
   index: number;
+  onJoin?: () => void;
 }
 
 const ChallengeCard = ({ challenge, index }: ChallengeCardProps) => {
