@@ -263,6 +263,18 @@ const MarketplacePage = () => {
     return new Intl.NumberFormat("en-KE", { style: "currency", currency: "KES", minimumFractionDigits: 0 }).format(price);
   };
 
+  if (isAdmin === null) {
+    return (
+      <AppLayout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!isAdmin) return <UnderConstruction />;
+
   return (
     <AppLayout>
       <SEO title="Marketplace" description="Buy and sell products, services, and digital goods in your community on Conect Marketplace." path="/marketplace" />
