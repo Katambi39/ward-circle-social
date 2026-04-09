@@ -50,6 +50,7 @@ const ListingDetailPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   const [listing, setListing] = useState<ListingDetail | null>(null);
   const [seller, setSeller] = useState<any>(null);
@@ -59,6 +60,13 @@ const ListingDetailPage = () => {
   const [buyDialogOpen, setBuyDialogOpen] = useState(false);
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [selectedImage, setSelectedImage] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
+      setIsAdmin(!!data);
+    });
+  }, [user]);
 
   useEffect(() => {
     if (id) fetchListing();
