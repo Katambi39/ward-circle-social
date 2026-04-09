@@ -55,6 +55,16 @@ const CONDITIONS = ["New", "Like New", "Good", "Fair", "Used"];
 const MarketplacePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
+      setIsAdmin(!!data);
+    });
+  }, [user]);
+
+  if (isAdmin === false) return <UnderConstruction />;
   const { toast } = useToast();
   const [listings, setListings] = useState<Listing[]>([]);
   const [myListings, setMyListings] = useState<Listing[]>([]);
