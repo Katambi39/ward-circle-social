@@ -78,18 +78,20 @@ const AutoScrollRow = ({
   children: React.ReactNode;
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const indexRef = useRef(0);
   const childCount = Children.count(children);
+  const [isActive, setIsActive] = useState(false);
 
-  useEffect(() => {
-    if (childCount <= 1) return;
-    let index = 0;
-    const interval = setInterval(() => {
-      index = (index + 1) % childCount;
+  const startScrolling = useCallback(() => {
+    if (childCount <= 1 || intervalRef.current) return;
+    intervalRef.current = setInterval(() => {
+      indexRef.current = (indexRef.current + 1) % childCount;
       const container = scrollRef.current;
       if (container) {
         const cards = container.children;
-        if (cards[index]) {
-          (cards[index] as HTMLElement).scrollIntoView({
+        if (cards[indexRef.current]) {
+          (cards[indexRef.current] as HTMLElement).scrollIntoView({
             behavior: "smooth",
             block: "nearest",
             inline: "start",
@@ -97,12 +99,44 @@ const AutoScrollRow = ({
         }
       }
     }, 7000);
-    return () => clearInterval(interval);
   }, [childCount]);
+
+  const stopScrolling = useCallback(() => {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }, []);
+
+  // Desktop: hover to activate
+  const onMouseEnter = () => { setIsActive(true); startScrolling(); };
+  const onMouseLeave = () => { setIsActive(false); stopScrolling(); };
+
+  // Mobile: IntersectionObserver to activate when visible
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsActive(true);
+          startScrolling();
+        } else {
+          setIsActive(false);
+          stopScrolling();
+        }
+      },
+      { threshold: 0.5 }
+    );
+    observer.observe(el);
+    return () => { observer.disconnect(); stopScrolling(); };
+  }, [startScrolling, stopScrolling]);
 
   return (
     <div
       ref={scrollRef}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
       className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scroll-smooth snap-x snap-mandatory"
       style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
     >
