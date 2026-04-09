@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, Children } from "react";
 import SEO from "@/components/SEO";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
@@ -77,23 +77,40 @@ const AutoScrollRow = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const childCount = Children.count(children);
+
+  useEffect(() => {
+    if (childCount <= 1) return;
+    let index = 0;
+    const interval = setInterval(() => {
+      index = (index + 1) % childCount;
+      const container = scrollRef.current;
+      if (container) {
+        const cards = container.children;
+        if (cards[index]) {
+          (cards[index] as HTMLElement).scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+            inline: "start",
+          });
+        }
+      }
+    }, 7000);
+    return () => clearInterval(interval);
+  }, [childCount]);
+
   return (
-    <div className="overflow-hidden -mx-4 px-4 pb-2">
-      <motion.div
-        className="flex gap-3 w-max"
-        animate={{ x: ["0%", "-50%"] }}
-        transition={{
-          x: {
-            repeat: Infinity,
-            repeatType: "loop",
-            duration: 5,
-            ease: "linear",
-          },
-        }}
-      >
-        {children}
-        {children}
-      </motion.div>
+    <div
+      ref={scrollRef}
+      className="flex gap-3 overflow-x-auto pb-2 -mx-4 px-4 scroll-smooth snap-x snap-mandatory"
+      style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+    >
+      {Children.map(children, (child, i) => (
+        <div key={i} className="snap-start shrink-0">
+          {child}
+        </div>
+      ))}
     </div>
   );
 };
