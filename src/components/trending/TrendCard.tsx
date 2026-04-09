@@ -49,7 +49,12 @@ const TrendCard = ({ trend, showAnalytics = false }: TrendCardProps) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-lg">{categoryEmojis[trend.category]}</span>
-              <h3 className="font-display font-bold text-foreground">{trend.hashtag}</h3>
+              <h3
+                className="font-display font-bold text-primary cursor-pointer hover:underline"
+                onClick={() => navigate(`/search?q=${encodeURIComponent(trend.hashtag)}`)}
+              >
+                {trend.hashtag}
+              </h3>
               {trend.isVerifiedTrend && (
                 <Badge variant="outline" className="text-[10px] gap-1 text-primary border-primary/30 font-display">
                   <Shield className="h-3 w-3" /> Verified
