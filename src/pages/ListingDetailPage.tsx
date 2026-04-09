@@ -182,6 +182,18 @@ const ListingDetailPage = () => {
   const isOwner = user?.id === listing.seller_id;
   const isSold = listing.status === "sold";
 
+  if (isAdmin === null) {
+    return (
+      <AppLayout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!isAdmin) return <UnderConstruction />;
+
   return (
     <AppLayout>
       <div className="max-w-2xl mx-auto py-6 px-4 space-y-4">
