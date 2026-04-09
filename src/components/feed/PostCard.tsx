@@ -22,6 +22,27 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const renderContentWithHashtags = (text: string, navigateFn: (path: string) => void) => {
+  const parts = text.split(/(#\w+)/g);
+  return parts.map((part, i) => {
+    if (/^#\w+$/.test(part)) {
+      return (
+        <span
+          key={i}
+          className="text-primary font-semibold cursor-pointer hover:underline"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigateFn(`/search?q=${encodeURIComponent(part)}`);
+          }}
+        >
+          {part}
+        </span>
+      );
+    }
+    return part;
+  });
+};
+
 // Keep legacy interface for backward compat
 export interface PostData {
   id: string;
@@ -288,7 +309,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
           )}
           {displayContent && (
             <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-              {displayContent}
+              {renderContentWithHashtags(displayContent, navigate)}
             </p>
           )}
           {post.image && (
