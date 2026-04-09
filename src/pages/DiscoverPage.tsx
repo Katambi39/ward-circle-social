@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, Children } from "react";
+import { useState, useRef, useEffect, useCallback, Children } from "react";
 import SEO from "@/components/SEO";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
