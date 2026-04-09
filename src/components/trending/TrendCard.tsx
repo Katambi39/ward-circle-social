@@ -23,6 +23,7 @@ const velocityConfig = {
 
 const TrendCard = ({ trend, showAnalytics = false }: TrendCardProps) => {
   const [expanded, setExpanded] = useState(false);
+  const navigate = useNavigate();
   const vel = velocityConfig[trend.velocity];
   const VelIcon = vel.icon;
 
