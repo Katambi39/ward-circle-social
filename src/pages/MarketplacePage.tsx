@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import SEO from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import UnderConstruction from "@/components/marketplace/UnderConstruction";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import AppLayout from "@/components/layout/AppLayout";
@@ -54,6 +55,14 @@ const CONDITIONS = ["New", "Like New", "Good", "Fair", "Used"];
 const MarketplacePage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
+      setIsAdmin(!!data);
+    });
+  }, [user]);
   const { toast } = useToast();
   const [listings, setListings] = useState<Listing[]>([]);
   const [myListings, setMyListings] = useState<Listing[]>([]);
@@ -253,6 +262,18 @@ const MarketplacePage = () => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-KE", { style: "currency", currency: "KES", minimumFractionDigits: 0 }).format(price);
   };
+
+  if (isAdmin === null) {
+    return (
+      <AppLayout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!isAdmin) return <UnderConstruction />;
 
   return (
     <AppLayout>

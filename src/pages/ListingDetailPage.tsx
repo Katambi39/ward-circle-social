@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import UnderConstruction from "@/components/marketplace/UnderConstruction";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import AppLayout from "@/components/layout/AppLayout";
@@ -49,6 +50,7 @@ const ListingDetailPage = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
 
   const [listing, setListing] = useState<ListingDetail | null>(null);
   const [seller, setSeller] = useState<any>(null);
@@ -58,6 +60,13 @@ const ListingDetailPage = () => {
   const [buyDialogOpen, setBuyDialogOpen] = useState(false);
   const [walletBalance, setWalletBalance] = useState<number>(0);
   const [selectedImage, setSelectedImage] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then(({ data }) => {
+      setIsAdmin(!!data);
+    });
+  }, [user]);
 
   useEffect(() => {
     if (id) fetchListing();
@@ -172,6 +181,18 @@ const ListingDetailPage = () => {
 
   const isOwner = user?.id === listing.seller_id;
   const isSold = listing.status === "sold";
+
+  if (isAdmin === null) {
+    return (
+      <AppLayout>
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!isAdmin) return <UnderConstruction />;
 
   return (
     <AppLayout>
