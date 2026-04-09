@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { TrendingHashtag, TrendPreviewPost, categoryEmojis } from "@/data/trendingData";
 import {
   ArrowUp, ArrowDown, Minus, Shield, ChevronDown, ChevronUp,
