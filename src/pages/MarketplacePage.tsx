@@ -63,8 +63,6 @@ const MarketplacePage = () => {
       setIsAdmin(!!data);
     });
   }, [user]);
-
-  if (isAdmin === false) return <UnderConstruction />;
   const { toast } = useToast();
   const [listings, setListings] = useState<Listing[]>([]);
   const [myListings, setMyListings] = useState<Listing[]>([]);
