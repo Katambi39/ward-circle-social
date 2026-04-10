@@ -534,6 +534,38 @@ export type Database = {
         }
         Relationships: []
       }
+      hashtag_activity: {
+        Row: {
+          created_at: string
+          hashtag: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hashtag: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hashtag?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hashtag_activity_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kyc_submissions: {
         Row: {
           id: string
@@ -1864,6 +1896,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_trending_hashtags: {
+        Args: { hours_window?: number; result_limit?: number }
+        Returns: {
+          engagement_score: number
+          first_seen: string
+          hashtag: string
+          latest: string
+          post_count: number
+          total_comments: number
+          total_shares: number
+          total_upvotes: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
