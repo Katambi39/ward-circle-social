@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 import SafeLink from "./SafeLink";
 import { useNavigate } from "react-router-dom";
 import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy, Repeat2, ShieldCheck, ShieldAlert, ShieldX, ShieldQuestion, Loader2, Globe, Users } from "lucide-react";
@@ -352,7 +353,9 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
               </button>
               {verifyExpanded && (
                 <div className="mt-2 pt-2 border-t border-border/50 text-xs text-foreground/80 space-y-2">
-                  <p>{verifyResult.details}</p>
+                  <div className="prose prose-xs prose-neutral dark:prose-invert max-w-none [&_h2]:text-sm [&_h2]:font-display [&_h2]:font-bold [&_h2]:mt-2 [&_h2]:mb-1 [&_h3]:text-xs [&_h3]:font-display [&_h3]:font-semibold [&_h3]:mt-2 [&_h3]:mb-1 [&_p]:text-[11px] [&_p]:leading-relaxed [&_strong]:text-foreground [&_ol]:text-[11px] [&_ul]:text-[11px] [&_li]:my-0.5">
+                    <ReactMarkdown>{verifyResult.details}</ReactMarkdown>
+                  </div>
                   {verifyResult.link_warnings && verifyResult.link_warnings.length > 0 && (
                     <div className="bg-warning/10 border border-warning/20 rounded-lg p-2">
                       <p className="font-semibold text-warning flex items-center gap-1.5 mb-1">
