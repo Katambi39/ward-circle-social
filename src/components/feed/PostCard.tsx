@@ -347,7 +347,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
                     <span className={cn("font-display font-semibold text-xs", vc.color)}>{vc.label}</span>
                     <span className="text-[10px] text-muted-foreground">({verifyResult.confidence}%)</span>
                   </div>
-                  <p className="text-[11px] text-foreground/80 line-clamp-1">{verifyResult.summary}</p>
+                  <p className="text-[11px] text-foreground/80 line-clamp-1 [&_strong]:font-semibold"><ReactMarkdown components={{ p: ({ children }) => <span>{children}</span> }}>{verifyResult.summary}</ReactMarkdown></p>
                 </div>
                 <span className="text-[10px] text-muted-foreground">{verifyExpanded ? "▲" : "▼"}</span>
               </button>
