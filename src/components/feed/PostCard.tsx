@@ -130,6 +130,27 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
   const [verifyResult, setVerifyResult] = useState<VerifyResult | null>(null);
   const [verifyExpanded, setVerifyExpanded] = useState(false);
 
+  // Load existing vote from DB
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("votes")
+      .select("vote_type")
+      .eq("post_id", postId)
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data) {
+          setVoted(data.vote_type === 1 ? "up" : "down");
+        }
+      });
+  }, [postId, user]);
+
+  // Keep votes in sync with post prop changes (realtime)
+  useEffect(() => {
+    setVotes(post.upvotes);
+  }, [post.upvotes]);
+
   useEffect(() => {
     supabase
       .from("posts")
@@ -140,13 +161,74 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
 
   const isOwnPost = !!(user && authorUserId && user.id === authorUserId);
 
-  const handleVote = (direction: "up" | "down") => {
+  const handleVote = async (direction: "up" | "down") => {
+    if (!user) {
+      toast.error("Sign in to vote");
+      return;
+    }
+
+    const voteType = direction === "up" ? 1 : -1;
+
     if (voted === direction) {
-      setVotes(post.upvotes);
+      // Remove vote - optimistic
+      const prevVotes = votes;
       setVoted(null);
+      setVotes((v) => v - voteType);
+
+      const { error } = await supabase
+        .from("votes")
+        .delete()
+        .eq("post_id", postId)
+        .eq("user_id", user.id);
+
+      if (!error) {
+        // Update post counters
+        if (direction === "up") {
+          await supabase.from("posts").update({ upvotes: Math.max(0, prevVotes - 1) }).eq("id", postId);
+        } else {
+          await supabase.from("posts").update({ downvotes: Math.max(0, (post.upvotes - prevVotes) + 1 - 1) }).eq("id", postId);
+        }
+      } else {
+        setVoted(direction);
+        setVotes(prevVotes);
+      }
     } else {
-      setVotes(post.upvotes + (direction === "up" ? 1 : -1));
+      // Add or change vote - optimistic
+      const prevVoted = voted;
+      const prevVotes = votes;
       setVoted(direction);
+      setVotes((v) => v + voteType - (prevVoted ? (prevVoted === "up" ? 1 : -1) : 0));
+
+      // Upsert vote
+      const { error } = await supabase
+        .from("votes")
+        .upsert(
+          { post_id: postId, user_id: user.id, vote_type: voteType },
+          { onConflict: "user_id,post_id", ignoreDuplicates: false }
+        );
+
+      if (!error) {
+        // Recalculate from DB for accuracy
+        const { count: upCount } = await supabase
+          .from("votes")
+          .select("id", { count: "exact", head: true })
+          .eq("post_id", postId)
+          .eq("vote_type", 1);
+        const { count: downCount } = await supabase
+          .from("votes")
+          .select("id", { count: "exact", head: true })
+          .eq("post_id", postId)
+          .eq("vote_type", -1);
+
+        await supabase.from("posts").update({
+          upvotes: upCount || 0,
+          downvotes: downCount || 0,
+        }).eq("id", postId);
+      } else {
+        setVoted(prevVoted);
+        setVotes(prevVotes);
+        toast.error("Vote failed");
+      }
     }
   };
 
