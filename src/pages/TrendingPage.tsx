@@ -34,13 +34,6 @@ const TrendingPage = () => {
       t.hashtag.toLowerCase().includes(search.toLowerCase())
   );
 
-  // Fallback mock data filtered by search
-  const filteredMock = trendingData.filter(
-    (t) =>
-      !search.trim() ||
-      t.hashtag.toLowerCase().includes(search.toLowerCase()) ||
-      t.topic.toLowerCase().includes(search.toLowerCase())
-  );
 
   return (
     <AppLayout>
@@ -158,20 +151,15 @@ const TrendingPage = () => {
           </>
         )}
 
-        {/* Mock fallback when no live data */}
+        {/* Empty state when no live data */}
         {!isLoading && !hasLiveData && (
-          <>
-            <div className="flex items-center gap-2 mb-3">
-              <Badge variant="outline" className="text-[10px] font-display gap-1 text-muted-foreground">
-                Suggested trends — post with #hashtags to start tracking!
-              </Badge>
-            </div>
-            <div className="space-y-3">
-              {filteredMock.map((trend) => (
-                <TrendCard key={trend.id} trend={trend} showAnalytics={false} />
-              ))}
-            </div>
-          </>
+          <div className="text-center py-16">
+            <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+            <p className="font-display font-semibold text-foreground">No trends yet</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Start posting with #hashtags to see what Kenya is talking about!
+            </p>
+          </div>
         )}
       </div>
     </AppLayout>
