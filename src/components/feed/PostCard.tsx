@@ -204,7 +204,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
         .from("votes")
         .upsert(
           { post_id: postId, user_id: user.id, vote_type: voteType },
-          { onConflict: "post_id,user_id", ignoreDuplicates: false }
+          { onConflict: "user_id,post_id", ignoreDuplicates: false }
         );
 
       if (!error) {
