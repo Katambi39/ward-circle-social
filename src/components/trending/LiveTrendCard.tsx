@@ -61,11 +61,16 @@ const LiveTrendCard = ({ trend, rank }: Props) => {
             <h3
               className="font-display font-bold text-primary cursor-pointer hover:underline"
               onClick={() =>
-                navigate(`/search?q=${encodeURIComponent("#" + trend.hashtag)}`)
+                navigate(`/search?q=${encodeURIComponent(trend.trend_type === "hashtag" ? "#" + trend.hashtag : trend.hashtag)}`)
               }
             >
-              #{trend.hashtag}
+              {trend.trend_type === "hashtag" ? `#${trend.hashtag}` : trend.hashtag}
             </h3>
+            {trend.trend_type === "keyword" && (
+              <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-display text-muted-foreground">
+                topic
+              </Badge>
+            )}
             <div
               className={cn(
                 "flex items-center gap-0.5 text-xs font-display font-semibold",
@@ -110,7 +115,7 @@ const LiveTrendCard = ({ trend, rank }: Props) => {
           variant="outline"
           className="rounded-full font-display text-xs gap-1 shrink-0"
           onClick={() =>
-            navigate(`/search?q=${encodeURIComponent("#" + trend.hashtag)}`)
+            navigate(`/search?q=${encodeURIComponent(trend.trend_type === "hashtag" ? "#" + trend.hashtag : trend.hashtag)}`)
           }
         >
           <MessageCircle className="h-3.5 w-3.5" /> View

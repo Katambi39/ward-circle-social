@@ -10,6 +10,7 @@ export interface LiveTrend {
   engagement_score: number;
   first_seen: string;
   latest: string;
+  trend_type: "hashtag" | "keyword";
 }
 
 export const useTrending = (hoursWindow = 24) => {

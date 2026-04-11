@@ -76,7 +76,7 @@ const TrendingPage = () => {
             </Button>
           </div>
           <p className="text-sm text-muted-foreground mb-4">
-            What Kenya is talking about right now
+            Topics, hashtags & keywords Kenya is talking about
           </p>
 
           {/* Search */}
@@ -118,11 +118,11 @@ const TrendingPage = () => {
             <BarChart3 className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1">
-            <p className="font-display font-semibold text-sm text-foreground">
+           <p className="font-display font-semibold text-sm text-foreground">
               Trends are ranked by engagement
             </p>
             <p className="text-xs text-muted-foreground">
-              Hashtags from posts are tracked automatically. Upvotes, comments & shares boost ranking.
+              Hashtags, keywords & topics from posts are tracked automatically. Upvotes, comments & shares boost ranking.
             </p>
           </div>
         </motion.div>
