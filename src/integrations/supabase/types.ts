@@ -540,6 +540,7 @@ export type Database = {
           hashtag: string
           id: string
           post_id: string
+          type: string
           user_id: string
         }
         Insert: {
@@ -547,6 +548,7 @@ export type Database = {
           hashtag: string
           id?: string
           post_id: string
+          type?: string
           user_id: string
         }
         Update: {
@@ -554,6 +556,7 @@ export type Database = {
           hashtag?: string
           id?: string
           post_id?: string
+          type?: string
           user_id?: string
         }
         Relationships: [
@@ -1907,6 +1910,7 @@ export type Database = {
           total_comments: number
           total_shares: number
           total_upvotes: number
+          trend_type: string
         }[]
       }
       has_role: {
