@@ -88,8 +88,8 @@ const GroupCard = ({ group, onJoined }: GroupCardProps) => {
       if (error) {
         if (error.code === "42501" || error.message?.includes("policy")) {
           toast({
-            title: "Verification required",
-            description: "You must verify your identity before joining groups.",
+            title: "Unable to join",
+            description: "Please sign in to join groups.",
             variant: "destructive",
           });
           return;

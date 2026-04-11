@@ -1,9 +1,7 @@
 import { useState } from "react";
 import SEO from "@/components/SEO";
 import AppLayout from "@/components/layout/AppLayout";
-import TrendCard from "@/components/trending/TrendCard";
 import LiveTrendCard from "@/components/trending/LiveTrendCard";
-import { trendingData } from "@/data/trendingData";
 import { useTrending } from "@/hooks/useTrending";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
