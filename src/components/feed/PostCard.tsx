@@ -458,6 +458,36 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
           );
         })()}
 
+        {/* Engagement Summary (Facebook-style) */}
+        {(votes > 0 || post.comments > 0 || post.shares > 0) && (
+          <div className="flex items-center justify-between text-xs text-muted-foreground mt-3 pb-2 border-b border-border/50">
+            <div className="flex items-center gap-1.5">
+              {votes > 0 && (
+                <>
+                  <span className="flex items-center -space-x-1">
+                    <span className="h-4 w-4 rounded-full bg-primary flex items-center justify-center ring-2 ring-card">
+                      <ArrowBigUp className="h-2.5 w-2.5 text-primary-foreground fill-primary-foreground" />
+                    </span>
+                  </span>
+                  <span className="font-display">{votes.toLocaleString()}</span>
+                </>
+              )}
+            </div>
+            <div className="flex items-center gap-3">
+              {post.comments > 0 && (
+                <span className="font-display hover:underline cursor-pointer" onClick={() => navigate(`/post/${postId}`)}>
+                  {post.comments.toLocaleString()} {post.comments === 1 ? "comment" : "comments"}
+                </span>
+              )}
+              {post.shares > 0 && (
+                <span className="font-display">
+                  {post.shares.toLocaleString()} {post.shares === 1 ? "share" : "shares"}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Actions */}
         <div className="flex items-center gap-1 mt-2">
           <div className="flex items-center bg-muted rounded-full">
