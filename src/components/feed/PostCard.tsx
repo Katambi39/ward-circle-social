@@ -232,14 +232,19 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
     }
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
     const url = `${window.location.origin}/post/${postId}`;
+    let shared = false;
     if (navigator.share) {
-      navigator.share({ title: post.title, url }).catch(() => {});
+      try { await navigator.share({ title: post.title, url }); shared = true; } catch { return; }
     } else {
-      navigator.clipboard.writeText(url).catch(() => {});
+      await navigator.clipboard.writeText(url).catch(() => {});
+      toast.success("Link copied to clipboard");
+      shared = true;
     }
-    toast.success("Link copied to clipboard");
+    if (shared) {
+      await supabase.from("posts").update({ share_count: post.shares + 1 }).eq("id", postId);
+    }
   };
 
   const handleDelete = async () => {
