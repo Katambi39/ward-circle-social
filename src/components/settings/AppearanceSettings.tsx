@@ -68,7 +68,7 @@ const AppearanceSettings = () => {
             ))}
           </SelectContent>
         </Select>
-        <p className="text-xs text-muted-foreground">More languages coming soon including Dholuo, Kalenjin, and Luhya.</p>
+        <p className="text-xs text-muted-foreground">More languages coming soon.</p>
       </section>
 
       <Separator />
