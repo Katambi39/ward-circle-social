@@ -3,8 +3,10 @@ import SEO from "@/components/SEO";
 import AppLayout from "@/components/layout/AppLayout";
 import { cn } from "@/lib/utils";
 import {
-  UserCircle, Lock, Eye, Bell, Palette, Settings2, ChevronRight,
+  UserCircle, Lock, Eye, Bell, Palette, Settings2, ChevronRight, Save,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useUserSettings } from "@/hooks/useUserSettings";
 import AccountSettings from "@/components/settings/AccountSettings";
 import SecuritySettings from "@/components/settings/SecuritySettings";
 import PrivacySettings from "@/components/settings/PrivacySettings";
