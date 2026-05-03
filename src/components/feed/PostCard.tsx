@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import SafeLink from "./SafeLink";
 import { useNavigate } from "react-router-dom";
-import { ArrowBigUp, ArrowBigDown, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy, Repeat2, ShieldCheck, ShieldAlert, ShieldX, ShieldQuestion, Loader2, Globe, Users } from "lucide-react";
+import { ArrowBigUp, MessageCircle, Share2, Bookmark, MoreHorizontal, MapPin, Shield, Flag, Trash2, Copy, Repeat2, ShieldCheck, ShieldAlert, ShieldX, ShieldQuestion, Loader2, Globe, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -23,19 +23,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const renderContentWithHashtags = (text: string, navigateFn: (path: string) => void) => {
-  const parts = text.split(/(#\w+)/g);
+const renderContentWithTags = (text: string, navigateFn: (path: string) => void) => {
+  const parts = text.split(/(#\w+|\$[A-Za-z][A-Za-z0-9_]*)/g);
   return parts.map((part, i) => {
     if (/^#\w+$/.test(part)) {
       return (
-        <span
-          key={i}
-          className="text-primary font-semibold cursor-pointer hover:underline"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigateFn(`/search?q=${encodeURIComponent(part)}`);
-          }}
-        >
+        <span key={i} className="text-primary font-semibold cursor-pointer hover:underline"
+          onClick={(e) => { e.stopPropagation(); navigateFn(`/search?q=${encodeURIComponent(part)}`); }}>
+          {part}
+        </span>
+      );
+    }
+    if (/^\$[A-Za-z][A-Za-z0-9_]*$/.test(part)) {
+      return (
+        <span key={i} className="text-kenya-gold font-semibold cursor-pointer hover:underline"
+          onClick={(e) => { e.stopPropagation(); navigateFn(`/search?q=${encodeURIComponent(part)}`); }}>
           {part}
         </span>
       );
@@ -161,75 +163,41 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
 
   const isOwnPost = !!(user && authorUserId && user.id === authorUserId);
 
-  const handleVote = async (direction: "up" | "down") => {
+  const handleVote = async (_direction: "up") => {
     if (!user) {
-      toast.error("Sign in to vote");
+      toast.error("Sign in to like");
       return;
     }
+    const prevVoted = voted;
+    const prevVotes = votes;
 
-    const voteType = direction === "up" ? 1 : -1;
-
-    if (voted === direction) {
-      // Remove vote - optimistic
-      const prevVotes = votes;
+    if (voted === "up") {
       setVoted(null);
-      setVotes((v) => v - voteType);
-
+      setVotes((v) => Math.max(0, v - 1));
       const { error } = await supabase
         .from("votes")
         .delete()
         .eq("post_id", postId)
         .eq("user_id", user.id);
-
-      if (!error) {
-        // Update post counters
-        if (direction === "up") {
-          await supabase.from("posts").update({ upvotes: Math.max(0, prevVotes - 1) }).eq("id", postId);
-        } else {
-          await supabase.from("posts").update({ downvotes: Math.max(0, (post.upvotes - prevVotes) + 1 - 1) }).eq("id", postId);
-        }
-      } else {
-        setVoted(direction);
-        setVotes(prevVotes);
-      }
+      if (error) { setVoted(prevVoted); setVotes(prevVotes); toast.error("Failed"); return; }
     } else {
-      // Add or change vote - optimistic
-      const prevVoted = voted;
-      const prevVotes = votes;
-      setVoted(direction);
-      setVotes((v) => v + voteType - (prevVoted ? (prevVoted === "up" ? 1 : -1) : 0));
-
-      // Upsert vote
+      setVoted("up");
+      setVotes((v) => v + 1);
       const { error } = await supabase
         .from("votes")
         .upsert(
-          { post_id: postId, user_id: user.id, vote_type: voteType },
+          { post_id: postId, user_id: user.id, vote_type: 1 },
           { onConflict: "user_id,post_id", ignoreDuplicates: false }
         );
-
-      if (!error) {
-        // Recalculate from DB for accuracy
-        const { count: upCount } = await supabase
-          .from("votes")
-          .select("id", { count: "exact", head: true })
-          .eq("post_id", postId)
-          .eq("vote_type", 1);
-        const { count: downCount } = await supabase
-          .from("votes")
-          .select("id", { count: "exact", head: true })
-          .eq("post_id", postId)
-          .eq("vote_type", -1);
-
-        await supabase.from("posts").update({
-          upvotes: upCount || 0,
-          downvotes: downCount || 0,
-        }).eq("id", postId);
-      } else {
-        setVoted(prevVoted);
-        setVotes(prevVotes);
-        toast.error("Vote failed");
-      }
+      if (error) { setVoted(prevVoted); setVotes(prevVotes); toast.error("Like failed"); return; }
     }
+
+    const { count: upCount } = await supabase
+      .from("votes")
+      .select("id", { count: "exact", head: true })
+      .eq("post_id", postId)
+      .eq("vote_type", 1);
+    await supabase.from("posts").update({ upvotes: upCount || 0 }).eq("id", postId);
   };
 
   const handleShare = async () => {
@@ -397,7 +365,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
           )}
           {displayContent && (
             <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-              {renderContentWithHashtags(displayContent, navigate)}
+              {renderContentWithTags(displayContent, navigate)}
             </p>
           )}
           {post.image && (
@@ -495,32 +463,16 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
 
         {/* Actions */}
         <div className="flex items-center gap-1 mt-2">
-          <div className="flex items-center bg-muted rounded-full">
-            <button
-              onClick={() => handleVote("up")}
-              className={cn(
-                "p-1.5 rounded-l-full transition-colors",
-                voted === "up" ? "text-primary" : "text-muted-foreground hover:text-primary"
-              )}
-            >
-              <ArrowBigUp className={cn("h-5 w-5", voted === "up" && "fill-primary animate-vote-pop")} />
-            </button>
-            <span className={cn(
-              "text-sm font-display font-semibold min-w-[2rem] text-center",
-              voted === "up" ? "text-primary" : voted === "down" ? "text-accent" : "text-foreground"
-            )}>
-              {votes}
-            </span>
-            <button
-              onClick={() => handleVote("down")}
-              className={cn(
-                "p-1.5 rounded-r-full transition-colors",
-                voted === "down" ? "text-accent" : "text-muted-foreground hover:text-accent"
-              )}
-            >
-              <ArrowBigDown className={cn("h-5 w-5", voted === "down" && "fill-accent animate-vote-pop")} />
-            </button>
-          </div>
+          <button
+            onClick={() => handleVote("up")}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-colors",
+              voted === "up" ? "text-primary bg-primary/10" : "text-muted-foreground hover:bg-muted"
+            )}
+          >
+            <ArrowBigUp className={cn("h-5 w-5", voted === "up" && "fill-primary animate-vote-pop")} />
+            <span className="text-xs font-display font-semibold">Like</span>
+          </button>
 
           {/* Emoji Reactions */}
           <ReactionBar postId={postId} />
