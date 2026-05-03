@@ -51,8 +51,15 @@ const SettingsPage = () => {
     <AppLayout>
       <SEO title="Settings" description="Manage your Conect account settings, privacy, security, and preferences." path="/settings" />
       <div className="max-w-3xl mx-auto py-6 px-4">
-        <h1 className="font-display text-2xl font-bold text-foreground mb-1">Settings</h1>
-        <p className="text-sm text-muted-foreground mb-6">Manage your account, privacy, and preferences</p>
+        <div className="flex items-start justify-between mb-6 gap-4">
+          <div>
+            <h1 className="font-display text-2xl font-bold text-foreground mb-1">Settings</h1>
+            <p className="text-sm text-muted-foreground">Manage your account, privacy, and preferences</p>
+          </div>
+          <Button onClick={saveWithToast} className="gap-2 shrink-0">
+            <Save className="h-4 w-4" /> Save changes
+          </Button>
+        </div>
 
         <div className="flex gap-6">
           {/* Sidebar - hidden on mobile when content shown */}
