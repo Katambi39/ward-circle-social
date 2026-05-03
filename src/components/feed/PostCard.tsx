@@ -497,32 +497,16 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
 
         {/* Actions */}
         <div className="flex items-center gap-1 mt-2">
-          <div className="flex items-center bg-muted rounded-full">
-            <button
-              onClick={() => handleVote("up")}
-              className={cn(
-                "p-1.5 rounded-l-full transition-colors",
-                voted === "up" ? "text-primary" : "text-muted-foreground hover:text-primary"
-              )}
-            >
-              <ArrowBigUp className={cn("h-5 w-5", voted === "up" && "fill-primary animate-vote-pop")} />
-            </button>
-            <span className={cn(
-              "text-sm font-display font-semibold min-w-[2rem] text-center",
-              voted === "up" ? "text-primary" : voted === "down" ? "text-accent" : "text-foreground"
-            )}>
-              {votes}
-            </span>
-            <button
-              onClick={() => handleVote("down")}
-              className={cn(
-                "p-1.5 rounded-r-full transition-colors",
-                voted === "down" ? "text-accent" : "text-muted-foreground hover:text-accent"
-              )}
-            >
-              <ArrowBigDown className={cn("h-5 w-5", voted === "down" && "fill-accent animate-vote-pop")} />
-            </button>
-          </div>
+          <button
+            onClick={() => handleVote("up")}
+            className={cn(
+              "flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-colors",
+              voted === "up" ? "text-primary bg-primary/10" : "text-muted-foreground hover:bg-muted"
+            )}
+          >
+            <ArrowBigUp className={cn("h-5 w-5", voted === "up" && "fill-primary animate-vote-pop")} />
+            <span className="text-xs font-display font-semibold">Like</span>
+          </button>
 
           {/* Emoji Reactions */}
           <ReactionBar postId={postId} />
