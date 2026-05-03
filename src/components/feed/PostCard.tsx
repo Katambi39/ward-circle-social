@@ -163,75 +163,41 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
 
   const isOwnPost = !!(user && authorUserId && user.id === authorUserId);
 
-  const handleVote = async (direction: "up" | "down") => {
+  const handleVote = async (_direction: "up") => {
     if (!user) {
-      toast.error("Sign in to vote");
+      toast.error("Sign in to like");
       return;
     }
+    const prevVoted = voted;
+    const prevVotes = votes;
 
-    const voteType = direction === "up" ? 1 : -1;
-
-    if (voted === direction) {
-      // Remove vote - optimistic
-      const prevVotes = votes;
+    if (voted === "up") {
       setVoted(null);
-      setVotes((v) => v - voteType);
-
+      setVotes((v) => Math.max(0, v - 1));
       const { error } = await supabase
         .from("votes")
         .delete()
         .eq("post_id", postId)
         .eq("user_id", user.id);
-
-      if (!error) {
-        // Update post counters
-        if (direction === "up") {
-          await supabase.from("posts").update({ upvotes: Math.max(0, prevVotes - 1) }).eq("id", postId);
-        } else {
-          await supabase.from("posts").update({ downvotes: Math.max(0, (post.upvotes - prevVotes) + 1 - 1) }).eq("id", postId);
-        }
-      } else {
-        setVoted(direction);
-        setVotes(prevVotes);
-      }
+      if (error) { setVoted(prevVoted); setVotes(prevVotes); toast.error("Failed"); return; }
     } else {
-      // Add or change vote - optimistic
-      const prevVoted = voted;
-      const prevVotes = votes;
-      setVoted(direction);
-      setVotes((v) => v + voteType - (prevVoted ? (prevVoted === "up" ? 1 : -1) : 0));
-
-      // Upsert vote
+      setVoted("up");
+      setVotes((v) => v + 1);
       const { error } = await supabase
         .from("votes")
         .upsert(
-          { post_id: postId, user_id: user.id, vote_type: voteType },
+          { post_id: postId, user_id: user.id, vote_type: 1 },
           { onConflict: "user_id,post_id", ignoreDuplicates: false }
         );
-
-      if (!error) {
-        // Recalculate from DB for accuracy
-        const { count: upCount } = await supabase
-          .from("votes")
-          .select("id", { count: "exact", head: true })
-          .eq("post_id", postId)
-          .eq("vote_type", 1);
-        const { count: downCount } = await supabase
-          .from("votes")
-          .select("id", { count: "exact", head: true })
-          .eq("post_id", postId)
-          .eq("vote_type", -1);
-
-        await supabase.from("posts").update({
-          upvotes: upCount || 0,
-          downvotes: downCount || 0,
-        }).eq("id", postId);
-      } else {
-        setVoted(prevVoted);
-        setVotes(prevVotes);
-        toast.error("Vote failed");
-      }
+      if (error) { setVoted(prevVoted); setVotes(prevVotes); toast.error("Like failed"); return; }
     }
+
+    const { count: upCount } = await supabase
+      .from("votes")
+      .select("id", { count: "exact", head: true })
+      .eq("post_id", postId)
+      .eq("vote_type", 1);
+    await supabase.from("posts").update({ upvotes: upCount || 0 }).eq("id", postId);
   };
 
   const handleShare = async () => {
