@@ -399,7 +399,7 @@ const PostCardInner = ({ post, postId, authorUserId, authorUsername, repostOf, r
           )}
           {displayContent && (
             <p className="text-sm text-muted-foreground leading-relaxed mb-3">
-              {renderContentWithHashtags(displayContent, navigate)}
+              {renderContentWithTags(displayContent, navigate)}
             </p>
           )}
           {post.image && (
