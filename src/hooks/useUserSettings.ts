@@ -103,6 +103,15 @@ export function useUserSettings() {
     load();
   }, [user]);
 
+  // Apply font size + accessibility tweaks to the document root
+  useEffect(() => {
+    const root = document.documentElement;
+    const sizeMap: Record<string, string> = { small: "14px", medium: "16px", large: "18px" };
+    root.style.fontSize = sizeMap[settings.font_size] || "16px";
+    root.classList.toggle("high-contrast", !!settings.high_contrast);
+    root.classList.toggle("reduce-motion", !!settings.reduced_motion);
+  }, [settings.font_size, settings.high_contrast, settings.reduced_motion]);
+
   const save = useCallback(
     (newSettings: UserSettings) => {
       if (!user) return;

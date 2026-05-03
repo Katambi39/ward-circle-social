@@ -22,8 +22,6 @@ const AppearanceSettings = () => {
 
   const languages = [
     { value: "en", label: "English" },
-    { value: "sw", label: "Kiswahili" },
-    { value: "ki", label: "Gĩkũyũ" },
   ];
 
   if (loading) return <div className="space-y-4">{[1,2,3].map(i => <Skeleton key={i} className="h-10 w-full rounded-xl" />)}</div>;
@@ -70,7 +68,7 @@ const AppearanceSettings = () => {
             ))}
           </SelectContent>
         </Select>
-        <p className="text-xs text-muted-foreground">More languages coming soon including Dholuo, Kalenjin, and Luhya.</p>
+        <p className="text-xs text-muted-foreground">More languages coming soon.</p>
       </section>
 
       <Separator />

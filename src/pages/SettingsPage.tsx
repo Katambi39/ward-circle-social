@@ -3,8 +3,10 @@ import SEO from "@/components/SEO";
 import AppLayout from "@/components/layout/AppLayout";
 import { cn } from "@/lib/utils";
 import {
-  UserCircle, Lock, Eye, Bell, Palette, Settings2, ChevronRight,
+  UserCircle, Lock, Eye, Bell, Palette, Settings2, ChevronRight, Save,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useUserSettings } from "@/hooks/useUserSettings";
 import AccountSettings from "@/components/settings/AccountSettings";
 import SecuritySettings from "@/components/settings/SecuritySettings";
 import PrivacySettings from "@/components/settings/PrivacySettings";
@@ -24,6 +26,7 @@ const sections = [
 const SettingsPage = () => {
   const [active, setActive] = useState("account");
   const [mobileShowContent, setMobileShowContent] = useState(false);
+  const { saveWithToast } = useUserSettings();
 
   const handleSelect = (key: string) => {
     setActive(key);
@@ -48,8 +51,15 @@ const SettingsPage = () => {
     <AppLayout>
       <SEO title="Settings" description="Manage your Conect account settings, privacy, security, and preferences." path="/settings" />
       <div className="max-w-3xl mx-auto py-6 px-4">
-        <h1 className="font-display text-2xl font-bold text-foreground mb-1">Settings</h1>
-        <p className="text-sm text-muted-foreground mb-6">Manage your account, privacy, and preferences</p>
+        <div className="flex items-start justify-between mb-6 gap-4">
+          <div>
+            <h1 className="font-display text-2xl font-bold text-foreground mb-1">Settings</h1>
+            <p className="text-sm text-muted-foreground">Manage your account, privacy, and preferences</p>
+          </div>
+          <Button onClick={saveWithToast} className="gap-2 shrink-0">
+            <Save className="h-4 w-4" /> Save changes
+          </Button>
+        </div>
 
         <div className="flex gap-6">
           {/* Sidebar - hidden on mobile when content shown */}
