@@ -26,6 +26,7 @@ const sections = [
 const SettingsPage = () => {
   const [active, setActive] = useState("account");
   const [mobileShowContent, setMobileShowContent] = useState(false);
+  const { saveWithToast } = useUserSettings();
 
   const handleSelect = (key: string) => {
     setActive(key);
