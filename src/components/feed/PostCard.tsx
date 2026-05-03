@@ -23,19 +23,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const renderContentWithHashtags = (text: string, navigateFn: (path: string) => void) => {
-  const parts = text.split(/(#\w+)/g);
+const renderContentWithTags = (text: string, navigateFn: (path: string) => void) => {
+  const parts = text.split(/(#\w+|\$[A-Za-z][A-Za-z0-9_]*)/g);
   return parts.map((part, i) => {
     if (/^#\w+$/.test(part)) {
       return (
-        <span
-          key={i}
-          className="text-primary font-semibold cursor-pointer hover:underline"
-          onClick={(e) => {
-            e.stopPropagation();
-            navigateFn(`/search?q=${encodeURIComponent(part)}`);
-          }}
-        >
+        <span key={i} className="text-primary font-semibold cursor-pointer hover:underline"
+          onClick={(e) => { e.stopPropagation(); navigateFn(`/search?q=${encodeURIComponent(part)}`); }}>
+          {part}
+        </span>
+      );
+    }
+    if (/^\$[A-Za-z][A-Za-z0-9_]*$/.test(part)) {
+      return (
+        <span key={i} className="text-kenya-gold font-semibold cursor-pointer hover:underline"
+          onClick={(e) => { e.stopPropagation(); navigateFn(`/search?q=${encodeURIComponent(part)}`); }}>
           {part}
         </span>
       );
