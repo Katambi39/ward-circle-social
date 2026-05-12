@@ -435,7 +435,11 @@ const PageDetailPage = () => {
               <div>
                 <h1 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
                   {page.name}
-                  {page.is_verified && <Shield className="h-5 w-5 text-primary fill-primary/20" />}
+                  {(page as any).is_official ? (
+                    <Shield className="h-5 w-5 text-kenya-gold fill-kenya-gold/20" />
+                  ) : page.is_verified ? (
+                    <Shield className="h-5 w-5 text-primary fill-primary/20" />
+                  ) : null}
                 </h1>
                 <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
                   {page.county && (
