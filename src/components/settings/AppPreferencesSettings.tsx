@@ -52,16 +52,38 @@ const AppPreferencesSettings = () => {
     toast({ title: "Cache cleared ✓" });
   };
 
-  const handleSendFeedback = () => {
+  const handleSendFeedback = async () => {
     if (!feedbackText.trim()) return;
+    setSubmitting(true);
+    const { error } = await supabase.from("feedback_submissions" as any).insert({
+      user_id: user?.id ?? null,
+      rating: feedbackRating || null,
+      message: feedbackText.trim(),
+    });
+    setSubmitting(false);
+    if (error) {
+      toast({ title: "Couldn't send feedback", description: error.message, variant: "destructive" });
+      return;
+    }
     toast({ title: "Feedback sent ✓", description: "Thank you for helping improve Conect!" });
     setFeedbackText("");
     setFeedbackRating(0);
     setFeedbackOpen(false);
   };
 
-  const handleContactSupport = () => {
+  const handleContactSupport = async () => {
     if (!contactMessage.trim()) return;
+    setSubmitting(true);
+    const { error } = await supabase.from("support_messages" as any).insert({
+      user_id: user?.id ?? null,
+      email: contactEmail.trim() || null,
+      message: contactMessage.trim(),
+    });
+    setSubmitting(false);
+    if (error) {
+      toast({ title: "Couldn't send message", description: error.message, variant: "destructive" });
+      return;
+    }
     toast({ title: "Message sent ✓", description: "Our support team will get back to you soon." });
     setContactMessage("");
     setContactEmail("");
