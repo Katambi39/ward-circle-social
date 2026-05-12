@@ -214,7 +214,6 @@ const ProfileAboutTab = ({ editing, onCancel, onSaved }: ProfileAboutTabProps) =
           <Shield className="h-5 w-5 text-primary" /> Verification
         </h2>
         <div className="space-y-3">
-          <InfoRow icon={<CreditCard className="h-4 w-4 text-muted-foreground" />} label="National ID" value={profile.national_id_hash ? "Submitted" : "Not submitted"} status={profile.national_id_hash ? "done" : "pending"} />
           <InfoRow icon={<Phone className="h-4 w-4 text-muted-foreground" />} label="Phone" value={profile.phone_number || "Not set"} status={profile.phone_number ? "done" : "pending"} />
           <InfoRow icon={<Mail className="h-4 w-4 text-muted-foreground" />} label="Email" value={user?.email || "—"} status="done" />
         </div>

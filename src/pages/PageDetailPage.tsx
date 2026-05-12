@@ -31,7 +31,7 @@ interface PageData {
   id: string; name: string; slug: string; description: string | null;
   category: string; avatar_url: string | null; cover_url: string | null;
   county: string | null; constituency: string | null; phone: string | null;
-  website: string | null; is_verified: boolean; follower_count: number;
+  website: string | null; is_verified: boolean; is_official?: boolean; follower_count: number;
   owner_id: string; created_at: string;
 }
 
@@ -418,11 +418,15 @@ const PageDetailPage = () => {
                   </div>
                 )}
               </div>
-              {page.is_verified && (
+              {(page as any).is_official ? (
+                <div className="absolute -bottom-0.5 -right-0.5 h-6 w-6 rounded-full bg-kenya-gold flex items-center justify-center border-2 border-card">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-background" />
+                </div>
+              ) : page.is_verified ? (
                 <div className="absolute -bottom-0.5 -right-0.5 h-6 w-6 rounded-full bg-primary flex items-center justify-center border-2 border-card">
                   <CheckCircle2 className="h-3.5 w-3.5 text-primary-foreground" />
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
 
@@ -431,7 +435,11 @@ const PageDetailPage = () => {
               <div>
                 <h1 className="font-display text-xl font-bold text-foreground flex items-center gap-2">
                   {page.name}
-                  {page.is_verified && <Shield className="h-5 w-5 text-primary fill-primary/20" />}
+                  {(page as any).is_official ? (
+                    <Shield className="h-5 w-5 text-kenya-gold fill-kenya-gold/20" />
+                  ) : page.is_verified ? (
+                    <Shield className="h-5 w-5 text-primary fill-primary/20" />
+                  ) : null}
                 </h1>
                 <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
                   {page.county && (

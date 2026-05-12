@@ -29,6 +29,7 @@ interface Page {
   county: string | null;
   constituency: string | null;
   is_verified: boolean;
+  is_official?: boolean;
   follower_count: number;
   created_at: string;
 }
@@ -246,7 +247,11 @@ const PagesPage = () => {
                     <div className="flex items-start justify-between">
                       <h3 className="font-display font-bold text-foreground text-sm group-hover:text-primary transition-colors flex items-center gap-1.5">
                         {page.name}
-                        {page.is_verified && <CheckCircle2 className="h-4 w-4 text-primary" />}
+                        {(page as any).is_official ? (
+                          <CheckCircle2 className="h-4 w-4 text-kenya-gold fill-kenya-gold/20" />
+                        ) : page.is_verified ? (
+                          <CheckCircle2 className="h-4 w-4 text-primary" />
+                        ) : null}
                       </h3>
                       {cat && <span className="text-lg">{cat.icon}</span>}
                     </div>

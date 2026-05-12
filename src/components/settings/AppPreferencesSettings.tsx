@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useUserSettings } from "@/hooks/useUserSettings";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -20,7 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const faqs = [
-  { q: "How do I verify my account?", a: "Go to Settings → Account → Verification. You'll need to verify your phone number via OTP. For marketplace access, complete Identity Verification (KYC) with your National ID and selfie." },
+  { q: "How do I verify my account?", a: "Go to Settings → Account → Verification and verify your phone number via OTP. Once verified you'll get a Verified Member badge." },
   { q: "Can I post anonymously?", a: "Yes! When creating a post, toggle the 'Anonymous' switch. Your identity will be hidden from other users, but platform moderators can still see it for safety." },
   { q: "How does the marketplace escrow work?", a: "When you make a purchase, funds are held in escrow for 72 hours. This gives you time to verify the product. After 72 hours, funds are released to the seller automatically." },
   { q: "How do I report harmful content?", a: "Tap the three-dot menu (⋯) on any post, comment, or profile and select 'Report'. Choose the reason and our moderation team will review it." },
@@ -32,9 +34,11 @@ const faqs = [
 
 const AppPreferencesSettings = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const { settings, loading, updateSetting } = useUserSettings();
   const [faqOpen, setFaqOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackRating, setFeedbackRating] = useState(0);
@@ -48,16 +52,38 @@ const AppPreferencesSettings = () => {
     toast({ title: "Cache cleared ✓" });
   };
 
-  const handleSendFeedback = () => {
+  const handleSendFeedback = async () => {
     if (!feedbackText.trim()) return;
+    setSubmitting(true);
+    const { error } = await supabase.from("feedback_submissions" as any).insert({
+      user_id: user?.id ?? null,
+      rating: feedbackRating || null,
+      message: feedbackText.trim(),
+    });
+    setSubmitting(false);
+    if (error) {
+      toast({ title: "Couldn't send feedback", description: error.message, variant: "destructive" });
+      return;
+    }
     toast({ title: "Feedback sent ✓", description: "Thank you for helping improve Conect!" });
     setFeedbackText("");
     setFeedbackRating(0);
     setFeedbackOpen(false);
   };
 
-  const handleContactSupport = () => {
+  const handleContactSupport = async () => {
     if (!contactMessage.trim()) return;
+    setSubmitting(true);
+    const { error } = await supabase.from("support_messages" as any).insert({
+      user_id: user?.id ?? null,
+      email: contactEmail.trim() || null,
+      message: contactMessage.trim(),
+    });
+    setSubmitting(false);
+    if (error) {
+      toast({ title: "Couldn't send message", description: error.message, variant: "destructive" });
+      return;
+    }
     toast({ title: "Message sent ✓", description: "Our support team will get back to you soon." });
     setContactMessage("");
     setContactEmail("");
@@ -215,11 +241,14 @@ const AppPreferencesSettings = () => {
             </div>
             <Button
               onClick={handleContactSupport}
-              disabled={!contactMessage.trim()}
+              disabled={!contactMessage.trim() || submitting}
               className="w-full rounded-xl font-display text-xs gap-1.5"
             >
-              <Send className="h-3.5 w-3.5" /> Send Message
+              <Send className="h-3.5 w-3.5" /> {submitting ? "Sending..." : "Send Message"}
             </Button>
+            <p className="text-[11px] text-muted-foreground text-center">
+              Messages are stored securely and reviewed by the Conect support team.
+            </p>
           </div>
         </DialogContent>
       </Dialog>
@@ -266,10 +295,10 @@ const AppPreferencesSettings = () => {
             </div>
             <Button
               onClick={handleSendFeedback}
-              disabled={!feedbackText.trim()}
+              disabled={!feedbackText.trim() || submitting}
               className="w-full rounded-xl font-display text-xs gap-1.5"
             >
-              <Send className="h-3.5 w-3.5" /> Submit Feedback
+              <Send className="h-3.5 w-3.5" /> {submitting ? "Sending..." : "Submit Feedback"}
             </Button>
           </div>
         </DialogContent>
