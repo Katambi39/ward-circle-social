@@ -34,9 +34,11 @@ const faqs = [
 
 const AppPreferencesSettings = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const { settings, loading, updateSetting } = useUserSettings();
   const [faqOpen, setFaqOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackRating, setFeedbackRating] = useState(0);
