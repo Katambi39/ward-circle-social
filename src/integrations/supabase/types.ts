@@ -445,6 +445,30 @@ export type Database = {
           },
         ]
       }
+      feedback_submissions: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          rating: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          rating?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          rating?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       group_members: {
         Row: {
           group_id: string
@@ -1094,6 +1118,7 @@ export type Database = {
           description: string | null
           follower_count: number
           id: string
+          is_official: boolean
           is_verified: boolean
           name: string
           owner_id: string
@@ -1112,6 +1137,7 @@ export type Database = {
           description?: string | null
           follower_count?: number
           id?: string
+          is_official?: boolean
           is_verified?: boolean
           name: string
           owner_id: string
@@ -1130,6 +1156,7 @@ export type Database = {
           description?: string | null
           follower_count?: number
           id?: string
+          is_official?: boolean
           is_verified?: boolean
           name?: string
           owner_id?: string
@@ -1637,6 +1664,36 @@ export type Database = {
           },
         ]
       }
+      support_messages: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          email: string | null
+          id: string
+          message: string
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          message: string
+          status?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          message?: string
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
@@ -1899,6 +1956,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      award_badge: {
+        Args: { _badge_name: string; _user_id: string }
+        Returns: undefined
+      }
       get_trending_hashtags: {
         Args: { hours_window?: number; result_limit?: number }
         Returns: {
