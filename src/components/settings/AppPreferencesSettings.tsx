@@ -22,7 +22,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const faqs = [
-  { q: "How do I verify my account?", a: "Go to Settings → Account → Verification. You'll need to verify your phone number via OTP. For marketplace access, complete Identity Verification (KYC) with your National ID and selfie." },
+  { q: "How do I verify my account?", a: "Go to Settings → Account → Verification and verify your phone number via OTP. Once verified you'll get a Verified Member badge." },
   { q: "Can I post anonymously?", a: "Yes! When creating a post, toggle the 'Anonymous' switch. Your identity will be hidden from other users, but platform moderators can still see it for safety." },
   { q: "How does the marketplace escrow work?", a: "When you make a purchase, funds are held in escrow for 72 hours. This gives you time to verify the product. After 72 hours, funds are released to the seller automatically." },
   { q: "How do I report harmful content?", a: "Tap the three-dot menu (⋯) on any post, comment, or profile and select 'Report'. Choose the reason and our moderation team will review it." },
