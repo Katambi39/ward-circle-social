@@ -418,11 +418,15 @@ const PageDetailPage = () => {
                   </div>
                 )}
               </div>
-              {page.is_verified && (
+              {(page as any).is_official ? (
+                <div className="absolute -bottom-0.5 -right-0.5 h-6 w-6 rounded-full bg-kenya-gold flex items-center justify-center border-2 border-card">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-background" />
+                </div>
+              ) : page.is_verified ? (
                 <div className="absolute -bottom-0.5 -right-0.5 h-6 w-6 rounded-full bg-primary flex items-center justify-center border-2 border-card">
                   <CheckCircle2 className="h-3.5 w-3.5 text-primary-foreground" />
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
 
