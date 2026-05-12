@@ -29,6 +29,7 @@ interface Page {
   county: string | null;
   constituency: string | null;
   is_verified: boolean;
+  is_official?: boolean;
   follower_count: number;
   created_at: string;
 }
