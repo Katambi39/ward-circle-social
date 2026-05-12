@@ -31,7 +31,7 @@ interface PageData {
   id: string; name: string; slug: string; description: string | null;
   category: string; avatar_url: string | null; cover_url: string | null;
   county: string | null; constituency: string | null; phone: string | null;
-  website: string | null; is_verified: boolean; follower_count: number;
+  website: string | null; is_verified: boolean; is_official?: boolean; follower_count: number;
   owner_id: string; created_at: string;
 }
 
