@@ -33,6 +33,7 @@ import BuyerProtectionPage from "./pages/BuyerProtectionPage";
 import AdminKYCPage from "./pages/AdminKYCPage";
 import AdminModerationPage from "./pages/AdminModerationPage";
 import AdminMarketplacePage from "./pages/AdminMarketplacePage";
+import AdminSupportPage from "./pages/AdminSupportPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import NotFound from "./pages/NotFound";
 
@@ -75,6 +76,7 @@ const App = () => (
               <Route path="/admin/kyc" element={<ProtectedRoute><AdminKYCPage /></ProtectedRoute>} />
               <Route path="/admin/moderation" element={<ProtectedRoute><AdminModerationPage /></ProtectedRoute>} />
               <Route path="/admin/marketplace" element={<ProtectedRoute><AdminMarketplacePage /></ProtectedRoute>} />
+              <Route path="/admin/support" element={<ProtectedRoute><AdminSupportPage /></ProtectedRoute>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
