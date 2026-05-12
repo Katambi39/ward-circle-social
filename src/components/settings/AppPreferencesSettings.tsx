@@ -241,11 +241,14 @@ const AppPreferencesSettings = () => {
             </div>
             <Button
               onClick={handleContactSupport}
-              disabled={!contactMessage.trim()}
+              disabled={!contactMessage.trim() || submitting}
               className="w-full rounded-xl font-display text-xs gap-1.5"
             >
-              <Send className="h-3.5 w-3.5" /> Send Message
+              <Send className="h-3.5 w-3.5" /> {submitting ? "Sending..." : "Send Message"}
             </Button>
+            <p className="text-[11px] text-muted-foreground text-center">
+              Messages are stored securely and reviewed by the Conect support team.
+            </p>
           </div>
         </DialogContent>
       </Dialog>
