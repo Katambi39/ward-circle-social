@@ -33,6 +33,7 @@ import BuyerProtectionPage from "./pages/BuyerProtectionPage";
 import AdminKYCPage from "./pages/AdminKYCPage";
 import AdminModerationPage from "./pages/AdminModerationPage";
 import AdminMarketplacePage from "./pages/AdminMarketplacePage";
+import AdminSupportPage from "./pages/AdminSupportPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import NotFound from "./pages/NotFound";
 
