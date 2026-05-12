@@ -295,10 +295,10 @@ const AppPreferencesSettings = () => {
             </div>
             <Button
               onClick={handleSendFeedback}
-              disabled={!feedbackText.trim()}
+              disabled={!feedbackText.trim() || submitting}
               className="w-full rounded-xl font-display text-xs gap-1.5"
             >
-              <Send className="h-3.5 w-3.5" /> Submit Feedback
+              <Send className="h-3.5 w-3.5" /> {submitting ? "Sending..." : "Submit Feedback"}
             </Button>
           </div>
         </DialogContent>
